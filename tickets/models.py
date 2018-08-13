@@ -191,8 +191,13 @@ class Ticket(models.Model):
             if v != self.__dict__[k] and k in self.WATCHING_FIELDS
         ]
         for k, v in dict(changed).items():
+            if self.updated_by is not None:
+                updated_by = self.updated_by
+            else:
+                updated_by = self.created_by
+
             self.history.create(
-                changed_by=self.updated_by,
+                changed_by=updated_by,
                 changed_field=k,
                 before_value=v[0],
                 after_value=v[1]
