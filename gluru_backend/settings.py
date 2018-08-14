@@ -124,6 +124,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+# Settings Realted To Django Rest Framework
 REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': (
         'djangorestframework_camel_case.render.CamelCaseJSONRenderer',
@@ -134,3 +135,14 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
     'PAGE_SIZE': 20,
 }
+
+# Settings Related To Redis
+REDIS_HOST = 'localhost'
+REDIS_PORT = '6379'
+BROKER_URL = 'redis://' + REDIS_HOST + ':' + REDIS_PORT + '/0'
+BROKER_TRANSPORT_OPTIONS = {'visibility_timeout': 3600} 
+CELERY_RESULT_BACKEND = 'redis://' + REDIS_HOST + ':' + REDIS_PORT + '/0'
+
+# Settings Related To Twilio
+TWILIO_ACCOUNT_SID = 'AC0a20059755f01ed031e3f7dc21bb9be2'
+TWILIO_AUTH_TOKEN = '237d8a3be9b4823d59186ee67b327818'

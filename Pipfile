@@ -11,6 +11,8 @@ djangorestframework-camel-case = "*"
 drf-nested-routers = "*"
 "flake8" = "*"
 twilio = "*"
+redis = "*"
+celery = "*"
 
 [dev-packages]
 
