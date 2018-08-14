@@ -10,6 +10,7 @@ djangorestframework = "*"
 djangorestframework-camel-case = "*"
 drf-nested-routers = "*"
 "flake8" = "*"
+twilio = "*"
 
 [dev-packages]
 
