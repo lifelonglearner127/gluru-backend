@@ -201,3 +201,6 @@ REST_FRAMEWORK = {
 # Settings Related To Twilio
 TWILIO_ACCOUNT_SID = env('TWILIO_ACCOUNT_SID')
 TWILIO_AUTH_TOKEN = env('TWILIO_AUTH_TOKEN')
+
+
+CELERY_BROKER_URL = 'amqp://localhost'
