@@ -5,7 +5,7 @@ Support portal backend
  - Postgresql
  - Python3.6
  - Pipenv
- - Redis
+ - RabbitMQ
 
 ### Install & Configure Postgresql
 Please refer to this [link](https://www.postgresql.org/download/) to install Postgresql
@@ -28,15 +28,26 @@ sudo yum install -y python36u python36u-libs python36u-devel python36u-pip
 pip3.6 install pipenv
 ```
 
-### Install redis server
-Pleare refer to this [link](https://redis.io/topics/quickstart) for quick overview of redis
+### Install RabbitMQ
+Pleare refer to this [link](http://www.rabbitmq.com/download.html) for quick overview of RabbitMQ
+I used Redis as a broker first, but replace it by RabbitMQ.
+Redis was created with a different intentions and not for being a message broker.
+
+Installing Erlang:
 ```
-wget http://download.redis.io/redis-stable.tar.gz
-tar xvzf redis-stable.tar.gz
-cd redis-stable
-make
-make install
-redis-server
+wget https://packages.erlang-solutions.com/erlang-solutions-1.0-1.noarch.rpm
+rpm -Uvh erlang-solutions-1.0-1.noarch.rpm
+sudo yum install erlang
+```
+
+Install RabbitMQ Server:
+```
+curl -s https://packagecloud.io/install/repositories/rabbitmq/rabbitmq-server/script.rpm.sh | sudo bash
+```
+
+Run RabbitMQ Server:
+```
+sudo rabbitmq-server
 ```
 
 ## Clone and installing project

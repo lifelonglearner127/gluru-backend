@@ -125,66 +125,66 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 # Settings Realted To Logging
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'formatters': {
-        'verbose': {
-            'format': '[%(levelname)s] [%(asctime)s] [%(funcName)s line: %(lineno)d] - %(message)s'
-        }
-    },
-    'handlers': {
-        'console': {
-            'level': 'INFO',
-            'class': 'logging.StreamHandler',
-            'formatter': 'verbose'
-        },
-        'log_file': {
-            'level': 'ERROR',
-            'class': 'logging.handlers.RotatingFileHandler',
-            'filename': root('logs/django.log'),
-            'maxBytes': '16777216',  # 16Mb
-            'formatter': 'verbose'
-        },
-        'crm_log': {
-            'class': 'logging.handlers.RotatingFileHandler',
-            'filename': root('logs/crm.log'),
-            'maxBytes': '16777216',  # 16Mb
-            'formatter': 'verbose'
-        },
-        'email_log': {
-            'class': 'logging.handlers.RotatingFileHandler',
-            'filename': root('logs/email.log'),
-            'maxBytes': '16777216',  # 16Mb
-            'formatter': 'verbose'
-        },
-        'idp_log': {
-            'class': 'logging.handlers.RotatingFileHandler',
-            'filename': root('logs/idp.log'),
-            'maxBytes': '16777216',  # 16Mb
-            'formatter': 'verbose'
-        }
-    },
-    'loggers': {
-        'django': {
-            'handlers': ['log_file', 'console'],
-            'level': 'DEBUG',
-            'propagate': True
-        },
-        'crm': {
-            'handlers': ['crm_log'],    
-            'level': 'INFO'
-        },
-        'emails': {
-            'handlers': ['email_log'],
-            'level': 'INFO'
-        },
-        'idp': {
-            'handlers': ['idp_log'],
-            'level': 'INFO'
-        },
-    }
-}
+# LOGGING = {
+#     'version': 1,
+#     'disable_existing_loggers': False,
+#     'formatters': {
+#         'verbose': {
+#             'format': '[%(levelname)s] [%(asctime)s] [%(funcName)s line: %(lineno)d] - %(message)s'
+#         }
+#     },
+#     'handlers': {
+#         'console': {
+#             'level': 'INFO',
+#             'class': 'logging.StreamHandler',
+#             'formatter': 'verbose'
+#         },
+#         'log_file': {
+#             'level': 'ERROR',
+#             'class': 'logging.handlers.RotatingFileHandler',
+#             'filename': root('logs/django.log'),
+#             'maxBytes': '16777216',  # 16Mb
+#             'formatter': 'verbose'
+#         },
+#         'crm_log': {
+#             'class': 'logging.handlers.RotatingFileHandler',
+#             'filename': root('logs/crm.log'),
+#             'maxBytes': '16777216',  # 16Mb
+#             'formatter': 'verbose'
+#         },
+#         'email_log': {
+#             'class': 'logging.handlers.RotatingFileHandler',
+#             'filename': root('logs/email.log'),
+#             'maxBytes': '16777216',  # 16Mb
+#             'formatter': 'verbose'
+#         },
+#         'idp_log': {
+#             'class': 'logging.handlers.RotatingFileHandler',
+#             'filename': root('logs/idp.log'),
+#             'maxBytes': '16777216',  # 16Mb
+#             'formatter': 'verbose'
+#         }
+#     },
+#     'loggers': {
+#         'django': {
+#             'handlers': ['log_file', 'console'],
+#             'level': 'DEBUG',
+#             'propagate': True
+#         },
+#         'crm': {
+#             'handlers': ['crm_log'],    
+#             'level': 'INFO'
+#         },
+#         'emails': {
+#             'handlers': ['email_log'],
+#             'level': 'INFO'
+#         },
+#         'idp': {
+#             'handlers': ['idp_log'],
+#             'level': 'INFO'
+#         },
+#     }
+# }
 
 # Settings Realted To Django Rest Framework
 REST_FRAMEWORK = {
@@ -197,13 +197,6 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
     'PAGE_SIZE': 20,
 }
-
-# Settings Related To Redis
-REDIS_HOST = 'localhost'
-REDIS_PORT = '6379'
-BROKER_URL = 'redis://' + REDIS_HOST + ':' + REDIS_PORT + '/0'
-BROKER_TRANSPORT_OPTIONS = {'visibility_timeout': 3600} 
-CELERY_RESULT_BACKEND = 'redis://' + REDIS_HOST + ':' + REDIS_PORT + '/0'
 
 # Settings Related To Twilio
 TWILIO_ACCOUNT_SID = env('TWILIO_ACCOUNT_SID')
