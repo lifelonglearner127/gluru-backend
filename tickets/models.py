@@ -410,16 +410,3 @@ class TicketAttachment(models.Model):
 
     class Meta:
         ordering = ['created_at']
-
-
-def ticket_save(sender, instance, signal, *args, **kwargs):
-    if not instance.is_notified:
-        send_sms.delay(
-            instance.created_by,
-            instance.company,
-            instance.issue_type,
-            'link'
-        )
-
-
-models.signals.post_save.connect(ticket_save, sender=Ticket)

@@ -1,4 +1,5 @@
 from gluru_backend.celery import app
+from celery import task
 from django.conf import settings
 from twilio.rest import Client
 from notification import constants
@@ -25,7 +26,11 @@ def send_sms(created_by, company, issue_type, link):
         text = 'Hello ' + sms[0] + ', ' + text
         for sms in constants.SMS_NUMBERS:
             client.messages.create(
-                to='+8618701401597',
+                to='Your number',
                 from_="+1 707 229 1094",
                 body=text
             )
+
+@app.task
+def reminder():
+    print('Email Reminder')

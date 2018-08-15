@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/2.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.1/ref/settings/
 """
-
+from datetime import timedelta
 import environ
 root = environ.Path(__file__) - 2
 env = environ.Env(DEBUG=(bool, False),) # set default values and casting
@@ -34,8 +34,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'corsheaders',
-    'tickets',
-    'notification',
+    'tickets.apps.TicketsConfig',
+    'notification.apps.NotificationConfig',
 ]
 
 MIDDLEWARE = [
@@ -204,3 +204,10 @@ TWILIO_AUTH_TOKEN = env('TWILIO_AUTH_TOKEN')
 
 
 CELERY_BROKER_URL = 'amqp://localhost'
+CELERY_TIMEZONE = 'UTC'
+CELERY_BEAT_SCHEDULE = {
+    'email-reminder': {
+        'task': 'notification.tasks.reminder',
+        'schedule': 5,
+    },
+}
