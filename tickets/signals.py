@@ -1,4 +1,3 @@
-import base64
 from django.dispatch import receiver
 from django.db.models.signals import post_save
 from fieldsignals import pre_save_changed
@@ -84,34 +83,62 @@ def notify_new_answer(sender, instance, **kwargs):
     )
 
 
-@receiver(pre_save_changed, sender=Ticket, fields=['assignee'])
-def track_status(sender, instance, changed_fields=None, **kwargs):
-    context = {
-        'subject_template': 'emails/ticket/ticket_assigned_subject.txt',
-        'email_template': 'emails/ticket/ticket_assigned.txt',
-        'html_template': 'emails/ticket/ticket_assigned.html',
-        'context': {
-            'ticket_id': instance.id,
-            'ticket_title': instance.title,
-            'ticket_link': 'generate_ticket_url(ticket)',
-            'ticket_created_by': instance.created_by,
-            'ticket_created_by_comp': 'ticket.created_by.get_company()',
-            'ticket_body': instance.body,
-            'subscription_link': 'generate_subscribe_link(ticket)',
-            'issue_type': instance.issue_type,
-            'ticket_assigned_by': 'ticket_assigned_by',
-            'ticket_assigned_to': 'ticket_assigned_to',
-            'first_name': 'first_name'
-        },
-        'to_email': [
-            'life.long.learner127@outlook.com'
-        ]
-    }
+@receiver(pre_save_changed, sender=Ticket, fields=[
+    'assignee', 'status', 'is_deleted', 'issue_type',
+    'title', 'description', 'created_for'
+    ]
+)
+def ticket_fields_monitor(sender, instance, changed_fields=None, **kwargs):
+    """
+    This function is triggered when above fields are changed.
+    Make history as well as sending email when proper field changed
+    """
+    if instance.updated_by is not None:
+        updated_by = instance.updated_by
+    else:
+        updated_by = instance.created_by
+    
+    is_assignee_chaged = False
 
-    send_email.apply_async(
-        args=[
-            context
-        ],
-        queue='low',
-        routing_key='low'
-    )
+    for field, (old, new) in changed_fields.items():
+        if field.name == 'assignee':
+            is_assignee_chaged = True
+        
+
+        instance.history.create(
+            changed_by=updated_by,
+            changed_field=field.name,
+            before_value=old,
+            after_value=new
+        )
+
+    if is_assignee_chaged:
+        context = {
+            'subject_template': 'emails/ticket/ticket_assigned_subject.txt',
+            'email_template': 'emails/ticket/ticket_assigned.txt',
+            'html_template': 'emails/ticket/ticket_assigned.html',
+            'context': {
+                'ticket_id': instance.id,
+                'ticket_title': instance.title,
+                'ticket_link': 'generate_ticket_url(ticket)',
+                'ticket_created_by': instance.created_by,
+                'ticket_created_by_comp': 'ticket.created_by.get_company()',
+                'ticket_body': instance.body,
+                'subscription_link': 'generate_subscribe_link(ticket)',
+                'issue_type': instance.issue_type,
+                'ticket_assigned_by': 'ticket_assigned_by',
+                'ticket_assigned_to': 'ticket_assigned_to',
+                'first_name': 'first_name'
+            },
+            'to_email': [
+                'life.long.learner127@outlook.com'
+            ]
+        }
+
+        send_email.apply_async(
+            args=[
+                context
+            ],
+            queue='low',
+            routing_key='low'
+        )
