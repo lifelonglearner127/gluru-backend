@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/2.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.1/ref/settings/
 """
-from datetime import timedelta
+from kombu import Exchange, Queue
 import environ
 root = environ.Path(__file__) - 2
 env = environ.Env(DEBUG=(bool, False),) # set default values and casting
@@ -203,11 +203,34 @@ TWILIO_ACCOUNT_SID = env('TWILIO_ACCOUNT_SID')
 TWILIO_AUTH_TOKEN = env('TWILIO_AUTH_TOKEN')
 
 
+# Settings Related To Celery
 CELERY_BROKER_URL = 'amqp://localhost'
-CELERY_TIMEZONE = 'UTC'
 CELERYBEAT_SCHEDULE = {
     'email-reminder': {
         'task': 'notification.tasks.reminder',
         'schedule': 5,
     },
 }
+CELERY_QUEUES = (
+    Queue(
+        'high',
+        Exchange('high', type='direct'),
+        routing_key='high',
+        queue_arguments={'maxPriority': 10}
+    ),
+    Queue(
+        'normal',
+        Exchange('normal', type='direct'),
+        routing_key='normal',
+        queue_arguments={'maxPriority': 5}
+    ),
+    Queue(
+        'low',
+        Exchange('low', type='direct'),
+        routing_key='low',
+        queue_arguments={'maxPriority': 1}
+    ),
+)
+CELERY_TASK_DEFAULT_QUEUE = 'normal'
+CELERY_TASK_DEFAULT_EXCHANGE = 'normal'
+CELERY_TASK_DEFAULT_ROUTING_KEY = 'normal'
