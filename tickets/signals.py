@@ -27,6 +27,32 @@ def send_notification(sender, instance, **kwargs):
         routing_key=priority
     )
 
+    context = {
+        'subject_template': 'emails/ticket/new_ticket_subject.txt',
+        'email_template': 'emails/ticket/new_ticket_for_user.txt',
+        'html_template': 'emails/ticket/new_ticket_for_user.html',
+        'context': {
+            'ticket_id': instance.id,
+            'ticket_title': instance.title,
+            'ticket_link': 'generate_ticket_url(ticket)',
+            'ticket_created_by': instance.created_by,
+            'ticket_created_by_comp': 'ticket.created_by.get_company()',
+            'ticket_body': instance.body,
+            'subscription_link': 'generate_subscribe_link(ticket)',
+            'issue_type': instance.issue_type
+        },
+        'to_email': [
+            'life.long.learner127@outlook.com'
+        ]
+    }
+    send_email.apply_async(
+        args=[
+            context
+        ],
+        queue='low',
+        routing_key='low'
+    )
+
 
 @receiver(post_save, sender=Answer)
 def notify_new_answer(sender, instance, **kwargs):
