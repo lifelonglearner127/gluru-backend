@@ -35,7 +35,6 @@ def notify_new_answer(sender, instance, **kwargs):
         'email_template': 'emails/answer/new_answer.txt',
         'html_template': 'emails/answer/new_answer.html',
         'context': {
-            'site_name': 'site.name',
             'ticket_id': 'answer.ticket.id',
             'ticket_title': 'answer.ticket.title',
             'support_plan': 'support_plan',
@@ -43,7 +42,6 @@ def notify_new_answer(sender, instance, **kwargs):
             'answer_created_by': 'answer.created_by',
             'answer_created_by_comp': 'answer.created_by.get_company()',
             'answer_body': 'answer.answer',
-            'subscription_link': 'generate_subscribe_link(answer.ticket)'
         },
         'to_email': [
             'life.long.learner127@outlook.com'
