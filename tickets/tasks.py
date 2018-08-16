@@ -2,6 +2,7 @@ from gluru_backend.celery import app
 from django.conf import settings
 from twilio.rest import Client
 from tickets import constants
+from gluru_backend.utils.mails import send_mail
 
 account_sid = settings.TWILIO_ACCOUNT_SID
 auth_token = settings.TWILIO_AUTH_TOKEN
@@ -38,4 +39,16 @@ def reminder():
 
 @app.task
 def send_email(context):
-    print('sendingMail')
+    subject_template = context['subject_template']
+    email_template = context['email_template']
+    html_template = context['html_template']
+    email_context = context['context']
+    to_email = context['to_email']
+
+    send_mail(
+        subject_template=subject_template,
+        email_template=email_template,
+        html_template=html_template,
+        context=email_context,
+        to_email=to_email
+    )

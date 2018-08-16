@@ -13,6 +13,7 @@ drf-nested-routers = "*"
 twilio = "*"
 celery = "*"
 django-environ = "*"
+markdown = "*"
 
 [dev-packages]
 

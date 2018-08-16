@@ -30,9 +30,29 @@ def send_notification(sender, instance, **kwargs):
 
 @receiver(post_save, sender=Answer)
 def notify_new_answer(sender, instance, **kwargs):
+    context = {
+        'subject_template': 'emails/answer/new_answer_sub.txt',
+        'email_template': 'emails/answer/new_answer.txt',
+        'html_template': 'emails/answer/new_answer.html',
+        'context': {
+            'site_name': 'site.name',
+            'ticket_id': 'answer.ticket.id',
+            'ticket_title': 'answer.ticket.title',
+            'support_plan': 'support_plan',
+            'ticket_link': 'ticket_link',
+            'answer_created_by': 'answer.created_by',
+            'answer_created_by_comp': 'answer.created_by.get_company()',
+            'answer_body': 'answer.answer',
+            'subscription_link': 'generate_subscribe_link(answer.ticket)'
+        },
+        'to_email': [
+            'life.long.learner127@outlook.com'
+        ]
+    }
+
     send_email.apply_async(
         args=[
-            'link'
+            context
         ],
         queue='low',
         routing_key='low'
