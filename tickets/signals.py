@@ -1,3 +1,4 @@
+import re
 from django.dispatch import receiver
 from django.db.models.signals import post_save
 from fieldsignals import pre_save_changed
@@ -56,6 +57,9 @@ def send_notification(sender, instance, **kwargs):
 
 @receiver(post_save, sender=Answer)
 def notify_new_answer(sender, instance, **kwargs):
+    """
+    Notify ticket owner of replying this ticket
+    """
     context = {
         'subject_template': 'emails/answer/new_answer_sub.txt',
         'email_template': 'emails/answer/new_answer.txt',
@@ -81,6 +85,47 @@ def notify_new_answer(sender, instance, **kwargs):
         queue='low',
         routing_key='low'
     )
+
+
+@receiver(pre_save_changed, sender=Answer, fields=['body'])
+def notify_tagged_staff_member(sender, instance, changed_fields=None, **kwargs):
+    """
+    Notify tagged staff member of ticket and answer.
+    """
+    body = ''
+    
+    for field, (old, new) in changed_fields.items():
+        body = new
+
+    tagged_users = re.findall(r'@[\w\.-]+', body)
+    
+    if tagged_users:
+        context = {
+            'subject_template': 'emails/answer/new_answer_tagged_staff_sub.txt',
+            'email_template': 'emails/answer/new_answer_tagged_staff.txt',
+            'html_template': 'emails/answer/new_answer_tagged_staff.html',
+            'context': {
+                'ticket_id': 'answer.ticket.id',
+                'ticket_title': 'answer.ticket.title',
+                'support_plan': 'support_plan',
+                'ticket_link': 'ticket_link',
+                'answer_created_by': 'answer.created_by',
+                'answer_created_by_comp': 'answer.created_by.get_company()',
+                'answer_body': 'answer.answer',
+            },
+            'to_email': []
+        }
+
+    for tagged_user in tagged_users:
+        name = tagged_user.replace('@','')
+        context['to_email'].append('life.long.learner127@outlook.com')
+        send_email.apply_async(
+            args=[
+                context
+            ],
+            queue='low',
+            routing_key='low'
+        )
 
 
 @receiver(pre_save_changed, sender=Ticket, fields=[
