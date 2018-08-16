@@ -1,6 +1,7 @@
 import base64
 from django.dispatch import receiver
 from django.db.models.signals import post_save
+from fieldsignals import pre_save_changed
 from tickets.models import Ticket, Answer
 from tickets.tasks import send_sms, send_email
 
@@ -68,6 +69,39 @@ def notify_new_answer(sender, instance, **kwargs):
             'answer_created_by': 'answer.created_by',
             'answer_created_by_comp': 'answer.created_by.get_company()',
             'answer_body': 'answer.answer',
+        },
+        'to_email': [
+            'life.long.learner127@outlook.com'
+        ]
+    }
+
+    send_email.apply_async(
+        args=[
+            context
+        ],
+        queue='low',
+        routing_key='low'
+    )
+
+
+@receiver(pre_save_changed, sender=Ticket, fields=['assignee'])
+def track_status(sender, instance, changed_fields=None, **kwargs):
+    context = {
+        'subject_template': 'emails/ticket/ticket_assigned_subject.txt',
+        'email_template': 'emails/ticket/ticket_assigned.txt',
+        'html_template': 'emails/ticket/ticket_assigned.html',
+        'context': {
+            'ticket_id': instance.id,
+            'ticket_title': instance.title,
+            'ticket_link': 'generate_ticket_url(ticket)',
+            'ticket_created_by': instance.created_by,
+            'ticket_created_by_comp': 'ticket.created_by.get_company()',
+            'ticket_body': instance.body,
+            'subscription_link': 'generate_subscribe_link(ticket)',
+            'issue_type': instance.issue_type,
+            'ticket_assigned_by': 'ticket_assigned_by',
+            'ticket_assigned_to': 'ticket_assigned_to',
+            'first_name': 'first_name'
         },
         'to_email': [
             'life.long.learner127@outlook.com'
