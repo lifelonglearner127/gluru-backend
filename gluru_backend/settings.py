@@ -214,19 +214,19 @@ CELERYBEAT_SCHEDULE = {
 CELERY_QUEUES = (
     Queue(
         'high',
-        Exchange('high', type='direct'),
+        Exchange('high'),
         routing_key='high',
         queue_arguments={'maxPriority': 10}
     ),
     Queue(
         'normal',
-        Exchange('normal', type='direct'),
+        Exchange('normal'),
         routing_key='normal',
         queue_arguments={'maxPriority': 5}
     ),
     Queue(
         'low',
-        Exchange('low', type='direct'),
+        Exchange('low'),
         routing_key='low',
         queue_arguments={'maxPriority': 1}
     ),
@@ -234,3 +234,4 @@ CELERY_QUEUES = (
 CELERY_TASK_DEFAULT_QUEUE = 'normal'
 CELERY_TASK_DEFAULT_EXCHANGE = 'normal'
 CELERY_TASK_DEFAULT_ROUTING_KEY = 'normal'
+CELERY_TASK_DEFAULT_EXCHANGE_TYPE = 'direct'
