@@ -12,8 +12,9 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 from kombu import Exchange, Queue
 import environ
 root = environ.Path(__file__) - 2
-env = environ.Env(DEBUG=(bool, False),) # set default values and casting
-environ.Env.read_env() # reading .env file)
+env = environ.Env(DEBUG=(bool, False),)
+environ.Env.read_env()
+
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = env('SECRET_KEY')
 
@@ -171,7 +172,7 @@ STATIC_URL = '/static/'
 #             'propagate': True
 #         },
 #         'crm': {
-#             'handlers': ['crm_log'],    
+#             'handlers': ['crm_log'],
 #             'level': 'INFO'
 #         },
 #         'emails': {
@@ -234,3 +235,12 @@ CELERY_TASK_DEFAULT_QUEUE = 'normal'
 CELERY_TASK_DEFAULT_EXCHANGE = 'normal'
 CELERY_TASK_DEFAULT_ROUTING_KEY = 'normal'
 CELERY_TASK_DEFAULT_EXCHANGE_TYPE = 'direct'
+
+
+# Email Settings
+if DEBUG:
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+else:
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
+EMAIL_FROM = env('EMAIL_FROM')
