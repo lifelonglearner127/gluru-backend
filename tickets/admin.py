@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Ticket, Answer, TicketProduct, TicketHistory
+from .models import Ticket, Answer, TicketProduct, TicketHistory, TicketNotification, NotficationContact
 
 
 @admin.register(Ticket)
@@ -26,3 +26,15 @@ class TicketHistoryAdmin(admin.ModelAdmin):
         'ticket', 'changed_by', 'changed_field',
         'before_value', 'after_value'
     )
+
+
+@admin.register(NotficationContact)
+class NotficationContactAdmin(admin.ModelAdmin):
+    list_display = (
+        'id', 'name', 'number', 'priority', 'enabled'
+    )
+
+
+@admin.register(TicketNotification)
+class TicketNotificationAdmin(admin.ModelAdmin):
+    pass

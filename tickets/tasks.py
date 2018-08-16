@@ -1,8 +1,7 @@
 from gluru_backend.celery import app
-from celery import task
 from django.conf import settings
 from twilio.rest import Client
-from notification import constants
+from tickets import constants
 
 account_sid = settings.TWILIO_ACCOUNT_SID
 auth_token = settings.TWILIO_AUTH_TOKEN
@@ -30,6 +29,7 @@ def send_sms(created_by, company, issue_type, link):
                 from_="+1 707 229 1094",
                 body=text
             )
+
 
 @app.task
 def reminder():

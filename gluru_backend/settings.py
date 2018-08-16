@@ -35,7 +35,6 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'tickets.apps.TicketsConfig',
-    'notification.apps.NotificationConfig',
 ]
 
 MIDDLEWARE = [
