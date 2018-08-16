@@ -203,6 +203,12 @@ class Ticket(models.Model):
                 after_value=v[1]
             )
 
+    @property
+    def owned_by(self):
+        if self.created_for:
+            return self.created_for
+        return self.created_by
+
 
 class TicketProduct(models.Model):
 

@@ -34,3 +34,8 @@ def send_sms(created_by, company, issue_type, link):
 @app.task
 def reminder():
     print('Email Reminder')
+
+
+@app.task
+def send_email(context):
+    print('sendingMail')

@@ -1,5 +1,8 @@
 from django.contrib import admin
-from .models import Ticket, Answer, TicketProduct, TicketHistory, TicketNotification, NotficationContact
+from .models import (
+    Ticket, Answer, TicketProduct, TicketHistory,
+    TicketNotification, NotficationContact
+)
 
 
 @admin.register(Ticket)
