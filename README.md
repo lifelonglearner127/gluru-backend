@@ -51,6 +51,14 @@ sudo rabbitmq-server
 ```
 
 ## Clone and installing project
+Starting the Scheduler:
+```
+celery -A gluru_backend beat -l info
+```
+
+ > `Important!` Beat does not execute tasks, it just sends the messages.
+ > You need both a beat instance and a worker instance!
+
 ```
 git clone git@github.com:GluuFederation/gluru-backend.git
 cd gluru-backend

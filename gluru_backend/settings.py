@@ -217,7 +217,7 @@ TWILIO_AUTH_TOKEN = env('TWILIO_AUTH_TOKEN')
 CELERY_BROKER_URL = 'amqp://localhost'
 CELERYBEAT_SCHEDULE = {
     'email-reminder': {
-        'task': 'notification.tasks.reminder',
+        'task': 'tickets.tasks.reminder',
         'schedule': 5,
     },
 }
