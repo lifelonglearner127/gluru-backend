@@ -1,6 +1,35 @@
+from django.urls import reverse
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
 from django.template import loader
+
+
+def generate_ticket_url(ticket_id):
+    """
+    Return ticket url
+    """
+    return reverse('tickets:tickets-detail', kwargs={'pk': ticket_id})
+
+
+def generate_ticket_link(ticket_id):
+    """
+    Return ticket link
+    """
+    pass
+
+
+def generate_subscribe_link(ticket_id):
+    """
+    Return ticket subscribe link
+    """
+    pass
+
+
+def generate_unsubscribe_link(ticket_id):
+    """
+    Return ticket unsubscribe link
+    """
+    pass
 
 
 def send_mail(

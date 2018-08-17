@@ -2,7 +2,7 @@ from gluru_backend.celery import app
 from django.conf import settings
 from twilio.rest import Client
 from tickets import constants
-from gluru_backend.utils.mails import send_mail
+from gluru_backend.utils import send_mail
 
 account_sid = settings.TWILIO_ACCOUNT_SID
 auth_token = settings.TWILIO_AUTH_TOKEN
