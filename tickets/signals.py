@@ -139,32 +139,18 @@ def notify_tagged_staff(sender, instance, changed_fields=None, **kwargs):
 
 
 @receiver(pre_save_changed, sender=Ticket, fields=[
-    'assignee', 'status', 'is_deleted', 'issue_type',
-    'title', 'description', 'created_for'
+    'assignee', 'status'
     ]
 )
 def ticket_fields_monitor(sender, instance, changed_fields=None, **kwargs):
     """
     This function is triggered when above fields are changed.
-    Make history as well as sending email when proper field changed
     """
-    if instance.updated_by is not None:
-        updated_by = instance.updated_by
-    else:
-        updated_by = instance.created_by
-
     is_assignee_chaged = False
 
     for field, (old, new) in changed_fields.items():
         if field.name == 'assignee':
             is_assignee_chaged = True
-
-        instance.history.create(
-            changed_by=updated_by,
-            changed_field=field.name,
-            before_value=old,
-            after_value=new
-        )
 
     if is_assignee_chaged:
         context = {
