@@ -97,17 +97,17 @@ def notify_new_answer(sender, instance, created, **kwargs):
 
 
 @receiver(pre_save_changed, sender=Answer, fields=['body'])
-def notify_tagged_staff_member(sender, instance, changed_fields=None, **kwargs):
+def notify_tagged_staff(sender, instance, changed_fields=None, **kwargs):
     """
     Send Email to tagged staff members
     """
     body = ''
-    
+
     for field, (old, new) in changed_fields.items():
         body = new
 
     tagged_users = re.findall(r'@[\w\.-]+', body)
-    
+
     if tagged_users:
         context = {
             'subject_template': 'emails/answer/new_answer_tagged_staff_sub.txt',
@@ -126,7 +126,8 @@ def notify_tagged_staff_member(sender, instance, changed_fields=None, **kwargs):
         }
 
     for tagged_user in tagged_users:
-        name = tagged_user.replace('@','')
+        name = tagged_user.replace('@', '')
+        # TODO: Find this user from account management app
         context['to_email'].append('life.long.learner127@outlook.com')
         send_email.apply_async(
             args=[
@@ -151,7 +152,7 @@ def ticket_fields_monitor(sender, instance, changed_fields=None, **kwargs):
         updated_by = instance.updated_by
     else:
         updated_by = instance.created_by
-    
+
     is_assignee_chaged = False
 
     for field, (old, new) in changed_fields.items():
