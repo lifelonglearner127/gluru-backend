@@ -7,7 +7,13 @@ from tickets.tasks import send_sms, send_email
 
 
 @receiver(post_save, sender=Ticket)
-def send_notification(sender, instance, **kwargs):
+def send_notification(sender, instance, created, **kwargs):
+    """
+    Send SMS and Email if a new ticket is created
+    """
+    if not created:
+        return
+
     # TODO: Route different queue depending on support plan
     support_plan = 'Enterprise'
     priority = 'low'
@@ -56,10 +62,13 @@ def send_notification(sender, instance, **kwargs):
 
 
 @receiver(post_save, sender=Answer)
-def notify_new_answer(sender, instance, **kwargs):
+def notify_new_answer(sender, instance, created, **kwargs):
     """
-    Notify ticket owner of replying this ticket
+    Send Email if a new answer is created
     """
+    if not created:
+        return
+
     context = {
         'subject_template': 'emails/answer/new_answer_sub.txt',
         'email_template': 'emails/answer/new_answer.txt',
@@ -90,7 +99,7 @@ def notify_new_answer(sender, instance, **kwargs):
 @receiver(pre_save_changed, sender=Answer, fields=['body'])
 def notify_tagged_staff_member(sender, instance, changed_fields=None, **kwargs):
     """
-    Notify tagged staff member of ticket and answer.
+    Send Email to tagged staff members
     """
     body = ''
     
@@ -148,7 +157,6 @@ def ticket_fields_monitor(sender, instance, changed_fields=None, **kwargs):
     for field, (old, new) in changed_fields.items():
         if field.name == 'assignee':
             is_assignee_chaged = True
-        
 
         instance.history.create(
             changed_by=updated_by,
