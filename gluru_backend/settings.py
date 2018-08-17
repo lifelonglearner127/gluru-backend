@@ -20,6 +20,14 @@ SECRET_KEY = env('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env('DEBUG')
+HTTPS = env.bool('HTTPS', False)
+
+if HTTPS:
+    PROTOCOL = 'https'
+else:
+    PROTOCOL = 'http'
+
+SITE_ID = 1
 
 ALLOWED_HOSTS = []
 
@@ -33,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
     'rest_framework',
     'corsheaders',
     'fieldsignals',

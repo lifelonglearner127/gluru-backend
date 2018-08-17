@@ -1,12 +1,30 @@
-from rest_framework import viewsets, generics, mixins, status
-from rest_framework.exceptions import NotFound
-from rest_framework.response import Response
+from rest_framework import (
+    viewsets, generics, mixins, status
+)
+
+from rest_framework.views import (
+    APIView
+)
+
+from rest_framework.exceptions import (
+    NotFound
+)
+
+from rest_framework.response import (
+    Response
+)
+
 from rest_framework.permissions import (
     IsAuthenticatedOrReadOnly
 )
 
-from tickets.models import Ticket, Answer
-from tickets.serializers import TicketSerializer, AnswerSerializer
+from tickets.models import (
+    Ticket, Answer, TicketNotification
+)
+
+from tickets.serializers import (
+    TicketSerializer, AnswerSerializer
+)
 
 from django.db.models import Q
 
@@ -73,7 +91,7 @@ class TicketViewSet(mixins.CreateModelMixin,
 
     def update(self, request, pk=None):
         try:
-            serializer_instance = self.queryset.get(pk=pk)
+            serializer_instance = Ticket.objects.get(pk=pk)
         except Ticket.DoesNotExist:
             raise NotFound('A ticket with this id does not exist.')
 
@@ -86,6 +104,37 @@ class TicketViewSet(mixins.CreateModelMixin,
         )
         serializer.is_valid(raise_exception=True)
         serializer.save()
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def retrieve(self, request, pk=None):
+        """
+        Retrieve the ticket by its primary key
+        In addition to that, check whether user subscribe to this ticket
+        """
+        try:
+            serializer_instance = Ticket.objects.get(pk=pk)
+            user_id = request.query_params.get('user')
+            subscribe = request.query_params.get('subscribe')
+            if user_id and subscribe in ['True', 'False']:
+                if subscribe == 'True':
+                    is_subscribed = True
+                else:
+                    is_subscribed = False
+
+                obj, created = TicketNotification.objects.get_or_create(
+                    ticket=serializer_instance,
+                    user=user_id
+                )
+                obj.is_subscribed = is_subscribed
+                obj.save()
+
+        except Ticket.DoesNotExist:
+            raise NotFound('A ticket with this id does not exist.')
+
+        serializer = self.serializer_class(
+            serializer_instance,
+        )
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 
