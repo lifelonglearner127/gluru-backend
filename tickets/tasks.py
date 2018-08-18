@@ -1,8 +1,14 @@
+from datetime import timedelta
 from gluru_backend.celery import app
 from django.conf import settings
+from django.utils import timezone
 from twilio.rest import Client
 from tickets import constants
-from gluru_backend.utils import send_mail
+from gluru_backend.utils import (
+    send_mail,
+    generate_ticket_link
+)
+from tickets.models import Ticket
 
 account_sid = settings.TWILIO_ACCOUNT_SID
 auth_token = settings.TWILIO_AUTH_TOKEN
@@ -33,8 +39,35 @@ def send_sms(created_by, company, issue_type, link):
 
 
 @app.task
-def reminder():
-    print('Email Reminder')
+def reminder(notify_email=None):
+    """
+    """
+    print('aaa')
+    tickets = Ticket.objects.filter(
+        status__in=['NW', 'AS'],
+        issue_type='PO'
+    )
+    print(tickets)
+    if tickets is not None:
+        subject_template = 'emails/reminder/new_ticket_reminder_sub.txt'
+        email_template = 'emails/reminder/new_ticket_reminder.txt'
+        html_template = 'emails/reminder/new_ticket_reminder.html'
+        to_email = 'life.long.learner127@outlook.com'
+
+    for ticket in tickets:
+        if ticket.updated_at < timezone.now() - timedelta(seconds=10):
+            email_context = {
+                'ticket': ticket,
+                'ticket_link': generate_ticket_link(ticket.id),
+                'support_plan': 'support_plan'
+            }
+            send_mail(
+                subject_template=subject_template,
+                email_template=email_template,
+                html_template=html_template,
+                context=email_context,
+                to_email=to_email
+            )
 
 
 @app.task
