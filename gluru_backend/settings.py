@@ -208,43 +208,10 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 20,
 }
 
+
 # Settings Related To Twilio
 TWILIO_ACCOUNT_SID = env('TWILIO_ACCOUNT_SID')
 TWILIO_AUTH_TOKEN = env('TWILIO_AUTH_TOKEN')
-
-
-# Settings Related To Celery
-CELERY_BROKER_URL = 'amqp://localhost'
-CELERYBEAT_SCHEDULE = {
-    'email-reminder': {
-        'task': 'tickets.tasks.reminder',
-        'schedule': 5,
-    },
-}
-CELERY_QUEUES = (
-    Queue(
-        'high',
-        Exchange('high'),
-        routing_key='high',
-        queue_arguments={'maxPriority': 10}
-    ),
-    Queue(
-        'normal',
-        Exchange('normal'),
-        routing_key='normal',
-        queue_arguments={'maxPriority': 5}
-    ),
-    Queue(
-        'low',
-        Exchange('low'),
-        routing_key='low',
-        queue_arguments={'maxPriority': 1}
-    ),
-)
-CELERY_TASK_DEFAULT_QUEUE = 'normal'
-CELERY_TASK_DEFAULT_EXCHANGE = 'normal'
-CELERY_TASK_DEFAULT_ROUTING_KEY = 'normal'
-CELERY_TASK_DEFAULT_EXCHANGE_TYPE = 'direct'
 
 
 # Email Settings
