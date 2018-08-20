@@ -9,7 +9,6 @@ https://docs.djangoproject.com/en/2.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.1/ref/settings/
 """
-from kombu import Exchange, Queue
 import environ
 root = environ.Path(__file__) - 2
 env = environ.Env(DEBUG=(bool, False),)

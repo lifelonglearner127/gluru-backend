@@ -10,9 +10,9 @@ class TicketManager(models.Manager):
 
 class Ticket(models.Model):
 
-    WATCHING_FIELDS = (	
-        'assignee', 'status', 'is_deleted', 'issue_type',	
-        'title', 'description', 'created_for'	
+    WATCHING_FIELDS = (
+        'assignee', 'status', 'is_deleted', 'issue_type',
+        'title', 'description', 'created_for'
     )
 
     title = models.CharField(
@@ -176,30 +176,30 @@ class Ticket(models.Model):
     class Meta:
         ordering = ['-created_at']
 
-    def __init__(self, *args, **kwargs):	
-        super(Ticket, self).__init__(*args, **kwargs)	
+    def __init__(self, *args, **kwargs):
+        super(Ticket, self).__init__(*args, **kwargs)
         self._initial = self.__dict__.copy()
 
-    def save(self, *args, **kwargs):	
-        super(Ticket, self).save()	
+    def save(self, *args, **kwargs):
+        super(Ticket, self).save()
         self.make_history()
 
-    def make_history(self):	
-        changed = [	
-            (k, (v, self.__dict__[k]))	
-            for k, v in self._initial.items()	
-            if v != self.__dict__[k] and k in self.WATCHING_FIELDS	
-        ]	
-        for k, v in dict(changed).items():	
-            if self.updated_by is not None:	
-                updated_by = self.updated_by	
-            else:	
-                updated_by = self.created_by	
-            self.history.create(	
-                changed_by=updated_by,	
-                changed_field=k,	
-                before_value=v[0],	
-                after_value=v[1]	
+    def make_history(self):
+        changed = [
+            (k, (v, self.__dict__[k]))
+            for k, v in self._initial.items()
+            if v != self.__dict__[k] and k in self.WATCHING_FIELDS
+        ]
+        for k, v in dict(changed).items():
+            if self.updated_by is not None:
+                updated_by = self.updated_by
+            else:
+                updated_by = self.created_by
+            self.history.create(
+                changed_by=updated_by,
+                changed_field=k,
+                before_value=v[0],
+                after_value=v[1]
             )
 
     @property
