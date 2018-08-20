@@ -74,10 +74,16 @@ class UserInfo:
         """
         Fetch user info from account management app
         """
+        self.__id = id
         self.__is_success = False
+        self.fetch_user()
 
+    def fetch_user(self):
+        """
+        Fetch User Info from ACM(Account Management App)
+        """
         try:
-            url = settings.USER_INFO_FETCH_ENDPOINT + id
+            url = settings.USER_INFO_FETCH_ENDPOINT + self.__id
             headers = {
                 'Content-Type': 'application/json'
             }
@@ -89,7 +95,7 @@ class UserInfo:
             )
 
             if response.status_code == 200:
-                self.__is_success = False
+                self.__is_success = True
                 self.__email = response['email']
                 self.__first_name = response['firstName']
                 self.__last_name = response['lastName']
@@ -115,6 +121,7 @@ class UserInfo:
         if self.__is_success:
 
             result = {
+                'id': self.__id,
                 'username': self.__username,
                 'email': self.__email,
                 'first_name': self.__first_name,
@@ -131,67 +138,92 @@ class UserInfo:
 
         return result
 
-    def get_email(self):
+    @property
+    def is_success(self):
+        """
+        Return the status of fetching from ACM
+        """
+        return self.__is_success
+
+    @property
+    def id(self):
+        """
+        Return user email
+        """
+        return self.__id
+
+    @property
+    def email(self):
         """
         Return user email
         """
         return self.__email
 
-    def get_first_name(self):
+    @property
+    def first_name(self):
         """
         Return user first name
         """
         return self.__first_name
 
-    def get_last_name(self):
+    @property
+    def last_name(self):
         """
         Return user last name
         """
         return self.__last_name
 
-    def get_phone_number(self):
+    @property
+    def phone_number(self):
         """
         Return user phone number
         """
         return self.__phone_number
 
-    def get_avatar(self):
+    @property
+    def avatar_url(self):
         """
         Return user avatar url
         """
-        return self.__avatar
+        return self.__avatar_url
 
-    def get_job_title(self):
+    @property
+    def job_title(self):
         """
         Return user job title
         """
         return self.__job_title
 
-    def get_address(self):
+    @property
+    def address(self):
         """
         Return user address
         """
         return self.__address
 
-    def get_timezone(self):
+    @property
+    def timezone(self):
         """
         Return user address
         """
         return self.__timezone
 
-    def get_date_joined(self):
+    @property
+    def date_joined(self):
         """
         Return user date joined
         """
         return self.__date_joined
 
-    def get_last_login(self):
+    @property
+    def last_login(self):
         """
         Return user last login time
         """
         return self.__last_login
 
-    def get_last_updated(self):
+    @property
+    def last_updated(self):
         """
         Return user last updated time
         """
@@ -205,10 +237,16 @@ class CompanyInfo:
     """
 
     def __init__(self, id):
+        self.__id = id
         self.__is_success = False
+        self.fetch_company()
 
+    def fetch_company(self):
+        """
+        Fetch company info from ACM (Account Management App)
+        """
         try:
-            url = settings.USER_INFO_FETCH_ENDPOINT + id
+            url = settings.USER_INFO_FETCH_ENDPOINT + self.__id
             headers = {
                 'Content-Type': 'application/json'
             }
@@ -231,13 +269,6 @@ class CompanyInfo:
             # TODO: Error logging
             pass
 
-        self.__name = 'name'
-        self.__logo_url = 'logo url'
-        self.__address = 'address'
-        self.__primary_contact = 'primary contact'
-        self.__created_at = 'created at'
-        self.__last_updated = 'last updated'
-
     def get_company(self):
         """
         Return company info
@@ -257,39 +288,50 @@ class CompanyInfo:
 
         return result
 
-    def get_name(self):
+    @property
+    def is_success(self):
+        """
+        Return the status of fetching from ACM
+        """
+        return self.__is_success
+    @property
+    def name(self):
         """
         Return company name
         """
         return self.__name
 
-    def get_address(self):
+    @property
+    def address(self):
         """
         Return company address
         """
         return self.__address
 
-    def get_logo_url(self):
+    @property
+    def logo_url(self):
         """
         Return company logo url
         """
         return self.__logo_url
 
-    def get_primary_contact(self):
+    @property
+    def primary_contact(self):
         """
         Return company primary contact
         """
         return self.__primary_contact
 
-    def get_created_at(self):
+    @property
+    def created_at(self):
         """
         Return company creation time
         """
         return self.__created_at
 
-    def get_last_updated(self):
+    @property
+    def last_updated(self):
         """
         Return company last updated time
         """
         return self.__last_updated
-
