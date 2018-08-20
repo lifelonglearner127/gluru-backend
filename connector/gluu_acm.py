@@ -231,6 +231,7 @@ class CompanyInfo:
         Return the status of fetching from ACM
         """
         return self.__is_success
+
     @property
     def name(self):
         """
