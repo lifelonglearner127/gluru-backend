@@ -221,3 +221,8 @@ else:
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
 EMAIL_FROM = env('EMAIL_FROM')
+
+
+# Account Management App Settings
+USER_INFO_FETCH_ENDPOINT = env('USER_INFO_FETCH_ENDPOINT')
+COMPANY_INFO_FETCH_ENDPOINT = env('COMPANY_INFO_FETCH_ENDPOINT')

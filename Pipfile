@@ -15,6 +15,7 @@ celery = "*"
 django-environ = "*"
 markdown = "*"
 django-fieldsignals = "*"
+requests = "*"
 
 [dev-packages]
 

@@ -1,3 +1,4 @@
+import requests
 from django.urls import reverse
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
@@ -74,17 +75,36 @@ class UserInfo:
         Fetch user info from account management app
         """
         self._is_success = False
-        self._email = 'email'
-        self._first_name = 'first name'
-        self._last_name = 'last name'
-        self._phone_number = 'phone number'
-        self._avatar_url = 'url'
-        self._job_title = 'job'
-        self._address = 'address'
-        self._timezone = 'timezone'
-        self._date_joined = 'date joined'
-        self._last_login = 'last login'
-        self._last_updated = 'last updated'
+
+        try:
+            url = settings.USER_INFO_FETCH_ENDPOINT + id
+            headers = {
+                'Content-Type': 'application/json'
+            }
+
+            response = requests.get(
+                url,
+                verify=settings.VERIFY_SSL,
+                headers=headers
+            )
+
+            if response.status_code == 200:
+                self._is_success = False
+                self._email = response['email']
+                self._first_name = response['firstName']
+                self._last_name = response['lastName']
+                self._phone_number = response['phoneNumber']
+                self._avatar_url = response['avatarUrl']
+                self._job_title = response['jobTitle']
+                self._address = response['address']
+                self._timezone = response['timezone']
+                self._date_joined = response['dateJoined']
+                self._last_login = response['lastLogin']
+                self._last_updated = response['lastUpdated']
+
+        except Exception as e:
+            # TODO: Error logging
+            pass
 
     def get_user(self):
         """
@@ -186,6 +206,31 @@ class CompanyInfo:
 
     def __init__(self, id):
         self._is_success = False
+
+        try:
+            url = settings.USER_INFO_FETCH_ENDPOINT + id
+            headers = {
+                'Content-Type': 'application/json'
+            }
+
+            response = requests.get(
+                url,
+                verify=settings.VERIFY_SSL,
+                headers=headers
+            )
+
+            if response.status_code == 200:
+                self._name = response['name']
+                self._logo_url = response['logoUrl']
+                self._address = response['address']
+                self._primary_contact = response['primaryContact']
+                self._created_at = response['createdAt']
+                self._last_updated = response['updatedAt']
+
+        except Exception as e:
+            # TODO: Error logging
+            pass
+
         self._name = 'name'
         self._logo_url = 'logo url'
         self._address = 'address'
