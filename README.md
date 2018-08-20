@@ -67,3 +67,8 @@ pipenv shell
 python manage.py runserver
 celery worker -A gluru_backend --loglevel=DEBUG --concurrency=4
 ```
+
+## Contribution
+ - Create a new branch
+ - Commit your changes and make a PR to master
+ > `Important!` Before commit your changes, you need to run flake8 for code styling
