@@ -74,7 +74,7 @@ class UserInfo:
         """
         Fetch user info from account management app
         """
-        self._is_success = False
+        self.__is_success = False
 
         try:
             url = settings.USER_INFO_FETCH_ENDPOINT + id
@@ -89,18 +89,18 @@ class UserInfo:
             )
 
             if response.status_code == 200:
-                self._is_success = False
-                self._email = response['email']
-                self._first_name = response['firstName']
-                self._last_name = response['lastName']
-                self._phone_number = response['phoneNumber']
-                self._avatar_url = response['avatarUrl']
-                self._job_title = response['jobTitle']
-                self._address = response['address']
-                self._timezone = response['timezone']
-                self._date_joined = response['dateJoined']
-                self._last_login = response['lastLogin']
-                self._last_updated = response['lastUpdated']
+                self.__is_success = False
+                self.__email = response['email']
+                self.__first_name = response['firstName']
+                self.__last_name = response['lastName']
+                self.__phone_number = response['phoneNumber']
+                self.__avatar_url = response['avatarUrl']
+                self.__job_title = response['jobTitle']
+                self.__address = response['address']
+                self.__timezone = response['timezone']
+                self.__date_joined = response['dateJoined']
+                self.__last_login = response['lastLogin']
+                self.__last_updated = response['lastUpdated']
 
         except Exception as e:
             # TODO: Error logging
@@ -112,21 +112,21 @@ class UserInfo:
         """
         result = None
 
-        if self._is_success:
+        if self.__is_success:
 
             result = {
-                'username': self._username,
-                'email': self._email,
-                'first_name': self._first_name,
-                'last_name': self._last_name,
-                'phone_number': self._phone_number,
-                'avatar_url': self._avatar_url,
-                'job_title': self._job_title,
-                'address': self._address,
-                'timezone': self._timezone,
-                'date_joined': self._date_joined,
-                'last_login': self._last_login,
-                'last_updated': self._last_updated
+                'username': self.__username,
+                'email': self.__email,
+                'first_name': self.__first_name,
+                'last_name': self.__last_name,
+                'phone_number': self.__phone_number,
+                'avatar_url': self.__avatar_url,
+                'job_title': self.__job_title,
+                'address': self.__address,
+                'timezone': self.__timezone,
+                'date_joined': self.__date_joined,
+                'last_login': self.__last_login,
+                'last_updated': self.__last_updated
             }
 
         return result
@@ -135,67 +135,67 @@ class UserInfo:
         """
         Return user email
         """
-        return self._email
+        return self.__email
 
     def get_first_name(self):
         """
         Return user first name
         """
-        return self._first_name
+        return self.__first_name
 
     def get_last_name(self):
         """
         Return user last name
         """
-        return self._last_name
+        return self.__last_name
 
     def get_phone_number(self):
         """
         Return user phone number
         """
-        return self._phone_number
+        return self.__phone_number
 
     def get_avatar(self):
         """
         Return user avatar url
         """
-        return self._avatar
+        return self.__avatar
 
     def get_job_title(self):
         """
         Return user job title
         """
-        return self._job_title
+        return self.__job_title
 
     def get_address(self):
         """
         Return user address
         """
-        return self._address
+        return self.__address
 
     def get_timezone(self):
         """
         Return user address
         """
-        return self._timezone
+        return self.__timezone
 
     def get_date_joined(self):
         """
         Return user date joined
         """
-        return self._date_joined
+        return self.__date_joined
 
     def get_last_login(self):
         """
         Return user last login time
         """
-        return self._last_login
+        return self.__last_login
 
     def get_last_updated(self):
         """
         Return user last updated time
         """
-        return self._last_updated
+        return self.__last_updated
 
 
 class CompanyInfo:
@@ -205,7 +205,7 @@ class CompanyInfo:
     """
 
     def __init__(self, id):
-        self._is_success = False
+        self.__is_success = False
 
         try:
             url = settings.USER_INFO_FETCH_ENDPOINT + id
@@ -220,23 +220,23 @@ class CompanyInfo:
             )
 
             if response.status_code == 200:
-                self._name = response['name']
-                self._logo_url = response['logoUrl']
-                self._address = response['address']
-                self._primary_contact = response['primaryContact']
-                self._created_at = response['createdAt']
-                self._last_updated = response['updatedAt']
+                self.__name = response['name']
+                self.__logo_url = response['logoUrl']
+                self.__address = response['address']
+                self.__primary_contact = response['primaryContact']
+                self.__created_at = response['createdAt']
+                self.__last_updated = response['updatedAt']
 
         except Exception as e:
             # TODO: Error logging
             pass
 
-        self._name = 'name'
-        self._logo_url = 'logo url'
-        self._address = 'address'
-        self._primary_contact = 'primary contact'
-        self._created_at = 'created at'
-        self._last_updated = 'last updated'
+        self.__name = 'name'
+        self.__logo_url = 'logo url'
+        self.__address = 'address'
+        self.__primary_contact = 'primary contact'
+        self.__created_at = 'created at'
+        self.__last_updated = 'last updated'
 
     def get_company(self):
         """
@@ -244,15 +244,15 @@ class CompanyInfo:
         """
         result = None
 
-        if self._is_success:
+        if self.__is_success:
 
             result = {
-                'name': self._name,
-                'logo_url': self._logo_url,
-                'address': self._address,
-                'primary_contact': self._primary_contact,
-                'created_at': self._created_at,
-                'last_updated': self._last_updated,
+                'name': self.__name,
+                'logo_url': self.__logo_url,
+                'address': self.__address,
+                'primary_contact': self.__primary_contact,
+                'created_at': self.__created_at,
+                'last_updated': self.__last_updated,
             }
 
         return result
@@ -261,34 +261,35 @@ class CompanyInfo:
         """
         Return company name
         """
-        return self._name
+        return self.__name
 
     def get_address(self):
         """
         Return company address
         """
-        return self._address
+        return self.__address
 
     def get_logo_url(self):
         """
         Return company logo url
         """
-        return self._logo_url
+        return self.__logo_url
 
     def get_primary_contact(self):
         """
         Return company primary contact
         """
-        return self._primary_contact
+        return self.__primary_contact
 
     def get_created_at(self):
         """
         Return company creation time
         """
-        return self._created_at
+        return self.__created_at
 
     def get_last_updated(self):
         """
         Return company last updated time
         """
-        return self._last_updated
+        return self.__last_updated
+
