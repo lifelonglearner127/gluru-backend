@@ -51,14 +51,6 @@ sudo rabbitmq-server
 ```
 
 ## Clone and installing project
-Starting the Scheduler:
-```
-celery -A gluru_backend beat -l info
-```
-
- > `Important!` Beat does not execute tasks, it just sends the messages.
- > You need both a beat instance and a worker instance!
-
 ```
 git clone git@github.com:GluuFederation/gluru-backend.git
 cd gluru-backend
@@ -67,6 +59,22 @@ pipenv shell
 python manage.py runserver
 celery worker -A gluru_backend --loglevel=DEBUG --concurrency=4
 ```
+
+Starting the Scheduler:
+```
+celery -A gluru_backend beat -l info
+```
+
+ > `Important!` Beat does not execute tasks, it just sends the messages.
+ > You need both a beat instance and a worker instance!
+
+Management Commands related to haystack:
+```
+python manage.py rebuild_index
+python manage.py update_index
+python manage.py clear_index
+```
+ > `Note!` We use [drf-haystack](https://drf-haystack.readthedocs.io/en/latest/index.html) and `whoosh` as a search engine
 
 ## Contribution
  - Create a new branch
