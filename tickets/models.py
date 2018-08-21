@@ -12,7 +12,7 @@ class Ticket(models.Model):
 
     WATCHING_FIELDS = (
         'assignee', 'status', 'is_deleted', 'issue_type',
-        'title', 'description', 'created_for'
+        'title', 'body', 'created_for'
     )
 
     title = models.CharField(

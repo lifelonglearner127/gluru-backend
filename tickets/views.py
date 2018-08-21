@@ -30,6 +30,7 @@ from django.db.models import Q
 
 from drf_haystack.viewsets import HaystackViewSet
 
+
 class TicketViewSet(mixins.CreateModelMixin,
                     mixins.ListModelMixin,
                     mixins.UpdateModelMixin,
@@ -64,7 +65,7 @@ class TicketViewSet(mixins.CreateModelMixin,
         if search_string is not None:
             queryset = queryset.filter(
                 Q(title__icontains=search_string) |
-                Q(description__icontains=search_string)
+                Q(body__icontains=search_string)
             )
 
         return queryset

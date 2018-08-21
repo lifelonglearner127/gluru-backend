@@ -4,7 +4,7 @@ Ticket #{{ticket.id}} has been added by {{ticket.owned_by}} from {{ticket.owned_
 
 You can visit it here: {{ticket_link}}
 
-{{ticket.description|safe}}
+{{ticket.body|safe}}
 
 Thank you,
 Gluu Support
