@@ -5,6 +5,7 @@ from . import views
 
 router = routers.SimpleRouter()
 router.register(r'tickets', views.TicketViewSet)
+router.register(r'search', views.TicketViewSet, base_name="location-search")
 
 tickets_router = routers.NestedSimpleRouter(
     router,

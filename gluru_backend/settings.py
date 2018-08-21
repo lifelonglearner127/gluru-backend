@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.sites',
     'rest_framework',
+    'haystack',
     'corsheaders',
     'fieldsignals',
     'tickets.apps.TicketsConfig',
@@ -225,3 +226,12 @@ EMAIL_FROM = env('EMAIL_FROM')
 # Account Management App Settings
 USER_INFO_FETCH_ENDPOINT = env('USER_INFO_FETCH_ENDPOINT')
 COMPANY_INFO_FETCH_ENDPOINT = env('COMPANY_INFO_FETCH_ENDPOINT')
+
+
+# Haystack Settings
+HAYSTACK_CONNECTIONS = {
+    'default': {
+        'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
+        'PATH': str(root.path('whoosh_index')),
+    },
+} 

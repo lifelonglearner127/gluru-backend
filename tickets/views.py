@@ -23,11 +23,12 @@ from tickets.models import (
 )
 
 from tickets.serializers import (
-    TicketSerializer, AnswerSerializer
+    TicketSerializer, AnswerSerializer, TicketSearchSerializer
 )
 
 from django.db.models import Q
 
+from drf_haystack.viewsets import HaystackViewSet
 
 class TicketViewSet(mixins.CreateModelMixin,
                     mixins.ListModelMixin,
@@ -147,6 +148,11 @@ class TicketViewSet(mixins.CreateModelMixin,
         ticket.delete()
 
         return Response(None, status=status.HTTP_204_NO_CONTENT)
+
+
+class LocationSearchView(HaystackViewSet):
+    index_models = [Ticket]
+    serializer_class = TicketSearchSerializer
 
 
 class AnswerViewSet(mixins.CreateModelMixin,

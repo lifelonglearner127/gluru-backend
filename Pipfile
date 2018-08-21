@@ -16,6 +16,8 @@ django-environ = "*"
 markdown = "*"
 django-fieldsignals = "*"
 requests = "*"
+drf-haystack = "*"
+whoosh = "*"
 
 [dev-packages]
 

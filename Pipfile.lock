@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "98618ad1926977c33b11ce378f391d8dd3e80d8557f852957cb993e64fda9f8e"
+            "sha256": "147cbfedbd618fa2405c902edeb84613d42785d0a020061dc8c7b6ccbd6dc2e3"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -83,6 +83,12 @@
             "index": "pypi",
             "version": "==0.3.4"
         },
+        "django-haystack": {
+            "hashes": [
+                "sha256:8b54bcc926596765d0a3383d693bcdd76109c7abb6b2323b3984a39e3576028c"
+            ],
+            "version": "==2.8.1"
+        },
         "djangorestframework": {
             "hashes": [
                 "sha256:b6714c3e4b0f8d524f193c91ecf5f5450092c2145439ac2769711f7eba89a9d9",
@@ -97,6 +103,14 @@
             ],
             "index": "pypi",
             "version": "==0.2.0"
+        },
+        "drf-haystack": {
+            "hashes": [
+                "sha256:3304d951d18733e416831bce25b60274497691b9ae9c55c16b3c35477b783028",
+                "sha256:52d0663238b7578a94797267d6e770ddef937cbb9876448a3fac38f81b7ab12f"
+            ],
+            "index": "pypi",
+            "version": "==1.8.4"
         },
         "drf-nested-routers": {
             "hashes": [
@@ -171,6 +185,13 @@
             "markers": "python_version >= '3.0'",
             "version": "==1.6.8"
         },
+        "python-dateutil": {
+            "hashes": [
+                "sha256:1adb80e7a782c12e52ef9a8182bebeb73f1d7e24e374397af06fb4956c8dc5c0",
+                "sha256:e27001de32f627c22380a688bcc43ce83504a7bc5da472209b4c70f02829f0b8"
+            ],
+            "version": "==2.7.3"
+        },
         "pytz": {
             "hashes": [
                 "sha256:a061aa0a9e06881eb8b3b2b43f05b9439d6583c206d0a6c340ff72a7b6669053",
@@ -215,6 +236,15 @@
                 "sha256:6849544be74ec3638e84d90bc1cf2e1e9224cc10d96cd4383ec3f69e9bce077b"
             ],
             "version": "==1.1.4"
+        },
+        "whoosh": {
+            "hashes": [
+                "sha256:7ca5633dbfa9e0e0fa400d3151a8a0c4bec53bd2ecedc0a67705b17565c31a83",
+                "sha256:aa39c3c3426e3fd107dcb4bde64ca1e276a65a889d9085a6e4b54ba82420a852",
+                "sha256:e0857375f63e9041e03fedd5b7541f97cf78917ac1b6b06c1fcc9b45375dda69"
+            ],
+            "index": "pypi",
+            "version": "==2.7.4"
         }
     },
     "develop": {}
