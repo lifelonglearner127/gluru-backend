@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from drf_haystack.serializers import HaystackSerializer
-
+from drf_haystack.serializers import HighlighterMixin
 from tickets.models import Ticket, Answer
 from tickets.search_indexes import TicketIndex
 
@@ -12,7 +12,10 @@ class TicketSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class TicketSearchSerializer(HaystackSerializer):
+class TicketSearchSerializer(HighlighterMixin, HaystackSerializer):
+    highlighter_css_class = "my-highlighter-class"
+    highlighter_html_tag = "em"
+
     class Meta:
         index_classes = [TicketIndex]
 
