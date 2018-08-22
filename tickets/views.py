@@ -146,7 +146,8 @@ class TicketViewSet(mixins.CreateModelMixin,
         except Ticket.DoesNotExist:
             raise NotFound('An ticket with this ID does not exist')
 
-        ticket.delete()
+        ticket.is_deleted = True
+        ticket.save()
 
         return Response(None, status=status.HTTP_204_NO_CONTENT)
 
