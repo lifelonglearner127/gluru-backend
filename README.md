@@ -49,6 +49,7 @@ Run RabbitMQ Server:
 ```
 sudo rabbitmq-server
 ```
+ > `Important!` In order for this project to work properly, you need to start rabbitmq server first. For sms and email notification, signal is used to send messages to task queue. This means that the request context involve sending messages to task queue. If rabbitmq server not running at that time, it might lead to time out error.
 
 ## Clone and installing project
 ```
