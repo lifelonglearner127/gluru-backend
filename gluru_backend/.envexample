@@ -8,3 +8,7 @@ TWILIO_AUTH_TOKEN=237d8a3be9b4823d59186ee67b327818
 
 # Email
 EMAIL_FROM=levan@gluu.org
+
+# ACM
+USER_INFO_FETCH_ENDPOINT=http://dev-users.org
+COMPANY_INFO_FETCH_ENDPOINT=http://dev-users.org
