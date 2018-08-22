@@ -26,7 +26,7 @@ def notify_by_sms(ticket):
 
 def notify_new_ticket(ticket):
     context = {
-        'subject_template': 'emails/ticket/new_ticket_subject.txt',
+        'subject_template': 'emails/ticket/new_ticket_sub.txt',
         'email_template': 'emails/ticket/new_ticket_for_user.txt',
         'html_template': 'emails/ticket/new_ticket_for_user.html',
         'context': {
