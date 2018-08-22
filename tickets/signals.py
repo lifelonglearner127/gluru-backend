@@ -3,7 +3,13 @@ from django.dispatch import receiver
 from django.db.models.signals import post_save
 from fieldsignals import pre_save_changed
 from tickets.models import Ticket, Answer
-from tickets.tasks import send_sms, send_email
+from tickets.notifications import (
+    notify_by_sms,
+    notify_new_ticket,
+    notify_new_answer,
+    notify_tagged_staff,
+    notify_ticket_assigned
+)
 
 
 @receiver(post_save, sender=Ticket)
@@ -14,51 +20,8 @@ def send_notification(sender, instance, created, **kwargs):
     if not created:
         return
 
-    # TODO: Route different queue depending on support plan
-    support_plan = 'Enterprise'
-    priority = 'low'
-
-    if support_plan == 'Enterprise':
-        priority = 'high'
-    elif support_plan == 'Premium':
-        priority = 'normal'
-
-    send_sms.apply_async(
-        args=[
-            instance.created_by,
-            instance.company,
-            instance.issue_type,
-            'link'
-        ],
-        queue=priority,
-        routing_key=priority
-    )
-
-    context = {
-        'subject_template': 'emails/ticket/new_ticket_subject.txt',
-        'email_template': 'emails/ticket/new_ticket_for_user.txt',
-        'html_template': 'emails/ticket/new_ticket_for_user.html',
-        'context': {
-            'ticket_id': instance.id,
-            'ticket_title': instance.title,
-            'ticket_link': 'generate_ticket_url(ticket)',
-            'ticket_created_by': instance.created_by,
-            'ticket_created_by_comp': 'ticket.created_by.get_company()',
-            'ticket_body': instance.body,
-            'subscription_link': 'generate_subscribe_link(ticket)',
-            'issue_type': instance.issue_type
-        },
-        'to_email': [
-            'life.long.learner127@outlook.com'
-        ]
-    }
-    send_email.apply_async(
-        args=[
-            context
-        ],
-        queue='low',
-        routing_key='low'
-    )
+    notify_by_sms(instance)
+    notify_new_ticket(instance)
 
 
 @receiver(post_save, sender=Answer)
@@ -69,31 +32,7 @@ def notify_new_answer(sender, instance, created, **kwargs):
     if not created:
         return
 
-    context = {
-        'subject_template': 'emails/answer/new_answer_sub.txt',
-        'email_template': 'emails/answer/new_answer.txt',
-        'html_template': 'emails/answer/new_answer.html',
-        'context': {
-            'ticket_id': 'answer.ticket.id',
-            'ticket_title': 'answer.ticket.title',
-            'support_plan': 'support_plan',
-            'ticket_link': 'ticket_link',
-            'answer_created_by': 'answer.created_by',
-            'answer_created_by_comp': 'answer.created_by.get_company()',
-            'answer_body': 'answer.answer',
-        },
-        'to_email': [
-            'life.long.learner127@outlook.com'
-        ]
-    }
-
-    send_email.apply_async(
-        args=[
-            context
-        ],
-        queue='low',
-        routing_key='low'
-    )
+    notify_new_answer(instance)
 
 
 @receiver(pre_save_changed, sender=Answer, fields=['body'])
@@ -108,34 +47,7 @@ def notify_tagged_staff(sender, instance, changed_fields=None, **kwargs):
 
     tagged_users = re.findall(r'@[\w\.-]+', body)
 
-    if tagged_users:
-        context = {
-            'subject_template': 'emails/answer/new_answer_tagged_staff_sub.txt',
-            'email_template': 'emails/answer/new_answer_tagged_staff.txt',
-            'html_template': 'emails/answer/new_answer_tagged_staff.html',
-            'context': {
-                'ticket_id': 'answer.ticket.id',
-                'ticket_title': 'answer.ticket.title',
-                'support_plan': 'support_plan',
-                'ticket_link': 'ticket_link',
-                'answer_created_by': 'answer.created_by',
-                'answer_created_by_comp': 'answer.created_by.get_company()',
-                'answer_body': 'answer.answer',
-            },
-            'to_email': []
-        }
-
-    for tagged_user in tagged_users:
-        name = tagged_user.replace('@', '')
-        # TODO: Find this user from account management app
-        context['to_email'].append('life.long.learner127@outlook.com')
-        send_email.apply_async(
-            args=[
-                context
-            ],
-            queue='low',
-            routing_key='low'
-        )
+    notify_tagged_staff(instance, tagged_users)
 
 
 @receiver(pre_save_changed, sender=Ticket, fields=[
@@ -153,32 +65,4 @@ def ticket_fields_monitor(sender, instance, changed_fields=None, **kwargs):
             is_assignee_chaged = True
 
     if is_assignee_chaged:
-        context = {
-            'subject_template': 'emails/ticket/ticket_assigned_subject.txt',
-            'email_template': 'emails/ticket/ticket_assigned.txt',
-            'html_template': 'emails/ticket/ticket_assigned.html',
-            'context': {
-                'ticket_id': instance.id,
-                'ticket_title': instance.title,
-                'ticket_link': 'generate_ticket_url(ticket)',
-                'ticket_created_by': instance.created_by,
-                'ticket_created_by_comp': 'ticket.created_by.get_company()',
-                'ticket_body': instance.body,
-                'subscription_link': 'generate_subscribe_link(ticket)',
-                'issue_type': instance.issue_type,
-                'ticket_assigned_by': 'ticket_assigned_by',
-                'ticket_assigned_to': 'ticket_assigned_to',
-                'first_name': 'first_name'
-            },
-            'to_email': [
-                'life.long.learner127@outlook.com'
-            ]
-        }
-
-        send_email.apply_async(
-            args=[
-                context
-            ],
-            queue='low',
-            routing_key='low'
-        )
+        notify_ticket_assigned(instance)
