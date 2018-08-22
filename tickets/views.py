@@ -19,11 +19,12 @@ from rest_framework.permissions import (
 )
 
 from tickets.models import (
-    Ticket, Answer, TicketNotification
+    Ticket, Answer, TicketNotification, TicketHistory
 )
 
 from tickets.serializers import (
-    TicketSerializer, AnswerSerializer, TicketSearchSerializer
+    TicketSerializer, AnswerSerializer, TicketSearchSerializer,
+    TicketHistorySerializer
 )
 
 from django.db.models import Q
@@ -213,3 +214,22 @@ class AnswerViewSet(mixins.CreateModelMixin,
         answer.delete()
 
         return Response(None, status=status.HTTP_204_NO_CONTENT)
+
+
+class TicketHistoryViewSet(mixins.ListModelMixin,
+                           viewsets.GenericViewSet):
+
+    serializer_class = TicketHistorySerializer
+    
+    def get_queryset(self):
+        return TicketHistory.objects.filter(ticket=self.kwargs['ticket_pk'])
+
+    def list(self, request, ticket_pk=None):
+        page = self.paginate_queryset(self.get_queryset())
+
+        serializer = self.serializer_class(
+            page,
+            many=True
+        )
+
+        return self.get_paginated_response(serializer.data)

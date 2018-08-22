@@ -1,8 +1,10 @@
 from rest_framework import serializers
 from drf_haystack.serializers import HaystackSerializer
 from drf_haystack.serializers import HighlighterMixin
-from tickets.models import Ticket, Answer
 from tickets.search_indexes import TicketIndex
+from tickets.models import (
+    Ticket, Answer, TicketHistory
+)
 
 
 class TicketSerializer(serializers.ModelSerializer):
@@ -41,4 +43,17 @@ class AnswerSerializer(serializers.ModelSerializer):
         return Answer.objects.create(
             ticket=ticket,
             **valdiated_data
+        )
+
+
+class TicketHistorySerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = TicketHistory
+        fields = (
+            'changed_by',
+            'changed_field',
+            'before_value',
+            'after_value',
+            'created_at'
         )

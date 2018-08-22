@@ -17,6 +17,11 @@ tickets_router.register(
     views.AnswerViewSet,
     base_name='ticket-answers'
 )
+tickets_router.register(
+    r'history',
+    views.TicketHistoryViewSet,
+    base_name='ticket-history'
+)
 
 urlpatterns = [
     url(r'^', include(router.urls)),
