@@ -13,7 +13,7 @@ from tickets.notifications import (
 
 
 @receiver(post_save, sender=Ticket)
-def send_notification(sender, instance, created, **kwargs):
+def ticket_saved(sender, instance, created, **kwargs):
     """
     Send SMS and Email if a new ticket is created
     """
@@ -25,7 +25,7 @@ def send_notification(sender, instance, created, **kwargs):
 
 
 @receiver(post_save, sender=Answer)
-def notify_new_answer(sender, instance, created, **kwargs):
+def answer_saved(sender, instance, created, **kwargs):
     """
     Send Email if a new answer is created
     """
@@ -36,7 +36,7 @@ def notify_new_answer(sender, instance, created, **kwargs):
 
 
 @receiver(pre_save_changed, sender=Answer, fields=['body'])
-def notify_tagged_staff(sender, instance, changed_fields=None, **kwargs):
+def answer_changed(sender, instance, changed_fields=None, **kwargs):
     """
     Send Email to tagged staff members
     """

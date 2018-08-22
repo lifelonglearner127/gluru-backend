@@ -1,5 +1,4 @@
 from tickets.tasks import send_sms, send_email
-from tickets.models import Ticket
 
 
 def notify_by_sms(ticket):
@@ -14,9 +13,9 @@ def notify_by_sms(ticket):
 
     send_sms.apply_async(
         args=[
-            instance.created_by,
-            instance.company,
-            instance.issue_type,
+            ticket.created_by,
+            ticket.company,
+            ticket.issue_type,
             'link'
         ],
         queue=priority,
@@ -80,12 +79,12 @@ def notify_new_answer(answer):
     )
 
 
-def notify_tagged_staff(answer, tagged_user):
+def notify_tagged_staff(answer, tagged_users):
     if tagged_users:
         context = {
-            'subject_template': 'emails/answer/new_answer_tagged_staff_sub.txt',
-            'email_template': 'emails/answer/new_answer_tagged_staff.txt',
-            'html_template': 'emails/answer/new_answer_tagged_staff.html',
+            'subject_template': 'emails/answer/new_tagged_staff_sub.txt',
+            'email_template': 'emails/answer/new_tagged_staff.txt',
+            'html_template': 'emails/answer/new_tagged_staff.html',
             'context': {
                 'ticket_id': 'answer.ticket.id',
                 'ticket_title': 'answer.ticket.title',
@@ -117,14 +116,14 @@ def notify_ticket_assigned(ticket, user):
         'email_template': 'emails/ticket/ticket_assigned.txt',
         'html_template': 'emails/ticket/ticket_assigned.html',
         'context': {
-            'ticket_id': instance.id,
-            'ticket_title': instance.title,
+            'ticket_id': ticket.id,
+            'ticket_title': ticket.title,
             'ticket_link': 'generate_ticket_url(ticket)',
-            'ticket_created_by': instance.created_by,
+            'ticket_created_by': ticket.created_by,
             'ticket_created_by_comp': 'ticket.created_by.get_company()',
-            'ticket_body': instance.body,
+            'ticket_body': ticket.body,
             'subscription_link': 'generate_subscribe_link(ticket)',
-            'issue_type': instance.issue_type,
+            'issue_type': ticket.issue_type,
             'ticket_assigned_by': 'ticket_assigned_by',
             'ticket_assigned_to': 'ticket_assigned_to',
             'first_name': 'first_name'
