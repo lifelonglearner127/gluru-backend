@@ -140,3 +140,30 @@ def notify_ticket_assigned(ticket, user):
         queue='low',
         routing_key='low'
     )
+
+
+def notify_ticket_reopened(ticket, user):
+
+    context = {
+        'subject_template': 'emails/ticket/ticket_reopened.txt',
+        'email_template': 'emails/ticket/ticket_reopened.txt',
+        'html_template': 'emails/ticket/ticket_reopened.html',
+        'context': {
+            'ticket_id': ticket.id,
+            'ticket_title': ticket.title,
+            'ticket_reopened_by': 'ticket_reopened_by',
+            'ticket_reopened_by_comp': 'ticket_reopened_by_comp',
+            'ticket_link': 'generate_ticket_url(ticket)',
+        },
+        'to_email': [
+            'life.long.learner127@outlook.com'
+        ]
+    }
+
+    send_email.apply_async(
+        args=[
+            context
+        ],
+        queue='low',
+        routing_key='low'
+    )

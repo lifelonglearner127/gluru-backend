@@ -8,7 +8,8 @@ from tickets.notifications import (
     notify_new_ticket,
     notify_new_answer,
     notify_tagged_staff,
-    notify_ticket_assigned
+    notify_ticket_assigned,
+    notify_ticket_reopened
 )
 
 
@@ -58,11 +59,14 @@ def ticket_fields_monitor(sender, instance, changed_fields=None, **kwargs):
     """
     This function is triggered when above fields are changed.
     """
-    is_assignee_chaged = False
 
+    context = {}
     for field, (old, new) in changed_fields.items():
-        if field.name == 'assignee':
-            is_assignee_chaged = True
+        context[field.name] = (old, new)
 
-    if is_assignee_chaged:
+    if 'assignee' in context:
         notify_ticket_assigned(instance)
+
+    if 'status' in context:
+        if context['status'][0] == 'CL':
+            notify_ticket_reopened(instance)
