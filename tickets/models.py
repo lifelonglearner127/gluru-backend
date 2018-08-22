@@ -170,6 +170,8 @@ class Ticket(models.Model):
         auto_now=True
     )
 
+    objects = TicketManager()
+
     def __str__(self):
         return self.title
 
