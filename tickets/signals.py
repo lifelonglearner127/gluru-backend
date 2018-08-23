@@ -52,7 +52,7 @@ def answer_changed(sender, instance, changed_fields=None, **kwargs):
 
 
 @receiver(pre_save_changed, sender=Ticket, fields=[
-    'assignee', 'status'
+    'assignee', 'status', 'is_deleted'
     ]
 )
 def ticket_fields_monitor(sender, instance, changed_fields=None, **kwargs):
@@ -70,3 +70,19 @@ def ticket_fields_monitor(sender, instance, changed_fields=None, **kwargs):
     if 'status' in context:
         if context['status'][0] == 'CL':
             notify_ticket_reopened(instance)
+
+    if 'is_deleted' in context:
+        ticket_files = instance.files.all()
+        for ticket_file in ticket_files:
+            ticket_file.is_deleted = context['is_deleted'][1]
+            ticket_file.save()
+
+        answers = instance.answers.all()
+        for answer in answers:
+            answer.is_deleted = context['is_deleted'][1]
+            answer.save()
+
+            answer_files = answer.files.all()
+            for answer_file in answer_files:
+                answer_file.is_deleted = context['is_deleted'][1]
+                answer_file.save()
