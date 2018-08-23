@@ -58,12 +58,14 @@ cd gluru-backend
 pipenv install
 pipenv shell
 python manage.py runserver
-celery worker -A gluru_backend --loglevel=DEBUG --concurrency=4
 ```
 
-Starting the Scheduler:
+Start celery worker and schedule:
 ```
-celery -A gluru_backend beat -l info
+celery worker -A gluru_backend -n worker.high -Q high -l DEBUG
+celery worker -A gluru_backend -n worker.normal -Q normal -l DEBUG
+celery worker -A gluru_backend -n worker.low -Q low -l DEBUG
+celery -A gluru_backend beat -l INFO
 ```
 
  > `Important!` Beat does not execute tasks, it just sends the messages.
