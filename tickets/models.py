@@ -3,7 +3,7 @@ from django.utils.translation import ugettext as _
 from tickets import constants
 
 
-class TicketManager(models.Manager):
+class ActiveTicketManager(models.Manager):
     def get_queryset(self):
         return super().get_queryset().filter(is_deleted=False)
 
@@ -169,8 +169,9 @@ class Ticket(models.Model):
     updated_at = models.DateTimeField(
         auto_now=True
     )
-
-    objects = TicketManager()
+    
+    objects = models.Manager()
+    actives = ActiveTicketManager()
 
     def __str__(self):
         return self.title
@@ -264,7 +265,7 @@ class TicketProduct(models.Model):
     )
 
 
-class AnswerManager(models.Manager):
+class ActiveAnswerManager(models.Manager):
     def get_queryset(self):
         return super().get_queryset().filter(is_deleted=False)
 
@@ -319,7 +320,8 @@ class Answer(models.Model):
         auto_now=True
     )
 
-    objects = AnswerManager()
+    objects = models.Manager()
+    actives = ActiveAnswerManager()
 
     def __str__(self):
         return self.ticket.title
@@ -412,7 +414,8 @@ class TicketAttachment(models.Model):
         editable=False
     )
 
-    objects = TicketAttachmentManager()
+    objects = models.Manager()
+    actives = TicketAttachmentManager()
 
     class Meta:
         ordering = ['created_at']
