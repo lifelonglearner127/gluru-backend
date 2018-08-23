@@ -17,12 +17,14 @@ class TicketSerializer(serializers.ModelSerializer):
 class TicketSearchSerializer(HighlighterMixin, HaystackSerializer):
     highlighter_html_tag = "strong"
     highlighter_field = "status"
+
     class Meta:
         index_classes = [TicketIndex]
 
         fields = [
             "text", "status", "os_version", "server_version", "category",
-            "is_private", "created_by", "created_for", "company", "created_at"
+            "is_private", "created_by", "created_for", "company",
+            "created_at", "title_auto"
         ]
 
 

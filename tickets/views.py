@@ -30,6 +30,7 @@ from tickets.serializers import (
 from django.db.models import Q
 
 from drf_haystack.viewsets import HaystackViewSet
+from drf_haystack.filters import HaystackAutocompleteFilter
 
 
 class TicketViewSet(mixins.CreateModelMixin,
@@ -156,6 +157,7 @@ class TicketViewSet(mixins.CreateModelMixin,
 class TicketSearchView(HaystackViewSet):
     index_models = [Ticket]
     serializer_class = TicketSearchSerializer
+    filter_backends = [HaystackAutocompleteFilter]
 
 
 class AnswerViewSet(mixins.CreateModelMixin,
@@ -220,7 +222,7 @@ class TicketHistoryViewSet(mixins.ListModelMixin,
                            viewsets.GenericViewSet):
 
     serializer_class = TicketHistorySerializer
-    
+
     def get_queryset(self):
         return TicketHistory.objects.filter(ticket=self.kwargs['ticket_pk'])
 

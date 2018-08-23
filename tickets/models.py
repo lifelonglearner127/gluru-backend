@@ -169,7 +169,7 @@ class Ticket(models.Model):
     updated_at = models.DateTimeField(
         auto_now=True
     )
-    
+
     objects = models.Manager()
     actives = ActiveTicketManager()
 
