@@ -205,6 +205,12 @@ class Ticket(models.Model):
                 after_value=v[1]
             )
 
+    def has_view_permission(self, user):
+        return True
+
+    def has_edit_permission(self, user):
+        return True
+
     @property
     def owned_by(self):
         if self.created_for:
