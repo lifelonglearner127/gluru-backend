@@ -30,21 +30,23 @@ class TicketIndex(indexes.SearchIndex, indexes.Indexable):
         model_attr='is_private'
     )
 
-    # created_by = indexes.CharField(
-    #     model_attr='created_by'
-    # )
+    created_by = indexes.CharField(
+        model_attr='created_by'
+    )
 
-    # created_for = indexes.CharField(
-    #     model_attr='created_for'
-    # )
+    created_for = indexes.CharField(
+        model_attr='created_for',
+        null=True
+    )
 
-    # company = indexes.CharField(
-    #     model_attr='company'
-    # )
+    company = indexes.CharField(
+        model_attr='company',
+        null=True
+    )
 
-    # created_at = indexes.DateTimeField(
-    #     model_attr='created_at'
-    # )
+    created_at = indexes.DateTimeField(
+        model_attr='created_at'
+    )
 
     title_auto = indexes.EdgeNgramField(
         model_attr='title'

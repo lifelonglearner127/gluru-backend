@@ -153,7 +153,7 @@ class TicketViewSet(mixins.CreateModelMixin,
         return Response(None, status=status.HTTP_204_NO_CONTENT)
 
 
-class LocationSearchView(HaystackViewSet):
+class TicketSearchView(HaystackViewSet):
     index_models = [Ticket]
     serializer_class = TicketSearchSerializer
 

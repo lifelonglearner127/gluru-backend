@@ -15,9 +15,8 @@ class TicketSerializer(serializers.ModelSerializer):
 
 
 class TicketSearchSerializer(HighlighterMixin, HaystackSerializer):
-    highlighter_css_class = "my-highlighter-class"
-    highlighter_html_tag = "em"
-
+    highlighter_html_tag = "strong"
+    highlighter_field = "status"
     class Meta:
         index_classes = [TicketIndex]
 
