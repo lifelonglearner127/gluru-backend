@@ -56,7 +56,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     uuid = models.CharField(
         max_length=UUID_MAX_LENGTH,
-        unique=True
+        blank=True,
     )
 
     is_active = models.BooleanField(
