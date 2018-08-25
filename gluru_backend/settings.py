@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'haystack',
     'corsheaders',
     'fieldsignals',
+    'authentication.apps.AuthenticationConfig',
     'tickets.apps.TicketsConfig',
 ]
 
@@ -195,6 +196,8 @@ STATIC_URL = '/static/'
 #         },
 #     }
 # }
+
+AUTH_USER_MODEL = 'authentication.User'
 
 # Settings Realted To Django Rest Framework
 REST_FRAMEWORK = {

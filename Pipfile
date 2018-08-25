@@ -18,6 +18,7 @@ django-fieldsignals = "*"
 requests = "*"
 drf-haystack = "*"
 whoosh = "*"
+pyjwt = "*"
 
 [dev-packages]
 

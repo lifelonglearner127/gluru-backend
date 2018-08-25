@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "147cbfedbd618fa2405c902edeb84613d42785d0a020061dc8c7b6ccbd6dc2e3"
+            "sha256": "ef31650002a0c581d4e82ec014bc34423b34c10e5814577409187c0f3adac12d"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -39,10 +39,10 @@
         },
         "certifi": {
             "hashes": [
-                "sha256:4c1d68a1408dd090d2f3a869aa94c3947cc1d967821d1ed303208c9f41f0f2f4",
-                "sha256:b6e8b28b2b7e771a41ecdd12d4d43262ecab52adebbafa42c77d6b57fb6ad3a4"
+                "sha256:376690d6f16d32f9d1fe8932551d80b23e9d393a8578c5633a2ed39a64861638",
+                "sha256:456048c7e371c089d0a77a5212fb37a2c2dce1e24146e3b7e0261736aaeaa22a"
             ],
-            "version": "==2018.8.13"
+            "version": "==2018.8.24"
         },
         "chardet": {
             "hashes": [
@@ -176,6 +176,7 @@
                 "sha256:30b1380ff43b55441283cc2b2676b755cca45693ae3097325dea01f3d110628c",
                 "sha256:4ee413b357d53fd3fb44704577afac88e72e878716116270d722723d65b42176"
             ],
+            "index": "pypi",
             "version": "==1.6.4"
         },
         "pysocks": {
@@ -216,11 +217,11 @@
         },
         "twilio": {
             "hashes": [
-                "sha256:19c4a8a8de06663f7d55c272b3448376d6fe67a7cab079552ae76fdcd8b476c5",
-                "sha256:6282c0c72c875f83ca2359e199d71b35004691dd90d817293c6b4b764ae2a8d3"
+                "sha256:75a00ebe6f5054204d4dfa2ce44f695c1071be910f4ed37738ee8e8f1b8492ee",
+                "sha256:8d254aee5c064d91f76da807e3760c22a53e1a32aeb6b1924c8bde8344fcd92b"
             ],
             "index": "pypi",
-            "version": "==6.16.2"
+            "version": "==6.16.3"
         },
         "urllib3": {
             "hashes": [
