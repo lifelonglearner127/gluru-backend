@@ -99,11 +99,7 @@ class TicketViewSet(mixins.CreateModelMixin,
         return self.get_paginated_response(serializer.data)
 
     def update(self, request, pk=None):
-        try:
-            serializer_instance = Ticket.objects.get(pk=pk)
-        except Ticket.DoesNotExist:
-            raise NotFound('A ticket with this id does not exist.')
-
+        serializer_instance = self.get_object()
         serializer_data = request.data.get('ticket', {})
 
         serializer = self.serializer_class(
