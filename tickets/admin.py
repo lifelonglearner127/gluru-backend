@@ -44,7 +44,7 @@ class TicketAdmin(admin.ModelAdmin):
     list_display = (
         'id', 'title', 'status', 'issue_type', 'created_by',
         'assignee', 'updated_by', 'category', 'created_at',
-        'updated_at', 'is_deleted', 'activate_ticket'
+        'updated_at', 'is_activated', 'activate_ticket'
     )
 
     search_fields = (
@@ -86,16 +86,26 @@ class TicketAdmin(admin.ModelAdmin):
         }),
     )
 
+    class Media:
+        js = ('admin/js/custom.js',)
+
     def activate_ticket(self, obj):
         if obj.is_deleted:
-            return mark_safe(
-                '<a type="button" href="javascript:void(0);" \
-                class="activate_ticket" data-id="{0}" >Activate</a>'
-                .format(obj.id)
-            )
+            button_name = 'Activate'
         else:
-            return ""
+            button_name = 'Deactivate'
 
+        return mark_safe(
+            '<a type="button" href="javascript:void(0);" \
+            class="activate_ticket" data-id="{0}" data-action="{1}">{1}</a>'
+            .format(obj.id, button_name)
+        )
+
+    def is_activated(self, obj):
+        return not obj.is_deleted
+
+    is_activated.short_description = 'Is Activated?'
+    is_activated.boolean = True
 
 @admin.register(Answer)
 class AnswerAdmin(admin.ModelAdmin):
