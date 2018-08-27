@@ -13,7 +13,7 @@ def notify_by_sms(ticket):
 
     send_sms.apply_async(
         args=[
-            ticket.created_by,
+            ticket.created_by.uuid,
             ticket.company,
             ticket.issue_type,
             'link'
@@ -32,7 +32,7 @@ def notify_new_ticket(ticket):
             'ticket_id': ticket.id,
             'ticket_title': ticket.title,
             'ticket_link': 'generate_ticket_url(ticket)',
-            'ticket_created_by': ticket.created_by,
+            'ticket_created_by': ticket.created_by.uuid,
             'ticket_created_by_comp': 'ticket.created_by.get_company()',
             'ticket_body': ticket.body,
             'subscription_link': 'generate_subscribe_link(ticket)',
@@ -119,7 +119,7 @@ def notify_ticket_assigned(ticket, user):
             'ticket_id': ticket.id,
             'ticket_title': ticket.title,
             'ticket_link': 'generate_ticket_url(ticket)',
-            'ticket_created_by': ticket.created_by,
+            'ticket_created_by': ticket.created_by.uuid,
             'ticket_created_by_comp': 'ticket.created_by.get_company()',
             'ticket_body': ticket.body,
             'subscription_link': 'generate_subscribe_link(ticket)',

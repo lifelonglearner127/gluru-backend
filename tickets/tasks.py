@@ -9,6 +9,7 @@ from gluru_backend.utils import (
     generate_ticket_link
 )
 from tickets.models import Ticket
+from connector.gluu_acm import UserInfo
 
 account_sid = settings.TWILIO_ACCOUNT_SID
 auth_token = settings.TWILIO_AUTH_TOKEN
@@ -16,17 +17,27 @@ client = Client(account_sid, auth_token)
 
 
 @app.task
-def send_sms(created_by, company, issue_type, link):
+def send_sms(uuid, company, issue_type, link):
+    """
+    Send SMS to users via Twillio
+    """
+
     text = """ has just opened a {0} on Gluu support:(https://support.gluu.org{1}).
     Please respond ASAP.
     Thanks! - Gluu Team
     """.format(issue_type, link)
 
+    user = UserInfo(uuid)
+    user_info = user.get_user()
+
+    if user_info is None:
+        return
+
     if company is None:
-        text = created_by + text
+        text = user_info['first_name'] + text
     else:
         text = '{0} from {1}' + text
-        text.format(created_by, company)
+        text.format(user_info['first_name'], company)
 
     for sms in constants.SMS_NUMBERS:
         text = 'Hello ' + sms[0] + ', ' + text

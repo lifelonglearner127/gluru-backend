@@ -10,6 +10,7 @@ from django.db import models
 
 from tickets.constants import UUID_MAX_LENGTH
 
+
 class UserManager(BaseUserManager):
     def create_user(self, username, email, password=None):
         """
