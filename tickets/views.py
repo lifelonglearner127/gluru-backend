@@ -15,7 +15,8 @@ from rest_framework.response import (
 )
 
 from rest_framework.permissions import (
-    IsAuthenticatedOrReadOnly
+    IsAuthenticatedOrReadOnly,
+
 )
 
 from tickets.models import (
@@ -25,6 +26,10 @@ from tickets.models import (
 from tickets.serializers import (
     TicketSerializer, AnswerSerializer, TicketSearchSerializer,
     TicketHistorySerializer
+)
+
+from tickets.permissions import (
+    IsAdminOrIsSelf
 )
 
 from django.db.models import Q
@@ -40,7 +45,7 @@ class TicketViewSet(mixins.CreateModelMixin,
                     mixins.DestroyModelMixin,
                     viewsets.GenericViewSet):
 
-    # permission_classes = (IsAuthenticatedOrReadOnly,)
+    permission_classes = [IsAdminOrIsSelf]
     serializer_class = TicketSerializer
     queryset = Ticket.objects.all()
 
@@ -143,11 +148,7 @@ class TicketViewSet(mixins.CreateModelMixin,
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def destroy(self, request, pk=None):
-        try:
-            ticket = Ticket.objects.get(pk=pk)
-        except Ticket.DoesNotExist:
-            raise NotFound('An ticket with this ID does not exist')
-
+        ticket = self.get_object()
         ticket.is_deleted = True
         ticket.save()
 
