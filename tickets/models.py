@@ -1,4 +1,5 @@
 from django.db import models
+from django.conf import settings
 from django.utils.translation import ugettext as _
 from tickets import constants
 
@@ -27,14 +28,18 @@ class Ticket(models.Model):
         default=''
     )
 
-    created_by = models.CharField(
-        max_length=constants.UUID_MAX_LENGTH
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='created_by_tickets'
     )
 
-    created_for = models.CharField(
-        max_length=constants.UUID_MAX_LENGTH,
+    created_for = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
         blank=True,
-        null=True
+        null=True,
+        related_name='created_for_tickets'
     )
 
     company = models.CharField(
@@ -44,17 +49,21 @@ class Ticket(models.Model):
         verbose_name=_('Company Association')
     )
 
-    updated_by = models.CharField(
-        max_length=constants.UUID_MAX_LENGTH,
+    updated_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
         blank=True,
         null=True,
+        related_name='updated_by_tickets',
         verbose_name=_('Last Updated by')
     )
 
-    assignee = models.CharField(
-        max_length=constants.UUID_MAX_LENGTH,
+    assignee = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
         blank=True,
-        null=True
+        null=True,
+        related_name='assigned_tickets'
     )
 
     status = models.CharField(
@@ -286,8 +295,10 @@ class Answer(models.Model):
         related_name='answers',
     )
 
-    created_by = models.CharField(
-        max_length=20,
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='answers',
         help_text=_('Answer added by user')
     )
 
@@ -344,8 +355,10 @@ class TicketHistory(models.Model):
         related_name='history'
     )
 
-    changed_by = models.CharField(
-        max_length=constants.UUID_MAX_LENGTH
+    changed_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='changes'
     )
 
     changed_field = models.CharField(
@@ -385,8 +398,10 @@ class TicketAttachment(models.Model):
         upload_to='upload/'
     )
 
-    created_by = models.CharField(
-        max_length=constants.UUID_MAX_LENGTH
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='attachments'
     )
 
     ticket = models.ForeignKey(
@@ -490,8 +505,9 @@ class TicketNotification(models.Model):
         related_name='blacklist',
     )
 
-    user = models.CharField(
-        max_length=constants.UUID_MAX_LENGTH,
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
         help_text=_('User associated with this ticket notification')
     )
 
