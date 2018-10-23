@@ -19,6 +19,7 @@ requests = "*"
 drf-haystack = "*"
 whoosh = "*"
 pyjwt = "*"
+"psycopg2" = "*"
 
 [dev-packages]
 

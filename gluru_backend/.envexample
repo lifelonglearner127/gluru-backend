@@ -2,6 +2,9 @@ DEBUG=on
 HTTPS=off
 SECRET_KEY=w7ut$kmysq8e10*)daftid$xn5$#_1#p4ahg9ibeynt!$gtstn
 
+# Database
+DATABASE_URL=postgres://postgres:gibupjo127@localhost:5432/supports
+
 # Twilio
 TWILIO_ACCOUNT_SID=AC0a20059755f01ed031e3f7dc21bb9be2
 TWILIO_AUTH_TOKEN=237d8a3be9b4823d59186ee67b327818

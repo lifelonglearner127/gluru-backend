@@ -237,4 +237,4 @@ HAYSTACK_CONNECTIONS = {
         'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
         'PATH': str(root.path('whoosh_index')),
     },
-} 
+}
