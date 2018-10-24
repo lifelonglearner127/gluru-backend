@@ -21,11 +21,3 @@ class SupportUserAdmin(admin.ModelAdmin):
             'is_active', 'created_at', 'idp_uuid'
         )}),
     )
-    add_fieldsets = (
-        (None, {
-            'classes': ('wide',),
-            'fields': ('email', 'password1', 'password2'),
-        }),
-    )
-    filter_horizontal = ()
-    list_filter = ()
