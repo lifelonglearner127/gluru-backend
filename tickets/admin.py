@@ -107,6 +107,7 @@ class TicketAdmin(admin.ModelAdmin):
     is_activated.short_description = 'Is Activated?'
     is_activated.boolean = True
 
+
 @admin.register(Answer)
 class AnswerAdmin(admin.ModelAdmin):
     list_display = (

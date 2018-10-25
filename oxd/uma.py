@@ -23,7 +23,9 @@ def get_resource_ticket(url):
         ticket_sections = auth_header.split('ticket=')
         ticket = ticket_sections[1].split('\',')[0]
     except IndexError:
-        raise e.InvalidWwwAuthHeader('WWW-Authenticate header formatted incorrectly')
+        raise e.InvalidWwwAuthHeader(
+            'WWW-Authenticate header formatted incorrectly'
+        )
 
     return ticket
 
@@ -202,4 +204,3 @@ def get_user_info(access_token):
             r.text
         )
     )
-

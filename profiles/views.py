@@ -8,6 +8,7 @@ from profiles import serializers as s
 from oxd import uma as api
 from oxd import exceptions as e
 
+
 class GetLoginUrlAPIView(APIView):
     permission_classes = (AllowAny,)
 

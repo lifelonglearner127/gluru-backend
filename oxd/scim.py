@@ -110,7 +110,8 @@ def activate_user(user):
         return r.json()
 
     raise e.ScimError(
-        'Unexpected SCIM response while activating a user {} - {} \n\n {}'.format(
+        'Unexpected SCIM response while activating a user {} - {} \n\n {}'
+        .format(
             user.email, user.idp_uuid, r.text
         )
     )
@@ -172,7 +173,8 @@ def update_user(user):
         return r.json()
 
     raise e.ScimError(
-        'Unexpected SCIM response while activating a user {} - {} \n\n {}'.format(
+        'Unexpected SCIM response while activating a user {} - {} \n\n {}'
+        .format(
             user.email, user.idp_uuid, r.text
         )
     )
@@ -216,7 +218,8 @@ def email_exists(email):
             return False
 
     raise e.ScimError(
-        'Unexpected SCIM response while checking if email - {} exists \n\n {}'.format(
+        'Unexpected SCIM response while checking if email - {} exists \n\n {}'
+        .format(
             email, r.text
         )
     )

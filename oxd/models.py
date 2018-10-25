@@ -145,7 +145,10 @@ class Configuration(models.Model):
             self.client_id = data.get('client_id', self.client_id)
             self.client_secret = data.get('client_secret', self.client_secret)
             self.scope = data.get('scope', ' '.join(self.scope)).split(' ')
-            self.grant_types = data.get('grant_types', ' '.join(self.grant_types)).split(' ')
+            self.grant_types = data.get(
+                'grant_types',
+                ' '.join(self.grant_types)
+            ).split(' ')
             self.protection_access_token = data.get(
                 'access_token', self.protection_access_token
             )
