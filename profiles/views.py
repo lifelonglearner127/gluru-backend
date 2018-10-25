@@ -7,6 +7,7 @@ from rest_framework.response import Response
 from profiles import serializers as s
 from oxd import uma as api
 from oxd import exceptions as e
+from django.conf import settings
 
 
 class GetLoginUrlAPIView(APIView):
@@ -14,7 +15,6 @@ class GetLoginUrlAPIView(APIView):
 
     def get(self, request):
         url = api.get_authorization_url()
-        print(url)
         return Response(
             {
                 'results': {
@@ -51,6 +51,20 @@ class LoginCallbackAPIView(APIView):
             {
                 'results': {
                     'details': 'Unable to log user in'
+                }
+            },
+            status=status.HTTP_200_OK
+        )
+
+
+class RegistrationAPIView(APIView):
+    permission_classes = (AllowAny,)
+
+    def get(self, request):
+        return Response(
+            {
+                'results': {
+                    'signup_url': settings.GLUU_USER_APP
                 }
             },
             status=status.HTTP_200_OK
