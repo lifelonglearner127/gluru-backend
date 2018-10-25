@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'fieldsignals',
     'profiles.apps.ProfilesConfig',
     'tickets.apps.TicketsConfig',
+    'oxd.apps.OxdConfig'
 ]
 
 MIDDLEWARE = [
@@ -198,6 +199,11 @@ STATIC_URL = '/static/'
 # }
 
 AUTH_USER_MODEL = 'profiles.User'
+
+AUTHENTICATION_BACKENDS = [
+    'oxd.authentication.OpenIdBackend',
+    'django.contrib.auth.backends.ModelBackend'
+]
 
 # Settings Realted To Django Rest Framework
 REST_FRAMEWORK = {

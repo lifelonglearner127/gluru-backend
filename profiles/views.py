@@ -5,16 +5,19 @@ from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from profiles import serializers as s
-
+from oxd import uma as api
+from oxd import exceptions as e
 
 class GetLoginUrlAPIView(APIView):
     permission_classes = (AllowAny,)
 
     def get(self, request):
+        url = api.get_authorization_url()
+        print(url)
         return Response(
             {
                 'results': {
-                    'login_url': 'ddd'
+                    'login_url': url
                 }
             },
             status=status.HTTP_200_OK
@@ -25,10 +28,15 @@ class LoginCallbackAPIView(APIView):
     permission_classes = (AllowAny, )
 
     def get(self, request):
+        token_json = api.get_token_from_callback(request.query_params)
+        access_token = token_json.get('access_token')
+        id_token = token_json.get('id_token')
+        if not access_token or not id_token:
+            raise e.OxdError('Invalid token')
         user = authenticate(
-            username='lifelonglearner127@outlook.com',
-            password='gibupjo127'
+            request, access_token=access_token, id_token=id_token
         )
+        print(user)
         if user is not None:
             user_serializer = s.UserSerializer(user)
             return Response(
@@ -41,7 +49,7 @@ class LoginCallbackAPIView(APIView):
         return Response(
             {
                 'results': {
-                    'login_url': 'ddd'
+                    'details': 'Unable to log user in'
                 }
             },
             status=status.HTTP_200_OK
