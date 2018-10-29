@@ -15,3 +15,6 @@ TWILIO_AUTH_TOKEN=237d8a3be9b4823d59186ee67b327818
 
 # Email
 EMAIL_FROM=levan@gluu.org
+
+# CORS settings
+CORS_ORIGIN_WHITELIST=http://localhost:8081
