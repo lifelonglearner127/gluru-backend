@@ -40,7 +40,7 @@ class LoginCallbackAPIView(APIView):
         user = authenticate(
             request, access_token=access_token, id_token=id_token
         )
-        print(user)
+
         if user is not None:
             user_serializer = s.UserSerializer(user)
             return Response(

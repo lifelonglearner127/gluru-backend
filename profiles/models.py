@@ -53,6 +53,9 @@ class User(AbstractBaseUser, PermissionsMixin):
         max_length=255,
         blank=True,
     )
+    id_token = models.TextField(
+        blank=True
+    )
     is_active = models.BooleanField(
         default=True
     )
