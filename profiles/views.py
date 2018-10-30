@@ -58,14 +58,16 @@ class LoginCallbackAPIView(APIView):
         )
 
 
-class RegistrationAPIView(APIView):
+class GetSingupUrlAPIView(APIView):
     permission_classes = (AllowAny,)
 
     def get(self, request):
+        url = '{}/register?from=support'\
+            .format(settings.GLUU_USER_FRONTEND_APP)
         return Response(
             {
                 'results': {
-                    'signup_url': settings.GLUU_USER_FRONTEND_APP
+                    'signup_url': url
                 }
             },
             status=status.HTTP_200_OK
