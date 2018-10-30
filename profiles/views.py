@@ -74,6 +74,21 @@ class GetSingupUrlAPIView(APIView):
         )
 
 
+class LogoutUrlAPIView(APIView):
+    permission_classes = (IsAuthenticated, )
+
+    def get(self, request):
+        url = api.get_logout_url(id_token=request.user.id_token)
+        return Response(
+            {
+                'results': {
+                    'logout_url': url
+                }
+            },
+            status=status.HTTP_200_OK
+        )
+
+
 class CheckRegistrationAPIView(APIView):
     permission_classes = (AllowAny, )
     serializer_class = s.UserSerializer
