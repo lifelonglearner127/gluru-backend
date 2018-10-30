@@ -52,11 +52,9 @@ class LoginCallbackAPIView(APIView):
 
         return Response(
             {
-                'results': {
-                    'details': 'Unable to log user in'
-                }
+                'user': 'You are not registered on support portal yet'
             },
-            status=status.HTTP_200_OK
+            status=status.HTTP_403_FORBIDDEN
         )
 
 
