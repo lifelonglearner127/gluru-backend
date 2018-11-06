@@ -10,6 +10,12 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.1/ref/settings/
 """
 import environ
+import sentry_sdk
+from sentry_sdk.integrations.django import DjangoIntegration
+sentry_sdk.init(
+    dsn="https://03e225f69a4c42eb9a16f101438672c0@sentry.io/1317182",
+    integrations=[DjangoIntegration()]
+)
 root = environ.Path(__file__) - 2
 env = environ.Env(DEBUG=(bool, False),)
 environ.Env.read_env()
