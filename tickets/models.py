@@ -1,16 +1,31 @@
+"""
+Ticket Model
+
+Author:     Levan Begashvili
+Date:       November 9th, 2018
+"""
 from django.db import models
 from django.conf import settings
 from django.utils.translation import ugettext as _
 from tickets import constants
 
 
+
 class ActiveTicketManager(models.Manager):
+    """
+    Active Ticket Manager
+    """
     def get_queryset(self):
+        """
+        Return all active tickets
+        """
         return super().get_queryset().filter(is_deleted=False)
 
 
 class Ticket(models.Model):
-
+    """
+    Ticket models
+    """
     WATCHING_FIELDS = (
         'assignee', 'status', 'is_deleted', 'issue_type',
         'title', 'body', 'created_for'
@@ -193,10 +208,16 @@ class Ticket(models.Model):
         self._initial = self.__dict__.copy()
 
     def save(self, *args, **kwargs):
+        """
+        Override the save
+        """
         super(Ticket, self).save()
         self.make_history()
 
     def make_history(self):
+        """
+        Make the history of the ticket changes
+        """
         changed = [
             (k, (v, self.__dict__[k]))
             for k, v in self._initial.items()
@@ -215,9 +236,15 @@ class Ticket(models.Model):
             )
 
     def has_view_permission(self, user):
+        """
+        Check if this user has view permission
+        """
         return True
 
     def has_edit_permission(self, user):
+        """
+        Check if this user has edit permission
+        """
         return True
 
     @property
@@ -488,12 +515,24 @@ class NotficationContact(models.Model):
 
 
 class TicketNotificationSubscriberManager(models.Manager):
+    """
+    Ticket Subscriber Manager
+    """
     def get_queryset(self):
+        """
+        Return subscribers
+        """
         return super().get_queryset().filter(is_subscribed=True)
 
 
 class TicketNotificationUnSubscriberManager(models.Manager):
+    """
+    Ticket UnSubscriber Manager
+    """
     def get_queryset(self):
+        """
+        Ticket unsubscribers
+        """
         return super().get_queryset().filter(is_subscribed=False)
 
 
