@@ -10,7 +10,6 @@ from django.utils.translation import ugettext as _
 from tickets import constants
 
 
-
 class ActiveTicketManager(models.Manager):
     """
     Active Ticket Manager

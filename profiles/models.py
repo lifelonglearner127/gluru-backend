@@ -1,7 +1,11 @@
-import jwt
+"""
+Profile Models
 
+Author: Levan Begashvili
+Date: November 9th, 2018
+"""
 from datetime import datetime, timedelta
-
+import jwt
 from django.conf import settings
 from django.contrib.auth.models import (
     AbstractBaseUser, BaseUserManager, PermissionsMixin
@@ -9,8 +13,54 @@ from django.contrib.auth.models import (
 from django.db import models
 
 
+class Company(models.Model):
+    """
+    Company Model
+    """
+    name = models.CharField(
+        max_length=100,
+        unique=True
+    )
+
+    type = models.CharField(
+        max_length=500,
+        blank=True
+    )
+
+    managed_service = models.IntegerField(
+        default=0
+    )
+
+    created = models.DateTimeField(
+        auto_now_add=True
+    )
+
+    support_plan = models.CharField(
+        max_length=100,
+        blank=True
+    )
+
+    entitlements = models.CharField(
+        max_length=500,
+        blank=True
+    )
+
+    class Meta:
+        verbose_name_plural = 'companies'
+        ordering = ['name']
+
+    def __str__(self):
+        return self.name
+
+
 class UserManager(BaseUserManager):
+    """
+    User Manager
+    """
     def create_user(self, email, password=None):
+        """
+        Create the user and use email as username
+        """
         if email is None:
             raise TypeError('Users must have an email address.')
 
@@ -21,6 +71,9 @@ class UserManager(BaseUserManager):
         return user
 
     def create_superuser(self, email, password):
+        """
+        Create superuser
+        """
         if password is None:
             raise TypeError('Superusers must have a password.')
 
@@ -33,6 +86,9 @@ class UserManager(BaseUserManager):
 
 
 class User(AbstractBaseUser, PermissionsMixin):
+    """
+    User Model
+    """
     first_name = models.CharField(
         max_length=255,
         blank=True
@@ -78,20 +134,32 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     @property
     def token(self):
+        """
+        Return JWT Token that is unique
+        """
         return self._generate_jwt_token()
 
     def get_full_name(self):
+        """
+        Return user full name
+        """
         return self.first_name + ' ' + self.last_name
 
     def get_short_name(self):
+        """
+        Return user first name
+        """
         return self.first_name
 
     def _generate_jwt_token(self):
-        dt = datetime.now() + timedelta(days=60)
+        """
+        Generate JWT Token
+        """
+        valid_time = datetime.now() + timedelta(days=60)
 
         token = jwt.encode({
             'id': self.pk,
-            'exp': int(dt.strftime('%s'))
+            'exp': int(valid_time.strftime('%s'))
         }, settings.SECRET_KEY, algorithm='HS256')
 
         return token.decode('utf-8')
