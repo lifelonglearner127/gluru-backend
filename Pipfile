@@ -21,6 +21,7 @@ whoosh = "*"
 pyjwt = "*"
 "psycopg2" = "*"
 sentry-sdk = "*"
+pylint-django = "*"
 
 [dev-packages]
 
