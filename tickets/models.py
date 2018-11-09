@@ -6,7 +6,9 @@ Date:       November 9th, 2018
 """
 from django.db import models
 from django.conf import settings
+from django.utils import timezone
 from django.utils.translation import ugettext as _
+from profiles.models import Company
 from tickets import constants
 
 
@@ -56,10 +58,12 @@ class Ticket(models.Model):
         related_name='created_for_tickets'
     )
 
-    company = models.CharField(
-        max_length=constants.UUID_MAX_LENGTH,
+    company_association = models.ForeignKey(
+        Company,
+        on_delete=models.SET_NULL,
         blank=True,
         null=True,
+        related_name='tickets',
         verbose_name=_('Company Association')
     )
 
@@ -129,12 +133,6 @@ class Ticket(models.Model):
         max_length=255,
         blank=True,
         verbose_name=_('Link URL')
-    )
-
-    send_copy = models.CharField(
-        max_length=255,
-        blank=True,
-        verbose_name=_('Send copy to')
     )
 
     is_private = models.BooleanField(
@@ -210,8 +208,12 @@ class Ticket(models.Model):
         """
         Override the save
         """
-        super(Ticket, self).save()
-        self.make_history()
+        if kwargs.get('user', None):
+            self.updated_by = kwargs['user']
+            self.updated_at = timezone.now()
+
+        super().save(*args, **kwargs)
+
 
     def make_history(self):
         """
@@ -222,7 +224,7 @@ class Ticket(models.Model):
             for k, v in self._initial.items()
             if v != self.__dict__[k] and k in self.WATCHING_FIELDS
         ]
-        for k, v in dict(changed).items():
+        for k, values in dict(changed).items():
             if self.updated_by is not None:
                 updated_by = self.updated_by
             else:
@@ -230,31 +232,67 @@ class Ticket(models.Model):
             self.history.create(
                 changed_by=updated_by,
                 changed_field=k,
-                before_value=v[0],
-                after_value=v[1]
+                before_value=values[0],
+                after_value=values[1]
             )
 
     def has_view_permission(self, user):
         """
         Check if this user has view permission
         """
-        return True
+        if not self.is_private or user.is_admin:
+            return True
+
+        if user.is_anonymous():
+            return False
+
+        if self.owned_by == user:
+            return True
+
+        if (user.is_named and self.company_association == user.company_association):
+            return True
+
+        if user.is_partner_of(self.company_association):
+            return True
+
+        return False
 
     def has_edit_permission(self, user):
         """
         Check if this user has edit permission
         """
-        return True
+        if user.is_anonymous():
+            return False
+
+        if user.is_admin:
+            return True
+
+        if self.owned_by == user:
+            return True
+
+        if user.is_named and \
+            self.company_association == user.company_association:
+            return True
+
+        if user.is_partner_of(self.company_association):
+            return True
+
+        return False
 
     @property
     def owned_by(self):
+        """
+        Return ticket owner
+        """
         if self.created_for:
             return self.created_for
         return self.created_by
 
 
 class TicketProduct(models.Model):
-
+    """
+    Ticket Product Model
+    """
     ticket = models.ForeignKey(
         Ticket,
         on_delete=models.CASCADE,
@@ -307,12 +345,20 @@ class TicketProduct(models.Model):
 
 
 class ActiveAnswerManager(models.Manager):
+    """
+    Active Answer Manager
+    """
     def get_queryset(self):
+        """
+        Return active answers
+        """
         return super().get_queryset().filter(is_deleted=False)
 
 
 class Answer(models.Model):
-
+    """
+    Answer Model
+    """
     body = models.TextField()
 
     ticket = models.ForeignKey(
@@ -374,7 +420,9 @@ class Answer(models.Model):
 
 
 class TicketHistory(models.Model):
-
+    """
+    Ticket History Model
+    """
     ticket = models.ForeignKey(
         Ticket,
         on_delete=models.CASCADE,
@@ -413,12 +461,20 @@ class TicketHistory(models.Model):
 
 
 class TicketAttachmentManager(models.Manager):
+    """
+    Ticket Attachment Manager
+    """
     def get_queryset(self):
+        """
+        Return Ticket Attachement Manager
+        """
         return super().get_queryset().filter(is_deleted=False)
 
 
 class TicketAttachment(models.Model):
-
+    """
+    Ticket Attachment Model
+    """
     file = models.FileField(
         max_length=255,
         upload_to='upload/'
@@ -471,12 +527,20 @@ class TicketAttachment(models.Model):
 
 
 class NotficationAvailableContact(models.Manager):
+    """
+    Available Contact Manger
+    """
     def get_queryset(self):
+        """
+        Return available contacts
+        """
         return super().get_queryset().filter(enabled=True)
 
 
 class NotficationContact(models.Model):
-
+    """
+    Notification Contact Model
+    """
     PRIORITY_HIGH = 'H'
     PRIORITY_LOW = 'L'
     PRIORITY = (
@@ -536,7 +600,9 @@ class TicketNotificationUnSubscriberManager(models.Manager):
 
 
 class TicketNotification(models.Model):
-
+    """
+    Ticket Notification Model
+    """
     ticket = models.ForeignKey(
         Ticket,
         on_delete=models.CASCADE,
