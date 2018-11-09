@@ -1,8 +1,16 @@
+"""
+Ticket Notification
+
+Author:     Levan Begashvili
+Date:       November 9th, 2018
+"""
 from tickets.tasks import send_sms, send_email
 
 
 def notify_by_sms(ticket):
-    # TODO: Route different queue depending on support plan
+    """
+    Send SMS depending on support plan
+    """
     support_plan = 'Enterprise'
     priority = 'low'
 
@@ -24,6 +32,9 @@ def notify_by_sms(ticket):
 
 
 def notify_new_ticket(ticket):
+    """
+    Send notification by email if the ticket is newly created
+    """
     context = {
         'subject_template': 'emails/ticket/new_ticket_sub.txt',
         'email_template': 'emails/ticket/new_ticket_for_user.txt',
@@ -32,8 +43,8 @@ def notify_new_ticket(ticket):
             'ticket_id': ticket.id,
             'ticket_title': ticket.title,
             'ticket_link': 'generate_ticket_url(ticket)',
-            'ticket_created_by': ticket.created_by.uuid,
-            'ticket_created_by_comp': 'ticket.created_by.get_company()',
+            'ticket_created_by': ticket.created_by,
+            'ticket_created_by_comp': ticket.company_association,
             'ticket_body': ticket.body,
             'subscription_link': 'generate_subscribe_link(ticket)',
             'issue_type': ticket.issue_type
@@ -52,18 +63,21 @@ def notify_new_ticket(ticket):
 
 
 def notify_new_answer(answer):
+    """
+    Send notification by email if the answer is newly created
+    """
     context = {
         'subject_template': 'emails/answer/new_answer_sub.txt',
         'email_template': 'emails/answer/new_answer.txt',
         'html_template': 'emails/answer/new_answer.html',
         'context': {
-            'ticket_id': 'answer.ticket.id',
-            'ticket_title': 'answer.ticket.title',
+            'ticket_id': answer.ticket.id,
+            'ticket_title': answer.ticket.title,
             'support_plan': 'support_plan',
             'ticket_link': 'ticket_link',
-            'answer_created_by': 'answer.created_by',
+            'answer_created_by': answer.created_by,
             'answer_created_by_comp': 'answer.created_by.get_company()',
-            'answer_body': 'answer.answer',
+            'answer_body': answer.answer,
         },
         'to_email': [
             'life.long.learner127@outlook.com'
@@ -80,27 +94,28 @@ def notify_new_answer(answer):
 
 
 def notify_tagged_staff(answer, tagged_users):
+    """
+    Send notification to tagged users
+    """
     if tagged_users:
         context = {
             'subject_template': 'emails/answer/new_tagged_staff_sub.txt',
             'email_template': 'emails/answer/new_tagged_staff.txt',
             'html_template': 'emails/answer/new_tagged_staff.html',
             'context': {
-                'ticket_id': 'answer.ticket.id',
-                'ticket_title': 'answer.ticket.title',
+                'ticket_id': answer.ticket.id,
+                'ticket_title': answer.ticket.title,
                 'support_plan': 'support_plan',
                 'ticket_link': 'ticket_link',
-                'answer_created_by': 'answer.created_by',
+                'answer_created_by': answer.created_by,
                 'answer_created_by_comp': 'answer.created_by.get_company()',
-                'answer_body': 'answer.answer',
+                'answer_body': answer.answer,
             },
             'to_email': []
         }
 
     for tagged_user in tagged_users:
-        name = tagged_user.replace('@', '')
-        # TODO: Find this user from account management app
-        context['to_email'].append('life.long.learner127@outlook.com')
+        context['to_email'].append(tagged_user.email)
         send_email.apply_async(
             args=[
                 context
@@ -111,6 +126,9 @@ def notify_tagged_staff(answer, tagged_users):
 
 
 def notify_ticket_assigned(ticket, user):
+    """
+    Send notification by email if the ticket is assigned
+    """
     context = {
         'subject_template': 'emails/ticket/ticket_assigned_subject.txt',
         'email_template': 'emails/ticket/ticket_assigned.txt',
@@ -129,7 +147,7 @@ def notify_ticket_assigned(ticket, user):
             'first_name': 'first_name'
         },
         'to_email': [
-            'life.long.learner127@outlook.com'
+            user.email
         ]
     }
 
@@ -143,7 +161,9 @@ def notify_ticket_assigned(ticket, user):
 
 
 def notify_ticket_reopened(ticket, user):
-
+    """
+    Send the notification by email if the closed ticket is reopened.
+    """
     context = {
         'subject_template': 'emails/ticket/ticket_reopened.txt',
         'email_template': 'emails/ticket/ticket_reopened.txt',
@@ -156,7 +176,7 @@ def notify_ticket_reopened(ticket, user):
             'ticket_link': 'generate_ticket_url(ticket)',
         },
         'to_email': [
-            'life.long.learner127@outlook.com'
+            user.email
         ]
     }
 

@@ -1,3 +1,9 @@
+"""
+Ticket Signal
+
+Author:     Levan Begashvili
+Date:       November 9th, 2018
+"""
 import re
 from django.dispatch import receiver
 from django.db.models.signals import post_save
@@ -21,7 +27,7 @@ def ticket_saved(sender, instance, created, **kwargs):
     if not created:
         return
 
-    notify_by_sms(instance)
+    # notify_by_sms(instance)
     notify_new_ticket(instance)
 
 
@@ -52,9 +58,7 @@ def answer_changed(sender, instance, changed_fields=None, **kwargs):
 
 
 @receiver(pre_save_changed, sender=Ticket, fields=[
-    'assignee', 'status', 'is_deleted'
-    ]
-)
+    'assignee', 'status', 'is_deleted'])
 def ticket_fields_monitor(sender, instance, changed_fields=None, **kwargs):
     """
     This function is triggered when above fields are changed.
