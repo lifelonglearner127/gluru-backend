@@ -1,0 +1,39 @@
+[
+    {
+        "model": "info.TicketIssueType",
+        "pk": 1,
+        "fields": {
+            "name": "Production Outage",
+            "priority": "high"
+        }
+    },
+    {
+        "model": "info.TicketIssueType",
+        "pk": 2,
+        "fields": {
+            "name": "Production Impaired",
+            "priority": "high"
+        }
+    },
+    {
+        "model": "info.TicketIssueType",
+        "pk": 3,
+        "fields": {
+            "name": "Pre-Production Issue"
+        }
+    },
+    {
+        "model": "info.TicketIssueType",
+        "pk": 4,
+        "fields": {
+            "name": "Minor Issue"
+        }
+    },
+    {
+        "model": "info.TicketIssueType",
+        "pk": 5,
+        "fields": {
+            "name": "New Development Issue"
+        }
+    }
+]

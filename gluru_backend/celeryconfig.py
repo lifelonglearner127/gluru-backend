@@ -4,7 +4,11 @@ broker_url = 'amqp://localhost'
 
 beat_schedule = {
     'email-reminder': {
-        'task': 'tickets.tasks.reminder',
+        'task': 'notification.tasks.email_reminder',
+        'schedule': 5,
+    },
+    'sms-reminder': {
+        'task': 'notification.tasks.send_sms',
         'schedule': 5,
     },
 }
@@ -34,3 +38,4 @@ task_default_queue = 'normal'
 task_default_exchange = 'normal'
 task_default_routing_key = 'normal'
 task_default_exchange_type = 'direct'
+task_always_eager = True

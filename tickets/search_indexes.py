@@ -5,55 +5,51 @@ from tickets.models import Ticket
 
 class TicketIndex(indexes.SearchIndex, indexes.Indexable):
 
-    text = indexes.CharField(
-        document=True,
-        use_template=True
-    )
+    text = indexes.CharField(document=True, use_template=True)
 
     status = indexes.CharField(
         model_attr='status'
     )
 
-    os_version = indexes.CharField(
-        model_attr='os_version'
+    category = indexes.IntegerField(
+        model_attr='category__id'
     )
 
-    server_version = indexes.CharField(
-        model_attr='server_version'
+    issue_type = indexes.IntegerField(
+        model_attr='issue_type__id'
     )
 
-    category = indexes.CharField(
-        model_attr='category'
+    gluu_server = indexes.IntegerField(
+        model_attr='gluu_server__id'
     )
 
-    is_private = indexes.BooleanField(
-        model_attr='is_private'
+    os = indexes.IntegerField(
+        model_attr='os__id'
     )
 
-    created_by = indexes.CharField(
-        model_attr='created_by'
+    created_by = indexes.IntegerField(
+        model_attr='created_by__id',
+        default=0
     )
 
-    created_for = indexes.CharField(
-        model_attr='created_for',
-        null=True
+    assignee = indexes.IntegerField(
+        model_attr='assignee__id',
+        default=0
     )
 
-    company = indexes.CharField(
-        model_attr='company',
-        null=True
+    company = indexes.IntegerField(
+        model_attr='company_association__id',
+        default=0
     )
 
-    created_at = indexes.DateTimeField(
-        model_attr='created_at'
-    )
+    autocomplete = indexes.EdgeNgramField()
 
-    title_auto = indexes.EdgeNgramField(
-        model_attr='title'
-    )
+    @staticmethod
+    def prepare_autocomplete(obj):
+        return " ".join((obj.title, obj.body))
 
     def get_model(self):
         return Ticket
 
     def index_queryset(self, using=None):
-        return self.get_model().objects.all()
+        return self.get_model().actives.all()

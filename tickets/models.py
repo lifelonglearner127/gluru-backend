@@ -1,48 +1,25 @@
-"""
-Ticket Model
-
-Author:     Levan Begashvili
-Date:       November 9th, 2018
-"""
 from django.db import models
 from django.conf import settings
-from django.utils import timezone
-from django.utils.translation import ugettext as _
+from . import constants
 from profiles.models import Company
-from tickets import constants
+from info.models import (
+    GluuServer, GluuOS, GluuProduct, TicketCategory, TicketIssueType
+)
 
 
 class ActiveTicketManager(models.Manager):
-    """
-    Active Ticket Manager
-    """
+
     def get_queryset(self):
-        """
-        Return all active tickets
-        """
         return super().get_queryset().filter(is_deleted=False)
 
 
 class Ticket(models.Model):
-    """
-    Ticket models
-    """
-    WATCHING_FIELDS = (
-        'assignee', 'status', 'is_deleted', 'issue_type',
-        'title', 'body', 'created_for'
-    )
 
     title = models.CharField(
         max_length=255
     )
 
     body = models.TextField()
-
-    category = models.CharField(
-        max_length=constants.CHOICE_MAX_LENGTH,
-        choices=constants.ISSUE_CATEGORY,
-        default=''
-    )
 
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -63,8 +40,7 @@ class Ticket(models.Model):
         on_delete=models.SET_NULL,
         blank=True,
         null=True,
-        related_name='tickets',
-        verbose_name=_('Company Association')
+        related_name='tickets'
     )
 
     updated_by = models.ForeignKey(
@@ -72,8 +48,7 @@ class Ticket(models.Model):
         on_delete=models.SET_NULL,
         blank=True,
         null=True,
-        related_name='updated_by_tickets',
-        verbose_name=_('Last Updated by')
+        related_name='updated_by_tickets'
     )
 
     assignee = models.ForeignKey(
@@ -84,102 +59,71 @@ class Ticket(models.Model):
         related_name='assigned_tickets'
     )
 
-    status = models.CharField(
-        max_length=constants.CHOICE_MAX_LENGTH,
-        choices=constants.TICKET_STATUS,
-        default=''
-    )
-
-    issue_type = models.CharField(
-        max_length=constants.CHOICE_MAX_LENGTH,
-        choices=constants.ISSUE_TYPE,
-        default=''
-    )
-
-    server_version = models.CharField(
-        max_length=constants.VERSION_CHOICE_MAX_LENGTH,
-        choices=constants.GLUU_SERVER_VERSION,
-        default='',
-        help_text=_('Gluu Server Version')
-    )
-
-    server_version_comments = models.CharField(
-        max_length=30,
+    category = models.ForeignKey(
+        TicketCategory,
+        on_delete=models.SET_NULL,
         blank=True,
         null=True,
-        help_text=_('Gluu Server Version Comments')
+        related_name='tickets'
+    )
+
+    status = models.CharField(
+        max_length=20,
+        choices=constants.TICKET_STATUS,
+    )
+
+    issue_type = models.ForeignKey(
+        TicketIssueType,
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name='tickets'
+    )
+
+    gluu_server = models.ForeignKey(
+        GluuServer,
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name='tickets'
+    )
+
+    os = models.ForeignKey(
+        GluuOS,
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name='tickets'
     )
 
     os_version = models.CharField(
-        max_length=constants.CHOICE_MAX_LENGTH,
-        choices=constants.OS_VERSION,
-        default='',
-        verbose_name=_('OS'),
-        help_text=_('Which OS are you using?')
-    )
-
-    os_version_name = models.CharField(
-        max_length=10,
-        verbose_name=_('OS Version')
-    )
-
-    answers_no = models.IntegerField(
-        blank=True,
-        default=0,
-        verbose_name=_('Answers number')
-    )
-
-    link = models.URLField(
-        max_length=255,
-        blank=True,
-        verbose_name=_('Link URL')
-    )
-
-    is_private = models.BooleanField(
-        blank=True,
-        default=False,
-        verbose_name=_('Private')
-    )
-
-    is_deleted = models.BooleanField(
-        blank=True,
-        default=False,
-        verbose_name=_('Deleted')
-    )
-
-    os_type = models.BooleanField(
-        blank=True,
-        default=False,
-        help_text=_('Is it 64-bit hardware?')
-    )
-
-    ram = models.BooleanField(
-        blank=True,
-        default=False,
-        help_text=_('Does the server have at least 4GB RAM?')
-    )
-
-    visits = models.IntegerField(
-        blank=True,
-        default=0,
-        verbose_name=_('Ticket visits')
-    )
-
-    meta_keywords = models.CharField(
-        max_length=500,
+        max_length=20,
         blank=True,
         null=True
     )
 
-    set_default_gluu = models.BooleanField(
+    products = models.ManyToManyField(
+        GluuProduct,
+        through='TicketProduct'
+    )
+
+    response_no = models.IntegerField(
         blank=True,
-        default=False,
-        verbose_name=_('Default Gluu'),
+        default=0
+    )
+
+    is_private = models.BooleanField(
+        blank=True,
+        default=False
+    )
+
+    is_deleted = models.BooleanField(
+        blank=True,
+        default=False
     )
 
     is_notified = models.BooleanField(
-        default=False,
-        help_text=_('Indicate this ticket would be notified to admin')
+        default=False
     )
 
     created_at = models.DateTimeField(
@@ -188,177 +132,31 @@ class Ticket(models.Model):
     )
 
     updated_at = models.DateTimeField(
-        auto_now=True
+         auto_now=True
     )
+
+    @property
+    def owned_by(self):
+        return self.created_for if self.created_for else self.created_by
 
     objects = models.Manager()
     actives = ActiveTicketManager()
 
     def __str__(self):
-        return self.title
+        return '{} - {}'.format(self.id, self.title)
 
     class Meta:
         ordering = ['-created_at']
 
-    def __init__(self, *args, **kwargs):
-        super(Ticket, self).__init__(*args, **kwargs)
-        self._initial = self.__dict__.copy()
-
-    def save(self, *args, **kwargs):
-        """
-        Override the save
-        """
-        if kwargs.get('user', None):
-            self.updated_by = kwargs['user']
-            self.updated_at = timezone.now()
-
-        super().save(*args, **kwargs)
-
-
-    def make_history(self):
-        """
-        Make the history of the ticket changes
-        """
-        changed = [
-            (k, (v, self.__dict__[k]))
-            for k, v in self._initial.items()
-            if v != self.__dict__[k] and k in self.WATCHING_FIELDS
-        ]
-        for k, values in dict(changed).items():
-            if self.updated_by is not None:
-                updated_by = self.updated_by
-            else:
-                updated_by = self.created_by
-            self.history.create(
-                changed_by=updated_by,
-                changed_field=k,
-                before_value=values[0],
-                after_value=values[1]
-            )
-
-    def has_view_permission(self, user):
-        """
-        Check if this user has view permission
-        """
-        if not self.is_private or user.is_admin:
-            return True
-
-        if user.is_anonymous():
-            return False
-
-        if self.owned_by == user:
-            return True
-
-        if (user.is_named and self.company_association == user.company_association):
-            return True
-
-        if user.is_partner_of(self.company_association):
-            return True
-
-        return False
-
-    def has_edit_permission(self, user):
-        """
-        Check if this user has edit permission
-        """
-        if user.is_anonymous():
-            return False
-
-        if user.is_admin:
-            return True
-
-        if self.owned_by == user:
-            return True
-
-        if user.is_named and \
-            self.company_association == user.company_association:
-            return True
-
-        if user.is_partner_of(self.company_association):
-            return True
-
-        return False
-
-    @property
-    def owned_by(self):
-        """
-        Return ticket owner
-        """
-        if self.created_for:
-            return self.created_for
-        return self.created_by
-
-
-class TicketProduct(models.Model):
-    """
-    Ticket Product Model
-    """
-    ticket = models.ForeignKey(
-        Ticket,
-        on_delete=models.CASCADE,
-        related_name='products',
-    )
-
-    product = models.CharField(
-        max_length=constants.CHOICE_MAX_LENGTH,
-        choices=constants.PRODUCT,
-        blank=True
-    )
-
-    version = models.CharField(
-        max_length=constants.VERSION_CHOICE_MAX_LENGTH,
-        choices=constants.Product_Version,
-        blank=True,
-        verbose_name=_('Product Version')
-    )
-
-    os_version = models.CharField(
-        max_length=constants.CHOICE_MAX_LENGTH,
-        choices=constants.PRODUCT_OS_VERSION,
-        blank=True,
-        verbose_name=_('Product OS Version')
-
-    )
-
-    os_version_name = models.CharField(
-        max_length=10,
-        blank=True,
-        null=True,
-        verbose_name=_('Product OS Version')
-    )
-
-    ios_version_name = models.CharField(
-        max_length=10,
-        blank=True,
-        null=True,
-        verbose_name=_('iOS Version')
-    )
-
-    created_at = models.DateTimeField(
-        auto_now_add=True,
-        editable=False,
-    )
-
-    updated_at = models.DateTimeField(
-        auto_now=True,
-    )
-
 
 class ActiveAnswerManager(models.Manager):
-    """
-    Active Answer Manager
-    """
+
     def get_queryset(self):
-        """
-        Return active answers
-        """
         return super().get_queryset().filter(is_deleted=False)
 
 
 class Answer(models.Model):
-    """
-    Answer Model
-    """
+
     body = models.TextField()
 
     ticket = models.ForeignKey(
@@ -371,33 +169,19 @@ class Answer(models.Model):
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name='answers',
-        help_text=_('Answer added by user')
     )
 
-    link_url = models.URLField(
-        max_length=255,
-        blank=True,
-        verbose_name=_('Link URL')
-    )
-
-    privacy = models.CharField(
-        max_length=constants.CHOICE_MAX_LENGTH,
-        choices=constants.ANSWER_PRIVACY,
+    updated_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        related_name='updated_answers',
+        null=True,
         blank=True
-    )
-
-    send_copy = models.CharField(
-        max_length=255,
-        blank=True,
-        default='',
-        verbose_name=_('Send copy to')
     )
 
     is_deleted = models.BooleanField(
         blank=True,
         default=False,
-        verbose_name=_('Deleted'),
-        help_text=_('The answer is deleted?')
     )
 
     created_at = models.DateTimeField(
@@ -419,20 +203,51 @@ class Answer(models.Model):
         ordering = ['-created_at']
 
 
-class TicketHistory(models.Model):
-    """
-    Ticket History Model
-    """
+class TicketProduct(models.Model):
+
     ticket = models.ForeignKey(
         Ticket,
         on_delete=models.CASCADE,
-        related_name='history'
+    )
+
+    product = models.ForeignKey(
+        GluuProduct,
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True
+    )
+
+    os = models.ForeignKey(
+        GluuOS,
+        on_delete=models.SET_NULL,
+        related_name='os_product',
+        blank=True,
+        null=True
+    )
+
+    os_version = models.CharField(
+        max_length=20,
+        blank=True,
+        null=True
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True
+    )
+
+
+class TicketHistory(models.Model):
+
+    ticket = models.ForeignKey(
+        Ticket,
+        related_name='history',
+        on_delete=models.CASCADE,
     )
 
     changed_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-        related_name='changes'
+        related_name='ticket_changes',
+        on_delete=models.CASCADE
     )
 
     changed_field = models.CharField(
@@ -440,13 +255,13 @@ class TicketHistory(models.Model):
     )
 
     before_value = models.TextField(
-        null=True,
-        blank=True
+        blank=True,
+        null=True
     )
 
     after_value = models.TextField(
-        null=True,
-        blank=True
+        blank=True,
+        null=True
     )
 
     created_at = models.DateTimeField(
@@ -458,177 +273,3 @@ class TicketHistory(models.Model):
         ordering = ['created_at']
         verbose_name = 'Ticket History'
         verbose_name_plural = 'Tickets History'
-
-
-class TicketAttachmentManager(models.Manager):
-    """
-    Ticket Attachment Manager
-    """
-    def get_queryset(self):
-        """
-        Return Ticket Attachement Manager
-        """
-        return super().get_queryset().filter(is_deleted=False)
-
-
-class TicketAttachment(models.Model):
-    """
-    Ticket Attachment Model
-    """
-    file = models.FileField(
-        max_length=255,
-        upload_to='upload/'
-    )
-
-    created_by = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-        related_name='attachments'
-    )
-
-    ticket = models.ForeignKey(
-        Ticket,
-        on_delete=models.CASCADE,
-        related_name='files',
-        blank=True,
-        null=True
-    )
-
-    answer = models.ForeignKey(
-        Answer,
-        on_delete=models.CASCADE,
-        related_name='files',
-        blank=True,
-        null=True
-    )
-
-    file_src = models.TextField(
-        blank=True,
-        verbose_name=_('File Source')
-    )
-
-    is_deleted = models.BooleanField(
-        blank=True,
-        default=False,
-        verbose_name=_('Deleted'),
-        help_text=_('The document has been deleted?')
-    )
-
-    created_at = models.DateTimeField(
-        auto_now_add=True,
-        editable=False
-    )
-
-    objects = models.Manager()
-    actives = TicketAttachmentManager()
-
-    class Meta:
-        ordering = ['created_at']
-
-
-class NotficationAvailableContact(models.Manager):
-    """
-    Available Contact Manger
-    """
-    def get_queryset(self):
-        """
-        Return available contacts
-        """
-        return super().get_queryset().filter(enabled=True)
-
-
-class NotficationContact(models.Model):
-    """
-    Notification Contact Model
-    """
-    PRIORITY_HIGH = 'H'
-    PRIORITY_LOW = 'L'
-    PRIORITY = (
-        (PRIORITY_HIGH, 'High'),
-        (PRIORITY_LOW, 'Low')
-    )
-
-    name = models.CharField(
-        max_length=100,
-        help_text=_('Contact name')
-    )
-
-    number = models.CharField(
-        max_length=100,
-        help_text=_('Contact Number')
-    )
-
-    priority = models.CharField(
-        max_length=1,
-        choices=PRIORITY,
-        default=PRIORITY_HIGH,
-        help_text=_('Priority')
-    )
-
-    enabled = models.BooleanField(
-        default=True,
-        verbose_name=_('Is Enabled?')
-    )
-
-    objects = models.Manager()
-    availables = NotficationAvailableContact()
-
-    class Meta:
-        ordering = ['priority']
-
-
-class TicketNotificationSubscriberManager(models.Manager):
-    """
-    Ticket Subscriber Manager
-    """
-    def get_queryset(self):
-        """
-        Return subscribers
-        """
-        return super().get_queryset().filter(is_subscribed=True)
-
-
-class TicketNotificationUnSubscriberManager(models.Manager):
-    """
-    Ticket UnSubscriber Manager
-    """
-    def get_queryset(self):
-        """
-        Ticket unsubscribers
-        """
-        return super().get_queryset().filter(is_subscribed=False)
-
-
-class TicketNotification(models.Model):
-    """
-    Ticket Notification Model
-    """
-    ticket = models.ForeignKey(
-        Ticket,
-        on_delete=models.CASCADE,
-        related_name='blacklist',
-    )
-
-    user = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-        help_text=_('User associated with this ticket notification')
-    )
-
-    is_subscribed = models.BooleanField(
-        default=True,
-        help_text=_('Indicate whether user subscribe to notification')
-    )
-
-    created_at = models.DateTimeField(
-        auto_now_add=True,
-        editable=False,
-    )
-
-    objects = models.Manager()
-    subscribers = TicketNotificationSubscriberManager()
-    unsubscribers = TicketNotificationUnSubscriberManager()
-
-    class Meta:
-        unique_together = ('ticket', 'user')
-        ordering = ['-created_at']

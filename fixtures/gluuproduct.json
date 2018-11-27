@@ -1,0 +1,30 @@
+[
+    {
+        "model": "info.GluuProduct",
+        "pk": 1,
+        "fields": {
+            "name": "OXD"
+        }
+    },
+    {
+        "model": "info.GluuProduct",
+        "pk": 2,
+        "fields": {
+            "name": "Super Gluu"
+        }
+    },
+    {
+        "model": "info.GluuProduct",
+        "pk": 3,
+        "fields": {
+            "name": "Cluster Manager"
+        }
+    },
+    {
+        "model": "info.GluuProduct",
+        "pk": 4,
+        "fields": {
+            "name": "Cred Manager"
+        }
+    }
+]

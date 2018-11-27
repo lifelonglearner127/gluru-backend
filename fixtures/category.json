@@ -1,0 +1,93 @@
+[
+    {
+        "model": "info.TicketCategory",
+        "pk": 1,
+        "fields": {
+            "name": "Installation"
+        }
+    },
+    {
+        "model": "info.TicketCategory",
+        "pk": 2,
+        "fields": {
+            "name": "Outages"
+        }
+    },
+    {
+        "model": "info.TicketCategory",
+        "pk": 3,
+        "fields": {
+            "name": "Authentication"
+        }
+    },
+    {
+        "model": "info.TicketCategory",
+        "pk": 4,
+        "fields": {
+            "name": "Authorization"
+        }
+    },
+    {
+        "model": "info.TicketCategory",
+        "pk": 5,
+        "fields": {
+            "name": "Single Sign-On"
+        }
+    },
+    {
+        "model": "info.TicketCategory",
+        "pk": 6,
+        "fields": {
+            "name": "Logout"
+        }
+    },
+    {
+        "model": "info.TicketCategory",
+        "pk": 7,
+        "fields": {
+            "name": "Access Management"
+        }
+    },
+    {
+        "model": "info.TicketCategory",
+        "pk": 8,
+        "fields": {
+            "name": "Identity Management"
+        }
+    },
+    {
+        "model": "info.TicketCategory",
+        "pk": 9,
+        "fields": {
+            "name": "Upgrade"
+        }
+    },
+    {
+        "model": "info.TicketCategory",
+        "pk": 10,
+        "fields": {
+            "name": "Maintenance"
+        }
+    },
+    {
+        "model": "info.TicketCategory",
+        "pk": 11,
+        "fields": {
+            "name": "Customization"
+        }
+    },
+    {
+        "model": "info.TicketCategory",
+        "pk": 12,
+        "fields": {
+            "name": "Feature Request"
+        }
+    },
+    {
+        "model": "info.TicketCategory",
+        "pk": 13,
+        "fields": {
+            "name": "Other"
+        }
+    }
+]

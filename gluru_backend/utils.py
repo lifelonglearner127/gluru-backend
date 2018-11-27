@@ -1,25 +1,18 @@
 from django.urls import reverse
 from django.conf import settings
-from django.core.mail import EmailMultiAlternatives
 from django.contrib.sites.models import Site
+from django.core.mail import EmailMultiAlternatives
 from django.template import loader
 from django.utils.http import urlencode
 
 
 def get_base_url():
-    """
-    Return base url
-    """
     site = Site.objects.get_current()
 
     return '{}://{}'.format(settings.PROTOCOL, site.domain)
 
 
 def generate_ticket_link(ticket_id, subscribe=None):
-    """
-    Return ticket url
-    """
-
     ticket_url = reverse('tickets:ticket-detail', kwargs={'pk': ticket_id})
 
     if subscribe is not None:

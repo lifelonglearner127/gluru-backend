@@ -18,6 +18,13 @@ CREATE DATABASE database_name;
 CREATE USER my_username WITH PASSWORD 'my_password';
 GRANT ALL PRIVILEGES ON DATABASE "database_name" to my_username;
 ```
+Create `citext` extension
+```
+sudo -u postgres psql
+\c database_name
+CREATE EXTENSION citext;
+\dx
+```
 
 ### Installing Python3.6 and Pipenv
 Please refer to this [link](https://docs.pipenv.org/) for more details about pipenv
@@ -35,19 +42,14 @@ Redis was created with a different intentions and not for being a message broker
 
 Installing Erlang:
 ```
-wget https://packages.erlang-solutions.com/erlang-solutions-1.0-1.noarch.rpm
-rpm -Uvh erlang-solutions-1.0-1.noarch.rpm
-sudo yum install erlang
 ```
 
 Install RabbitMQ Server:
 ```
-curl -s https://packagecloud.io/install/repositories/rabbitmq/rabbitmq-server/script.rpm.sh | sudo bash
 ```
 
 Run RabbitMQ Server:
 ```
-sudo rabbitmq-server
 ```
  > `Important!` In order for this project to work properly, you need to start rabbitmq server first. For sms and email notification, signal is used to send messages to task queue. This means that the request context involve sending messages to task queue. If rabbitmq server not running at that time, it might lead to time out error.
 
@@ -56,8 +58,6 @@ sudo rabbitmq-server
 git clone git@github.com:GluuFederation/gluru-backend.git
 cd gluru-backend
 pipenv install
-pipenv shell
-python manage.py runserver
 ```
 
 Start celery worker and schedule:
@@ -78,6 +78,26 @@ python manage.py update_index
 python manage.py clear_index
 ```
  > `Note!` We use [drf-haystack](https://drf-haystack.readthedocs.io/en/latest/index.html) and `whoosh` as a search engine
+
+
+Running Locally
+```
+pipenv shell
+python manage.py migrate
+python manage.py runserver
+```
+> `Important!` You need to create citext extension to migrate successfully.
+
+Loading Initial Data
+```
+python manage.py loaddata category
+python manage.py loaddata issuetype
+python manage.py loaddata gluuserver
+python manage.py loaddata gluuproduct
+python manage.py loaddata gluuos
+or python manage.py loaddata data // run this command for loading all inital data
+```
+ > `Note!` We make our model more configurable, and initial data can be loaded using above command
 
 ## Contribution
  - Create a new branch
