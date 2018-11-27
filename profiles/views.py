@@ -5,7 +5,8 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 from profiles.models import Company
 from profiles.serializers import (
-    UserSerializer, CompanySerializer, ShortCompanySerializer
+    UserSerializer, CompanySerializer, ShortCompanySerializer,
+    InvitationSerializer
 )
 
 
@@ -113,6 +114,27 @@ class CompanyViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
         return Response(
             {'results': serializer.data},
             status=status.HTTP_200_OK
+        )
+
+    @action(
+        detail=True, methods=['POST']
+    )
+    def invite(self, request, pk=None):
+        company = self.get_object()
+        serializer_data = request.data.get('invitation', {})
+
+        serializer = InvitationSerializer(
+            data=serializer_data,
+            context={
+                'invited_by': request.user,
+                'company': company
+            }
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(
+            {'results': serializer.data},
+            status=status.HTTP_201_CREATED
         )
 
     def destroy(self, request, ticket_pk=None, pk=None):

@@ -5,6 +5,7 @@ from django.conf import settings
 from django.contrib.auth.models import (
     AbstractBaseUser, BaseUserManager, PermissionsMixin
 )
+from . import constants as c
 
 
 class UserManager(BaseUserManager):
@@ -244,3 +245,60 @@ class Membership(models.Model):
     class Meta:
         ordering = ['company', '-date_joined']
         unique_together = ['user', 'company']
+
+
+class Invitation(models.Model):
+
+    email = models.EmailField()
+
+    invited_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        related_name='invitations',
+        on_delete=models.CASCADE
+    )
+
+    activation_key = models.CharField(
+        max_length=64
+    )
+
+    company = models.ForeignKey(
+        Company,
+        related_name='invitations',
+        on_delete=models.CASCADE
+    )
+
+    role = models.CharField(
+        max_length=10,
+        choices=c.COMPANY_ROLE_CHOICES,
+        default=c.USER
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True
+    )
+
+    @property
+    def invitation_link(self):
+        if User.objects.filter(email=self.email).exists():
+            # TODO: return verification url
+            # return '{}/invitations/{}/{}'.format(
+            #     settings.FRONTEND_URL,
+            #     self.id,
+            #     self.key
+            # )
+            link = 'verification link'
+            return True, link
+        else:
+            # TODO: return signup url
+            link = 'signup url'
+            return False, link
+
+    def __str__(self):
+        return '{}-{}'.format(
+            self.email,
+            self.company.name
+        )
+
+    class Meta:
+        ordering = ['-created_at']
+        unique_together = ['company', 'email']

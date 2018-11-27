@@ -112,7 +112,7 @@ class TicketSerializer(serializers.ModelSerializer):
 
 
 class TicketHistorySerializer(serializers.ModelSerializer):
-    
+
     class Meta:
         model = TicketHistory
         fields = '__all__'

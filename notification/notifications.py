@@ -246,3 +246,25 @@ def notify_tagged_staff_member(answer, tagged_users):
         queue='low',
         routing_key='low'
     )
+
+
+def notify_invite(invitation):
+    existing, link = invitation.invitation_link
+    context = {
+        'invited_by': invitation.invited_by.full_name,
+        'company': invitation.invited_by.company_name,
+        'invitation_link': link,
+        'existing': existing
+    }
+
+    send_notification_by_email.apply_async(
+        args=[{
+            'subject_template': 'invite/named_sub.txt',
+            'email_template': 'invite/named.txt',
+            'html_template': 'invite/named.html',
+            'context': context,
+            'to_email': invitation.email
+        }],
+        queue='low',
+        routing_key='low'
+    )
