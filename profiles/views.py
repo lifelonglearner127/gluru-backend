@@ -1,6 +1,9 @@
+from django.conf import settings
+from django.contrib.auth import authenticate
 from rest_framework import viewsets, mixins, status
+from rest_framework.views import APIView
 from rest_framework.generics import RetrieveUpdateAPIView
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.serializers import ValidationError
@@ -9,6 +12,84 @@ from profiles.serializers import (
     UserSerializer, CompanySerializer, ShortCompanySerializer,
     InvitationSerializer
 )
+from oxd import uma as api
+from oxd import exceptions as e
+
+
+class GetLoginUrlAPIView(APIView):
+    permission_classes = (AllowAny,)
+
+    def get(self, request):
+        url = api.get_authorization_url()
+        return Response(
+            {
+                'results': {
+                    'login_url': url
+                }
+            },
+            status=status.HTTP_200_OK
+        )
+
+
+class LoginCallbackAPIView(APIView):
+    permission_classes = (AllowAny, )
+
+    def get(self, request):
+        token_json = api.get_token_from_callback(request.query_params)
+        access_token = token_json.get('access_token')
+        id_token = token_json.get('id_token')
+        if not access_token or not id_token:
+            raise e.OxdError('Invalid token')
+        user = authenticate(
+            request, access_token=access_token, id_token=id_token
+        )
+
+        if user is not None:
+            user_serializer = UserSerializer(user)
+            return Response(
+                {
+                    'results': user_serializer.data
+                },
+                status=status.HTTP_200_OK
+            )
+
+        return Response(
+            {
+                'user': 'You are not registered on support portal yet'
+            },
+            status=status.HTTP_403_FORBIDDEN
+        )
+
+
+class GetSingupUrlAPIView(APIView):
+    permission_classes = (AllowAny,)
+
+    def get(self, request):
+        url = '{}/register?from=support'\
+            .format(settings.GLUU_USER_FRONTEND_APP)
+        return Response(
+            {
+                'results': {
+                    'signup_url': url
+                }
+            },
+            status=status.HTTP_200_OK
+        )
+
+
+class LogoutUrlAPIView(APIView):
+    permission_classes = (IsAuthenticated, )
+
+    def get(self, request):
+        url = api.get_logout_url(id_token=request.user.id_token)
+        return Response(
+            {
+                'results': {
+                    'logout_url': url
+                }
+            },
+            status=status.HTTP_200_OK
+        )
 
 
 class UserRetrieveUpdateAPIView(RetrieveUpdateAPIView):

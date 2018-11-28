@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'tickets.apps.TicketsConfig',
     'notification.apps.NotificationConfig',
     'info.apps.InfoConfig',
+    'oxd.apps.OxdConfig',
 ]
 
 MIDDLEWARE = [
@@ -138,6 +139,11 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 AUTH_USER_MODEL = 'profiles.User'
+
+AUTHENTICATION_BACKENDS = [
+    'oxd.authentication.OpenIdBackend',
+    'django.contrib.auth.backends.ModelBackend'
+]
 
 REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': (
