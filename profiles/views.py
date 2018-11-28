@@ -3,7 +3,8 @@ from rest_framework.generics import RetrieveUpdateAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.decorators import action
-from profiles.models import Company
+from rest_framework.serializers import ValidationError
+from profiles.models import Company, Invitation
 from profiles.serializers import (
     UserSerializer, CompanySerializer, ShortCompanySerializer,
     InvitationSerializer
@@ -136,6 +137,29 @@ class CompanyViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
             {'results': serializer.data},
             status=status.HTTP_201_CREATED
         )
+
+    @action(
+        detail=False, methods=['POST'], url_path='accept-invite',
+        permission_classes=[IsAuthenticated]
+    )
+    def accept_invite(self, request, *args, **kwargs):
+        activation_key = request.data.get('activation_key')
+        try:
+            invite = Invitation.objects.get(activation_key=activation_key)
+        except Invitation.DoesNotExist:
+            raise ValidationError('Incorrect activation key')
+
+        if request.user.email != invite.email:
+            raise ValidationError('Incorrect invite')
+
+        if request.user in invite.company.users.all():
+            raise ValidationError('You are already a member of this company')
+
+        invite.accept(request.user)
+
+        return Response({
+            'results': 'Invite accepted successfully'
+        }, status=status.HTTP_200_OK)
 
     def destroy(self, request, ticket_pk=None, pk=None):
         obj = self.get_object()

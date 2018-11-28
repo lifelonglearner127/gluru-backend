@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import User, Company
+from .models import User, Company, Invitation
 
 
 @admin.register(User)
@@ -28,5 +28,10 @@ class UserAdmin(admin.ModelAdmin):
 
 
 @admin.register(Company)
-class Company(admin.ModelAdmin):
+class CompanyAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(Invitation)
+class InvitationAdmin(admin.ModelAdmin):
     pass

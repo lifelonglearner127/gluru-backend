@@ -299,6 +299,15 @@ class Invitation(models.Model):
             self.company.name
         )
 
+    def accept(self, user):
+        if user is not None:
+            Membership.objects.create(
+                company=self.company,
+                user=user,
+                role=self.role
+            )
+            self.delete()
+
     class Meta:
         ordering = ['-created_at']
         unique_together = ['company', 'email']
