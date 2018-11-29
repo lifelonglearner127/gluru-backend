@@ -66,7 +66,7 @@ class GetSingupUrlAPIView(APIView):
 
     def get(self, request):
         url = '{}/register?from=support'\
-            .format(settings.GLUU_USER_FRONTEND_APP)
+            .format(settings.GLUU_USER_APP_FRONTEND)
         return Response(
             {
                 'results': {
