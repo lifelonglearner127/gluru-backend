@@ -1,3 +1,5 @@
+import json
+import requests
 from django.conf import settings
 from django.contrib.auth import authenticate
 from rest_framework import viewsets, mixins, status
@@ -7,7 +9,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.serializers import ValidationError
-from profiles.models import Company, Invitation
+from profiles.models import Company, Invitation, User
 from profiles.serializers import (
     UserSerializer, CompanySerializer, ShortCompanySerializer,
     InvitationSerializer
@@ -75,6 +77,51 @@ class GetSingupUrlAPIView(APIView):
             },
             status=status.HTTP_200_OK
         )
+
+
+class SignupAPIView(APIView):
+    permission_classes = (AllowAny,)
+
+    def get(self, request):
+        check_signup_endpoint = '{}/api/v1/confirm-created/'.format(
+            settings.GLUU_USER_APP_BACKEND
+        )
+
+        headers = {
+            'Content-Type': 'application/json'
+        }
+
+        data = {
+            'idp_uuid': request.query_params.get('idp_uuid'),
+            'email_hash': request.query_params.get('email_hash')
+        }
+
+        r = requests.post(
+            check_signup_endpoint, data=json.dumps(data), headers=headers
+        )
+
+        if r.status_code == 200:
+            response = r.json()
+            email = response.get('email')
+            idp_uuid = response.get('idpUuid')
+            first_name = response.get('firstName')
+            last_name = response.get('lastName')
+
+            user = User.objects.create(
+                email=email,
+                first_name=first_name,
+                last_name=last_name,
+                idp_uuid=idp_uuid
+            )
+            user_serializer = UserSerializer(user)
+            return Response(
+                {
+                    'results': user_serializer.data
+                },
+                status=status.HTTP_200_OK
+            )
+        else:
+            raise ValidationError('Incorrect activation key')
 
 
 class LogoutUrlAPIView(APIView):
