@@ -267,13 +267,18 @@ class CompanyViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
         )
 
     @action(
-        detail=False, methods=['POST'], url_path='accept-invite',
+        detail=True, methods=['POST'], url_path='accept-invite',
         permission_classes=[IsAuthenticated]
     )
     def accept_invite(self, request, *args, **kwargs):
+        company = self.get_object()
         activation_key = request.data.get('activation_key')
+        
         try:
-            invite = Invitation.objects.get(activation_key=activation_key)
+            invite = Invitation.objects.get(
+                company=company,
+                activation_key=activation_key
+            )
         except Invitation.DoesNotExist:
             raise ValidationError('Incorrect activation key')
 

@@ -280,13 +280,11 @@ class Invitation(models.Model):
     @property
     def invitation_link(self):
         if User.objects.filter(email=self.email).exists():
-            # TODO: return verification url
-            # return '{}/invitations/{}/{}'.format(
-            #     settings.FRONTEND_URL,
-            #     self.id,
-            #     self.key
-            # )
-            link = 'verification link'
+            link = '{}/accept-invitation/{}/{}'.format(
+                settings.FRONTEND_URL,
+                self.company.id,
+                self.activation_key
+            )
             return True, link
         else:
             # TODO: return signup url
