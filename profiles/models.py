@@ -287,8 +287,13 @@ class Invitation(models.Model):
             )
             return True, link
         else:
-            # TODO: return signup url
-            link = 'signup url'
+            link = '{}/register?from=support&company={}&key={}&email={}'\
+                .format(
+                    settings.GLUU_USER_APP_FRONTEND,
+                    self.company.id,
+                    self.activation_key,
+                    self.email
+                )
             return False, link
 
     def __str__(self):

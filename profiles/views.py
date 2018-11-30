@@ -102,10 +102,13 @@ class SignupAPIView(APIView):
 
         if r.status_code == 200:
             response = r.json()
-            email = response.get('email')
-            idp_uuid = response.get('idpUuid')
-            first_name = response.get('firstName')
-            last_name = response.get('lastName')
+            user = response.get('user')
+            invite = response.get('invite')
+
+            email = user.get('email')
+            idp_uuid = user.get('idpUuid')
+            first_name = user.get('firstName')
+            last_name = user.get('lastName')
 
             user = User.objects.create(
                 email=email,
@@ -113,6 +116,27 @@ class SignupAPIView(APIView):
                 last_name=last_name,
                 idp_uuid=idp_uuid
             )
+
+            company = invite.get('company')
+            activation_key = invite.get('activationKey')
+        
+            if company is not None and activation_key is not None:
+                try:
+                    invite = Invitation.objects.get(
+                        company__id=company,
+                        activation_key=activation_key
+                    )
+                except Invitation.DoesNotExist:
+                    pass
+
+                if email != invite.email:
+                    pass
+
+                if user in invite.company.users.all():
+                   pass
+
+                invite.accept(user)
+
             user_serializer = UserSerializer(user)
             return Response(
                 {
@@ -273,7 +297,7 @@ class CompanyViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
     def accept_invite(self, request, *args, **kwargs):
         company = self.get_object()
         activation_key = request.data.get('activation_key')
-        
+
         try:
             invite = Invitation.objects.get(
                 company=company,

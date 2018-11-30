@@ -14,9 +14,9 @@
     </p>
     <p>
 		{% if not existing %}
-		Please <a href="{{invitation_link}}">create an account</a> on Gluu Support to proceed.
+		Please <a href="{{invitation_link|safe}}">create an account</a> on Gluu Support to proceed.
         {% else %}
-		Please <a href="{{invitation_link}}">sign in</a> to your account to accept the invitation.
+		Please <a href="{{invitation_link|safe}}">sign in</a> to your account to accept the invitation.
         {% endif %}
     </p>
     <p>
