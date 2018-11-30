@@ -14,6 +14,7 @@ from profiles.serializers import (
     UserSerializer, CompanySerializer, ShortCompanySerializer,
     InvitationSerializer
 )
+from profiles import permissions as p
 from oxd import uma as api
 from oxd import exceptions as e
 
@@ -270,7 +271,8 @@ class CompanyViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
         )
 
     @action(
-        detail=True, methods=['POST']
+        detail=True, methods=['POST'],
+        permission_classes=[p.IsCompanyUserAdmin]
     )
     def invite(self, request, pk=None):
         company = self.get_object()

@@ -101,10 +101,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     @property
     def company(self):
         membership = self.membership_set.filter(is_primary=True).first()
-        return (
-            (membership.company, membership.company.name) if membership
-            else (None, '')
-        )
+        return membership.company if membership else None
 
     @property
     def company_name(self):
