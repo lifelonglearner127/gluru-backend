@@ -201,7 +201,7 @@ class CompanyViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
     def get_permissions(self):
         if self.action in ['create', 'update', 'destroy']:
             permission_classes = [IsAdminUser]
-        elif self.action in ['invite', 'revoke_invite']:
+        elif self.action in ['invite', 'revoke_invite', 'remove_user']:
             permission_classes = [p.IsCompanyAdmin]
         else:
             permission_classes = [IsAuthenticated]
@@ -333,6 +333,29 @@ class CompanyViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
         invite.delete()
         return Response({
             'results': 'Invite revoked successfully'
+        }, status=status.HTTP_200_OK)
+
+    @action(detail=True, methods=['POST'], url_path='remove-user')
+    def remove_user(self, request, *args, **kwargs):
+        company = self.get_object()
+        user_id = request.data.get('user_id', None)
+        if user_id is None:
+            raise ValidationError('Invite id is required')
+
+        if request.user.id == user_id:
+            raise ValidationError('Invalid Operation')
+
+        try:
+            membership = m.Membership.objects.get(
+                company=company,
+                user__id=user_id
+            )
+            membership.delete()
+        except m.Membership.DoesNotExist:
+            raise ValidationError('Such user does not exist')
+
+        return Response({
+            'results': 'User removed successfully'
         }, status=status.HTTP_200_OK)
 
     def destroy(self, request, ticket_pk=None, pk=None):
