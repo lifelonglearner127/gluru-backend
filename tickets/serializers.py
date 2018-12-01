@@ -81,30 +81,9 @@ class TicketSerializer(serializers.ModelSerializer):
         return ticket
 
     def update(self, instance, validated_data):
-        instance.title = validated_data.get(
-            'title', instance.title
-        )
-        instance.body = validated_data.get(
-            'body', instance.body
-        )
-        instance.assignee = validated_data.get(
-            'assignee', instance.assignee
-        )
-        instance.category = validated_data.get(
-            'category', instance.category
-        )
-        instance.status = validated_data.get(
-            'status', instance.status
-        )
-        instance.issue_type = validated_data.get(
-            'issue_type', instance.issue_type
-        )
-        instance.gluu_server = validated_data.get(
-            'gluu_server', instance.gluu_server
-        )
-        instance.os = validated_data.get(
-            'os', instance.os
-        )
+        for (key, value) in validated_data.items():
+            setattr(instance, key, value)
+
         instance.updated_by = self.context.get('updated_by', None)
 
         instance.save()
@@ -141,9 +120,9 @@ class AnswerSerializer(serializers.ModelSerializer):
         return answer
 
     def update(self, instance, validated_data):
-        instance.body = validated_data.get(
-            'body', instance.body
-        )
+        for (key, value) in validated_data.items():
+            setattr(instance, key, value)
+
         instance.updated_by = self.context.get('updated_by', None)
 
         instance.save()
