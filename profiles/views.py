@@ -5,7 +5,7 @@ from django.contrib.auth import authenticate
 from rest_framework import viewsets, mixins, status
 from rest_framework.views import APIView
 from rest_framework.generics import RetrieveUpdateAPIView
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.serializers import ValidationError
@@ -198,6 +198,16 @@ class CompanyViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
 
     serializer_class = s.ShortCompanySerializer
 
+    def get_permissions(self):
+        if self.action in ['create', 'update', 'destroy']:
+            permission_classes = [IsAdminUser]
+        elif self.action == 'invite':
+            permission_classes = [p.IsCompanyAdmin]
+        else:
+            permission_classes = [IsAuthenticated]
+
+        return [permission() for permission in permission_classes]
+
     def get_queryset(self):
         return m.Company.objects.all()
 
@@ -252,9 +262,7 @@ class CompanyViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
             status=status.HTTP_200_OK
         )
 
-    @action(
-        detail=True, methods=['GET'], url_path='users'
-    )
+    @action(detail=True, methods=['GET'], url_path='users')
     def users(self, request, pk=None):
         serializer_instance = self.get_object()
 
@@ -267,10 +275,7 @@ class CompanyViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
             status=status.HTTP_200_OK
         )
 
-    @action(
-        detail=True, methods=['POST'],
-        permission_classes=[p.IsCompanyAdmin]
-    )
+    @action(detail=True, methods=['POST'])
     def invite(self, request, pk=None):
         company = self.get_object()
         serializer_data = request.data.get('invitation', {})
@@ -289,10 +294,7 @@ class CompanyViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
             status=status.HTTP_201_CREATED
         )
 
-    @action(
-        detail=True, methods=['POST'], url_path='accept-invite',
-        permission_classes=[IsAuthenticated]
-    )
+    @action(detail=True, methods=['POST'], url_path='accept-invite')
     def accept_invite(self, request, *args, **kwargs):
         company = self.get_object()
         activation_key = request.data.get('activation_key')
