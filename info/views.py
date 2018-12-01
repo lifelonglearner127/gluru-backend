@@ -1,14 +1,10 @@
 from rest_framework import viewsets, mixins, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.permissions import IsAdminUser, AllowAny
 from tickets.serializers import TicketSerializer
-from info.models import (
-    GluuServer, GluuOS, GluuProduct, TicketIssueType, TicketCategory
-)
-from info.serializers import (
-    GluuServerSerializer, GluuOSSerializer, GluuProductSerializer,
-    TicketCategorySerializer, TicketIssueTypeSerializer
-)
+from info import models as m
+from info import serializers as s
 
 
 class GluuServerViewset(mixins.CreateModelMixin,
@@ -17,11 +13,18 @@ class GluuServerViewset(mixins.CreateModelMixin,
                         mixins.RetrieveModelMixin,
                         mixins.DestroyModelMixin,
                         viewsets.GenericViewSet):
-    permission_classes = ()
-    serializer_class = GluuServerSerializer
+    serializer_class = s.GluuServerSerializer
+
+    def get_permissions(self):
+        if self.action in ['create', 'update', 'destroy']:
+            permission_classes = [IsAdminUser]
+        else:
+            permission_classes = [AllowAny]
+
+        return [permission() for permission in permission_classes]
 
     def get_queryset(self):
-        return GluuServer.objects.all()
+        return m.GluuServer.objects.all()
 
     def create(self, request):
         serializer_data = request.data.get('server', {})
@@ -101,11 +104,18 @@ class GluuOSViewSet(mixins.CreateModelMixin,
                     mixins.RetrieveModelMixin,
                     mixins.DestroyModelMixin,
                     viewsets.GenericViewSet):
-    permission_classes = ()
-    serializer_class = GluuOSSerializer
+    serializer_class = s.GluuOSSerializer
+
+    def get_permissions(self):
+        if self.action in ['create', 'update', 'destroy']:
+            permission_classes = [IsAdminUser]
+        else:
+            permission_classes = [AllowAny]
+
+        return [permission() for permission in permission_classes]
 
     def get_queryset(self):
-        return GluuOS.objects.all()
+        return m.GluuOS.objects.all()
 
     def create(self, request):
         serializer_data = request.data.get('os', {})
@@ -185,11 +195,18 @@ class GluuProductViewset(mixins.CreateModelMixin,
                          mixins.RetrieveModelMixin,
                          mixins.DestroyModelMixin,
                          viewsets.GenericViewSet):
-    permission_classes = ()
-    serializer_class = GluuProductSerializer
+    serializer_class = s.GluuProductSerializer
+
+    def get_permissions(self):
+        if self.action in ['create', 'update', 'destroy']:
+            permission_classes = [IsAdminUser]
+        else:
+            permission_classes = [AllowAny]
+
+        return [permission() for permission in permission_classes]
 
     def get_queryset(self):
-        return GluuProduct.objects.all()
+        return m.GluuProduct.objects.all()
 
     def create(self, request):
         serializer_data = request.data.get('product', {})
@@ -257,11 +274,18 @@ class TicketCategoryViewSet(mixins.CreateModelMixin,
                             mixins.RetrieveModelMixin,
                             mixins.DestroyModelMixin,
                             viewsets.GenericViewSet):
-    permission_classes = ()
-    serializer_class = TicketCategorySerializer
+    serializer_class = s.TicketCategorySerializer
+
+    def get_permissions(self):
+        if self.action in ['create', 'update', 'destroy']:
+            permission_classes = [IsAdminUser]
+        else:
+            permission_classes = [AllowAny]
+
+        return [permission() for permission in permission_classes]
 
     def get_queryset(self):
-        return TicketCategory.objects.all()
+        return m.TicketCategory.objects.all()
 
     def create(self, request):
         serializer_data = request.data.get('ticket_category', {})
@@ -341,11 +365,18 @@ class TicketIssueTypeViewSet(mixins.CreateModelMixin,
                              mixins.RetrieveModelMixin,
                              mixins.DestroyModelMixin,
                              viewsets.GenericViewSet):
-    permission_classes = ()
-    serializer_class = TicketIssueTypeSerializer
+    serializer_class = s.TicketIssueTypeSerializer
+
+    def get_permissions(self):
+        if self.action in ['create', 'update', 'destroy']:
+            permission_classes = [IsAdminUser]
+        else:
+            permission_classes = [AllowAny]
+
+        return [permission() for permission in permission_classes]
 
     def get_queryset(self):
-        return TicketIssueType.objects.all()
+        return m.TicketIssueType.objects.all()
 
     def create(self, request):
         serializer_data = request.data.get('ticket_issue_type', {})
