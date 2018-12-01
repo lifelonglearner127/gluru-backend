@@ -5,7 +5,7 @@ from django.conf import settings
 from django.contrib.auth.models import (
     AbstractBaseUser, BaseUserManager, PermissionsMixin
 )
-from . import constants as c
+from profiles import constants as c
 
 
 class UserManager(BaseUserManager):
@@ -119,18 +119,35 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     @property
     def is_basic(self):
-        membership = self.membership_set.filter(is_primary=True).first()
-        return membership and membership.role == 'user'
+        membership = self.membership_set.filter(
+            is_primary=True,
+            role=c.USER
+        ).first()
+        return membership is not None
 
     @property
     def is_named(self):
-        membership = self.membership_set.filter(is_primary=True).first()
-        return membership and membership.role == 'named'
+        membership = self.membership_set.filter(
+            is_primary=True,
+            role=c.NAMED
+        ).first()
+        return membership is not None
 
     @property
     def is_admin(self):
-        membership = self.membership_set.filter(is_primary=True).first()
-        return membership and membership.role == 'admin'
+        membership = self.membership_set.filter(
+            is_primary=True,
+            role=c.ADMIN
+        ).first()
+        return membership is not None
+
+    def is_admin_of(self, company):
+        membership = self.membership_set.filter(
+            is_primary=True,
+            company=company,
+            role=c.ADMIN
+        ).first()
+        return membership is not None
 
     def _generate_jwt_token(self):
         valid_time = datetime.now() + timedelta(days=60)

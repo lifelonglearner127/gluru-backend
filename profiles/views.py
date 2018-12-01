@@ -9,6 +9,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.serializers import ValidationError
+from profiles import constants as c
 from profiles import models as m
 from profiles import serializers as s
 from profiles import permissions as p
@@ -201,8 +202,10 @@ class CompanyViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
     def get_permissions(self):
         if self.action in ['create', 'update', 'destroy']:
             permission_classes = [IsAdminUser]
-        elif self.action in ['invite', 'revoke_invite', 'remove_user']:
+        elif self.action in ['invite', 'revoke_invite']:
             permission_classes = [p.IsCompanyAdmin]
+        elif self.action in ['remove_user']:
+            permission_classes = [p.IsCompanyUser]
         else:
             permission_classes = [IsAuthenticated]
 
@@ -342,14 +345,21 @@ class CompanyViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
         if user_id is None:
             raise ValidationError('Invite id is required')
 
-        if request.user.id == user_id:
-            raise ValidationError('Invalid Operation')
-
         try:
             membership = m.Membership.objects.get(
                 company=company,
                 user__id=user_id
             )
+
+            if membership.role == c.ADMIN and request.user.id == user_id:
+                raise ValidationError('Invalid operation')
+
+            if not request.user.is_admin_of(company=company) \
+               and request.user.id != user_id:
+                return Response({
+                    'results': 'Invite revoked successfully'
+                }, status=status.HTTP_403_FORBIDDEN)
+
             membership.delete()
         except m.Membership.DoesNotExist:
             raise ValidationError('Such user does not exist')
