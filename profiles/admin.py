@@ -34,4 +34,6 @@ class CompanyAdmin(admin.ModelAdmin):
 
 @admin.register(Invitation)
 class InvitationAdmin(admin.ModelAdmin):
-    pass
+    list_display = (
+        'id', 'email', 'role', 'company', 'invited_by'
+    )

@@ -201,7 +201,7 @@ class CompanyViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
     def get_permissions(self):
         if self.action in ['create', 'update', 'destroy']:
             permission_classes = [IsAdminUser]
-        elif self.action == 'invite':
+        elif self.action in ['invite', 'revoke_invite']:
             permission_classes = [p.IsCompanyAdmin]
         else:
             permission_classes = [IsAuthenticated]
@@ -317,6 +317,22 @@ class CompanyViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
 
         return Response({
             'results': 'Invite accepted successfully'
+        }, status=status.HTTP_200_OK)
+
+    @action(detail=True, methods=['POST'], url_path='revoke-invite')
+    def revoke_invite(self, request, *args, **kwargs):
+        company = self.get_object()
+        invite_id = request.data.get('invite_id', None)
+
+        if invite_id is None:
+            raise ValidationError('Invite id is required')
+
+        invite = m.Invitation.objects.get(
+            id=invite_id, company=company
+        )
+        invite.delete()
+        return Response({
+            'results': 'Invite revoked successfully'
         }, status=status.HTTP_200_OK)
 
     def destroy(self, request, ticket_pk=None, pk=None):
