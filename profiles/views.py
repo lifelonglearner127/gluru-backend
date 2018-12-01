@@ -9,11 +9,8 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.serializers import ValidationError
-from profiles.models import Company, Invitation, User
-from profiles.serializers import (
-    UserSerializer, CompanySerializer, ShortCompanySerializer,
-    InvitationSerializer
-)
+from profiles import models as m
+from profiles import serializers as s
 from profiles import permissions as p
 from oxd import uma as api
 from oxd import exceptions as e
@@ -48,7 +45,7 @@ class LoginCallbackAPIView(APIView):
         )
 
         if user is not None:
-            user_serializer = UserSerializer(user)
+            user_serializer = s.UserSerializer(user)
             return Response(
                 {
                     'results': user_serializer.data
@@ -111,7 +108,7 @@ class SignupAPIView(APIView):
             first_name = user.get('firstName')
             last_name = user.get('lastName')
 
-            user = User.objects.create(
+            user = m.Invitation.objects.create(
                 email=email,
                 first_name=first_name,
                 last_name=last_name,
@@ -120,25 +117,25 @@ class SignupAPIView(APIView):
 
             company = invite.get('company')
             activation_key = invite.get('activationKey')
-        
+
             if company is not None and activation_key is not None:
                 try:
-                    invite = Invitation.objects.get(
+                    invite = m.Invitation.objects.get(
                         company__id=company,
                         activation_key=activation_key
                     )
-                except Invitation.DoesNotExist:
+                except m.Invitation.DoesNotExist:
                     pass
 
                 if email != invite.email:
                     pass
 
                 if user in invite.company.users.all():
-                   pass
+                    pass
 
                 invite.accept(user)
 
-            user_serializer = UserSerializer(user)
+            user_serializer = s.UserSerializer(user)
             return Response(
                 {
                     'results': user_serializer.data
@@ -166,7 +163,7 @@ class LogoutUrlAPIView(APIView):
 
 class UserRetrieveUpdateAPIView(RetrieveUpdateAPIView):
     permission_classes = (IsAuthenticated,)
-    serializer_class = UserSerializer
+    serializer_class = s.UserSerializer
 
     def retrieve(self, request, *args, **kwargs):
         serializer = self.serializer_class(request.user)
@@ -199,10 +196,10 @@ class CompanyViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
                      mixins.UpdateModelMixin, mixins.RetrieveModelMixin,
                      mixins.DestroyModelMixin, viewsets.GenericViewSet):
 
-    serializer_class = ShortCompanySerializer
+    serializer_class = s.ShortCompanySerializer
 
     def get_queryset(self):
-        return Company.objects.all()
+        return m.Company.objects.all()
 
     def create(self, request):
         serializer_data = request.data.get('company', {})
@@ -261,7 +258,7 @@ class CompanyViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
     def users(self, request, pk=None):
         serializer_instance = self.get_object()
 
-        serializer = CompanySerializer(
+        serializer = s.CompanySerializer(
             serializer_instance,
         )
 
@@ -272,13 +269,13 @@ class CompanyViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
 
     @action(
         detail=True, methods=['POST'],
-        permission_classes=[p.IsCompanyUserAdmin]
+        permission_classes=[p.IsCompanyAdmin]
     )
     def invite(self, request, pk=None):
         company = self.get_object()
         serializer_data = request.data.get('invitation', {})
 
-        serializer = InvitationSerializer(
+        serializer = s.InvitationSerializer(
             data=serializer_data,
             context={
                 'invited_by': request.user,
@@ -301,11 +298,11 @@ class CompanyViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
         activation_key = request.data.get('activation_key')
 
         try:
-            invite = Invitation.objects.get(
+            invite = m.Invitation.objects.get(
                 company=company,
                 activation_key=activation_key
             )
-        except Invitation.DoesNotExist:
+        except m.Invitation.DoesNotExist:
             raise ValidationError('Incorrect activation key')
 
         if request.user.email != invite.email:

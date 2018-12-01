@@ -1,13 +1,13 @@
 from django.conf import settings
 from rest_framework import serializers
 from gluru_backend.utils import generate_sha1
-from profiles.models import User, Company, Membership, Invitation
+from profiles import models as m
 
 
 class ShortCompanySerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = Company
+        model = m.Company
         fields = (
             'name',
         )
@@ -17,7 +17,7 @@ class UserSerializer(serializers.ModelSerializer):
     companies = ShortCompanySerializer(many=True)
 
     class Meta:
-        model = User
+        model = m.User
         fields = (
             'id', 'first_name', 'last_name', 'email', 'token', 'companies'
         )
@@ -26,7 +26,7 @@ class UserSerializer(serializers.ModelSerializer):
 class ShortUserSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = User
+        model = m.User
         fields = (
             'id', 'first_name', 'last_name'
         )
@@ -37,7 +37,7 @@ class MembershipSerializer(serializers.ModelSerializer):
     user = ShortUserSerializer(read_only=True)
 
     class Meta:
-        model = Membership
+        model = m.Membership
         fields = (
             'user', 'role'
         )
@@ -50,7 +50,7 @@ class CompanySerializer(serializers.ModelSerializer):
     )
 
     class Meta:
-        model = Company
+        model = m.Company
         fields = (
             'name', 'users'
         )
@@ -61,7 +61,7 @@ class InvitationSerializer(serializers.ModelSerializer):
     invited_by = serializers.PrimaryKeyRelatedField(read_only=True)
 
     class Meta:
-        model = Invitation
+        model = m.Invitation
         fields = ['id', 'email', 'invited_by', 'company', 'role']
 
     def create(self, validated_data):
@@ -71,7 +71,7 @@ class InvitationSerializer(serializers.ModelSerializer):
             validated_data.get('email'),
             settings.SECRET_KEY
         )
-        invite = Invitation.objects.create(
+        invite = m.Invitation.objects.create(
             invited_by=invited_by,
             company=company,
             activation_key=activation_key,
