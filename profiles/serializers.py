@@ -9,17 +9,7 @@ class ShortCompanySerializer(serializers.ModelSerializer):
     class Meta:
         model = m.Company
         fields = (
-            'name',
-        )
-
-
-class UserSerializer(serializers.ModelSerializer):
-    companies = ShortCompanySerializer(many=True)
-
-    class Meta:
-        model = m.User
-        fields = (
-            'id', 'first_name', 'last_name', 'email', 'token', 'companies'
+            'id', 'name',
         )
 
 
@@ -32,7 +22,40 @@ class ShortUserSerializer(serializers.ModelSerializer):
         )
 
 
-class MembershipSerializer(serializers.ModelSerializer):
+class UserSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = m.User
+        fields = (
+            'id', 'first_name', 'last_name', 'email', 'token'
+        )
+
+
+class UserMembershipSerializer(serializers.ModelSerializer):
+
+    company = ShortCompanySerializer(read_only=True)
+
+    class Meta:
+        model = m.Membership
+        fields = (
+            'company', 'role'
+        )
+
+
+class UserAssociationSerializer(serializers.ModelSerializer):
+
+    associations = UserMembershipSerializer(
+        source='membership_set', many=True, required=False
+    )
+
+    class Meta:
+        model = m.User
+        fields = (
+            'id', 'associations'
+        )
+
+
+class CompanyMembershipSerializer(serializers.ModelSerializer):
 
     user = ShortUserSerializer(read_only=True)
 
@@ -45,14 +68,14 @@ class MembershipSerializer(serializers.ModelSerializer):
 
 class CompanySerializer(serializers.ModelSerializer):
 
-    users = MembershipSerializer(
+    users = CompanyMembershipSerializer(
         source='membership_set', many=True, required=False
     )
 
     class Meta:
         model = m.Company
         fields = (
-            'name', 'users'
+            'id', 'name', 'users'
         )
 
 
