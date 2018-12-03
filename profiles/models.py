@@ -5,6 +5,7 @@ from django.conf import settings
 from django.contrib.auth.models import (
     AbstractBaseUser, BaseUserManager, PermissionsMixin
 )
+from gluru_backend.models import TimestampedModel
 from profiles import constants as c
 
 
@@ -32,7 +33,7 @@ class UserManager(BaseUserManager):
         return user
 
 
-class User(AbstractBaseUser, PermissionsMixin):
+class User(AbstractBaseUser, PermissionsMixin, TimestampedModel):
 
     first_name = models.CharField(
         max_length=255,
@@ -73,14 +74,6 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     is_staff = models.BooleanField(
         default=False
-    )
-
-    created_at = models.DateTimeField(
-        auto_now_add=True
-    )
-
-    updated_at = models.DateTimeField(
-        auto_now=True
     )
 
     USERNAME_FIELD = 'email'
@@ -160,7 +153,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         return token.decode('utf-8')
 
 
-class Company(models.Model):
+class Company(TimestampedModel):
 
     name = models.CharField(
         max_length=128,
@@ -261,7 +254,7 @@ class Membership(models.Model):
         unique_together = ['user', 'company']
 
 
-class Invitation(models.Model):
+class Invitation(TimestampedModel):
 
     email = models.EmailField()
 
@@ -285,10 +278,6 @@ class Invitation(models.Model):
         max_length=10,
         choices=c.COMPANY_ROLE_CHOICES,
         default=c.USER
-    )
-
-    created_at = models.DateTimeField(
-        auto_now_add=True
     )
 
     @property
@@ -326,5 +315,4 @@ class Invitation(models.Model):
             self.delete()
 
     class Meta:
-        ordering = ['-created_at']
         unique_together = ['company', 'email']

@@ -1,5 +1,6 @@
 from django.db import models
 from phonenumber_field.modelfields import PhoneNumberField
+from gluru_backend.models import TimestampedModel
 
 
 class ActiveSMSManager(models.Manager):
@@ -8,7 +9,7 @@ class ActiveSMSManager(models.Manager):
         return super().get_queryset().filter(is_active=True)
 
 
-class SMSContact(models.Model):
+class SMSContact(TimestampedModel):
     name = models.CharField(
         max_length=20
     )
@@ -19,18 +20,11 @@ class SMSContact(models.Model):
         default=True
     )
 
-    created_at = models.DateTimeField(
-        auto_now=True
-    )
-
     objects = models.Manager()
     actives = ActiveSMSManager()
 
     def __str__(self):
         return '{} from {}'.format(self.number, self.name)
-
-    class Meta:
-        ordering = ['-created_at']
 
 
 class ResponseTime(models.Model):

@@ -5,6 +5,7 @@ from profiles.models import Company
 from info.models import (
     GluuServer, GluuOS, GluuProduct, TicketCategory, TicketIssueType
 )
+from gluru_backend.models import TimestampedModel, CreatedOnModel
 
 
 class ActiveTicketManager(models.Manager):
@@ -13,7 +14,7 @@ class ActiveTicketManager(models.Manager):
         return super().get_queryset().filter(is_deleted=False)
 
 
-class Ticket(models.Model):
+class Ticket(TimestampedModel):
 
     title = models.CharField(
         max_length=255
@@ -126,15 +127,6 @@ class Ticket(models.Model):
         default=False
     )
 
-    created_at = models.DateTimeField(
-        auto_now_add=True,
-        editable=False
-    )
-
-    updated_at = models.DateTimeField(
-         auto_now=True
-    )
-
     @property
     def owned_by(self):
         return self.created_for if self.created_for else self.created_by
@@ -145,9 +137,6 @@ class Ticket(models.Model):
     def __str__(self):
         return '{} - {}'.format(self.id, self.title)
 
-    class Meta:
-        ordering = ['-created_at']
-
 
 class ActiveAnswerManager(models.Manager):
 
@@ -155,7 +144,7 @@ class ActiveAnswerManager(models.Manager):
         return super().get_queryset().filter(is_deleted=False)
 
 
-class Answer(models.Model):
+class Answer(TimestampedModel):
 
     body = models.TextField()
 
@@ -184,23 +173,11 @@ class Answer(models.Model):
         default=False,
     )
 
-    created_at = models.DateTimeField(
-        auto_now_add=True,
-        editable=False
-    )
-
-    updated_at = models.DateTimeField(
-        auto_now=True
-    )
-
     objects = models.Manager()
     actives = ActiveAnswerManager()
 
     def __str__(self):
         return self.ticket.title
-
-    class Meta:
-        ordering = ['-created_at']
 
 
 class TicketProduct(models.Model):
@@ -231,12 +208,8 @@ class TicketProduct(models.Model):
         null=True
     )
 
-    created_at = models.DateTimeField(
-        auto_now_add=True
-    )
 
-
-class TicketHistory(models.Model):
+class TicketHistory(CreatedOnModel):
 
     ticket = models.ForeignKey(
         Ticket,
@@ -264,12 +237,6 @@ class TicketHistory(models.Model):
         null=True
     )
 
-    created_at = models.DateTimeField(
-        auto_now_add=True,
-        editable=False
-    )
-
     class Meta:
-        ordering = ['created_at']
         verbose_name = 'Ticket History'
         verbose_name_plural = 'Tickets History'
