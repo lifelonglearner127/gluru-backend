@@ -193,6 +193,43 @@ class UserRetrieveUpdateAPIView(RetrieveUpdateAPIView):
         )
 
 
+class UserViewSet(mixins.ListModelMixin,
+                  mixins.RetrieveModelMixin,
+                  viewsets.GenericViewSet):
+
+    def get_permissions(self):
+        if self.action in ['retrieve']:
+            permission_classes = [p.IsStaffOrSelf]
+        else:
+            permission_classes = [IsAdminUser]
+
+        return [permission() for permission in permission_classes]
+
+    def get_queryset(self):
+        return m.User.objects.all()
+
+    def list(self, request):
+        page = self.paginate_queryset(self.get_queryset())
+
+        serializer = s.UserSerializer(
+            page,
+            many=True
+        )
+
+        return self.get_paginated_response(serializer.data)
+
+    def retrieve(self, request, pk=None):
+        serializer_instance = self.get_object()
+        serializer = s.UserAssociationSerializer(
+            serializer_instance,
+        )
+
+        return Response(
+            {'results': serializer.data},
+            status=status.HTTP_200_OK
+        )
+
+
 class CompanyViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
                      mixins.UpdateModelMixin, mixins.RetrieveModelMixin,
                      mixins.DestroyModelMixin, viewsets.GenericViewSet):

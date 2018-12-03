@@ -4,6 +4,7 @@ from profiles import views as v
 
 router = DefaultRouter()
 router.register(r'company', v.CompanyViewSet, base_name='company')
+router.register(r'users', v.UserViewSet, base_name='user')
 
 urlpatterns = [
     url(r'^user/?$', v.UserRetrieveUpdateAPIView.as_view()),
