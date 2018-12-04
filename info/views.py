@@ -1,10 +1,50 @@
 from rest_framework import viewsets, mixins, status
+from rest_framework.views import APIView
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAdminUser, AllowAny
 from tickets.serializers import TicketSerializer
 from info import models as m
 from info import serializers as s
+
+
+class GetAllInfoView(APIView):
+    def get(self, reqeust):
+        servers = m.GluuServer.objects.all()
+        products = m.GluuProduct.objects.all()
+        os = m.GluuOS.objects.all()
+        issue_types = m.TicketIssueType.objects.all()
+        categories = m.TicketCategory.objects.all()
+
+        server_serializer = s.GluuServerSerializer(
+            servers,
+            many=True
+        )
+        product_serializer = s.GluuProductSerializer(
+            products,
+            many=True
+        )
+        os_serializer = s.GluuOSSerializer(
+            os,
+            many=True
+        )
+        type_serializer = s.TicketIssueTypeSerializer(
+            issue_types,
+            many=True
+        )
+        category_serializer = s.TicketCategorySerializer(
+            categories,
+            many=True
+        )
+        return Response({
+                'servers': server_serializer.data,
+                'products': product_serializer.data,
+                'os': os_serializer.data,
+                'types': type_serializer.data,
+                'categories': category_serializer.data
+            },
+            status=status.HTTP_200_OK
+        )
 
 
 class GluuServerViewset(mixins.CreateModelMixin,

@@ -2,7 +2,7 @@ from django.conf.urls import url, include
 from rest_framework.routers import DefaultRouter
 from info.views import (
     GluuServerViewset, GluuOSViewSet, GluuProductViewset,
-    TicketCategoryViewSet, TicketIssueTypeViewSet
+    TicketCategoryViewSet, TicketIssueTypeViewSet, GetAllInfoView
 )
 
 router = DefaultRouter()
@@ -13,5 +13,6 @@ router.register(r'category', TicketCategoryViewSet, base_name="category")
 router.register(r'issue-type', TicketIssueTypeViewSet, base_name="issue-type")
 
 urlpatterns = [
+    url(r'^all/?$', GetAllInfoView.as_view()),
     url(r'^', include(router.urls)),
 ]
