@@ -1,3 +1,4 @@
+import urllib
 import requests
 import base64
 
@@ -77,7 +78,7 @@ def get_authorization_url():
     params = {
         'response_type': 'code',
         'client_id': config.client_id,
-        'redirect_uri': config.authorization_redirect_uri,
+        'redirect_uri': urllib.parse.quote(config.authorization_redirect_uri),
         'scope': ','.join(config.scope),
         'state': state,
         'nonce': nonce
