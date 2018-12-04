@@ -166,12 +166,12 @@ class Company(TimestampedModel):
     )
 
     @property
-    def admin_users(self):
+    def admin_user(self):
         return self.users.filter(
             id__in=self.membership_set.filter(
                     is_primary=True, role='admin'
                 ).values_list('user')
-            )
+            ).first()
 
     @property
     def named_users(self):

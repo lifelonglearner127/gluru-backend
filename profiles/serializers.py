@@ -4,21 +4,23 @@ from gluru_backend.utils import generate_sha1
 from profiles import models as m
 
 
-class ShortCompanySerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = m.Company
-        fields = (
-            'id', 'name',
-        )
-
-
 class ShortUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = m.User
         fields = (
             'id', 'first_name', 'last_name'
+        )
+
+
+class ShortCompanySerializer(serializers.ModelSerializer):
+
+    admin_user = ShortUserSerializer(read_only=True)
+
+    class Meta:
+        model = m.Company
+        fields = (
+            'id', 'name', 'admin_user'
         )
 
 
