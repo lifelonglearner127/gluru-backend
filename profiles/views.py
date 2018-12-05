@@ -410,3 +410,147 @@ class CompanyViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
         obj.delete()
 
         return Response(None, status=status.HTTP_204_NO_CONTENT)
+
+
+class UserRoleViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
+                      mixins.UpdateModelMixin, mixins.RetrieveModelMixin,
+                      mixins.DestroyModelMixin, viewsets.GenericViewSet):
+    serializer_class = s.UserRoleSerializer
+
+    def get_queryset(self):
+        return m.UserRole.objects.all()
+
+    def create(self, request):
+        serializer_data = request.data.get('role', {})
+        context = {
+            'permissions': serializer_data.pop('permissions', [])
+        }
+        serializer = self.serializer_class(
+            data=serializer_data,
+            context=context
+        )
+
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(
+            {'results': serializer.data},
+            status=status.HTTP_201_CREATED
+        )
+
+    def list(self, request):
+        serializer_data = self.get_queryset()
+
+        serializer = self.serializer_class(
+            serializer_data,
+            many=True
+        )
+
+        return Response(
+            {'results': serializer.data},
+            status=status.HTTP_200_OK
+        )
+
+    def update(self, request, pk=None):
+        serializer_instance = self.get_object()
+        serializer_data = request.data.get('role', {})
+        context = {
+            'permissions': serializer_data.pop('permissions', [])
+        }
+        serializer = self.serializer_class(
+            serializer_instance,
+            data=serializer_data,
+            context=context,
+            partial=True
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(
+            {'results': serializer.data},
+            status=status.HTTP_200_OK
+        )
+
+    def retrieve(self, request, pk=None):
+        serializer_instance = self.get_object()
+        serializer = self.serializer_class(
+            serializer_instance,
+        )
+
+        return Response(
+            {'results': serializer.data},
+            status=status.HTTP_200_OK
+        )
+
+    def destroy(self, request, pk=None):
+        obj = self.get_object()
+        obj.delete()
+        return Response(None, status=status.HTTP_204_NO_CONTENT)
+
+
+class PermissionViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
+                        mixins.UpdateModelMixin, mixins.RetrieveModelMixin,
+                        mixins.DestroyModelMixin, viewsets.GenericViewSet):
+    serializer_class = s.PermissionSerializer
+
+    def get_queryset(self):
+        return m.Permission.objects.all()
+
+    def create(self, request):
+        serializer_data = request.data.get('permission', {})
+        serializer = self.serializer_class(
+            data=serializer_data
+        )
+
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(
+            {'results': serializer.data},
+            status=status.HTTP_201_CREATED
+            )
+
+    def list(self, request):
+        serializer_data = self.get_queryset()
+
+        serializer = self.serializer_class(
+            serializer_data,
+            many=True
+        )
+
+        return Response(
+            {'results': serializer.data},
+            status=status.HTTP_200_OK
+        )
+
+    def update(self, request, pk=None):
+        serializer_instance = self.get_object()
+        serializer_data = request.data.get('permission', {})
+        serializer = self.serializer_class(
+            serializer_instance,
+            data=serializer_data,
+            partial=True
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(
+            {'results': serializer.data},
+            status=status.HTTP_200_OK
+        )
+
+    def retrieve(self, request, pk=None):
+        serializer_instance = self.get_object()
+        serializer = self.serializer_class(
+            serializer_instance,
+        )
+
+        return Response(
+            {'results': serializer.data},
+            status=status.HTTP_200_OK
+        )
+
+    def destroy(self, request, pk=None):
+        obj = self.get_object()
+        obj.delete()
+        return Response(None, status=status.HTTP_204_NO_CONTENT)

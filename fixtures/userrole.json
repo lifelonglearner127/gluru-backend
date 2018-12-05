@@ -1,0 +1,30 @@
+[
+    {
+        "model": "profiles.UserRole",
+        "pk": 1,
+        "fields": {
+            "name": "staff"
+        }
+    },
+    {
+        "model": "profiles.UserRole",
+        "pk": 2,
+        "fields": {
+            "name": "admin"
+        }
+    },
+    {
+        "model": "profiles.UserRole",
+        "pk": 3,
+        "fields": {
+            "name": "named"
+        }
+    },
+    {
+        "model": "profiles.UserRole",
+        "pk": 4,
+        "fields": {
+            "name": "user"
+        }
+    }
+]

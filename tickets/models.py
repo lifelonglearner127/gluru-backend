@@ -248,7 +248,7 @@ class TicketHistory(CreatedOnModel):
 
 
 class TicketVote(TimestampedModel):
-    
+
     voter = models.ForeignKey(
         User,
         on_delete=models.CASCADE

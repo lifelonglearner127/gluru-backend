@@ -1,0 +1,92 @@
+[
+    {
+        "model": "profiles.Permission",
+        "pk": 1,
+        "fields": {
+            "app_name": "profiles",
+            "model_name": "User",
+            "actions": "add_staff, remove_staff",
+            "description": "Add and remove staff"
+        }
+    },
+    {
+        "model": "profiles.Permission",
+        "pk": 2,
+        "fields": {
+            "app_name": "billing",
+            "model_name": "Billing",
+            "actions": "retrieve, list",
+            "description": "View billing information"
+        }
+    },
+    {
+        "model": "profiles.Permission",
+        "pk": 3,
+        "fields": {
+            "app_name": "billing",
+            "model_name": "Billing",
+            "actions": "update",
+            "description": "Change billing information"
+        }
+    },
+    {
+        "model": "profiles.Permission",
+        "pk": 4,
+        "fields": {
+            "app_name": "tickets",
+            "model_name": "Ticket",
+            "actions": "assign",
+            "description": "Assign tickets"
+        }
+    },
+    {
+        "model": "profiles.Permission",
+        "pk": 5,
+        "fields": {
+            "app_name": "tickets",
+            "model_name": "Ticket",
+            "actions": "retrieve, list",
+            "description": "View tickets"
+        }
+    },
+    {
+        "model": "profiles.Permission",
+        "pk": 6,
+        "fields": {
+            "app_name": "tickets",
+            "model_name": "Ticket",
+            "actions": "create",
+            "description": "Create tickets"
+        }
+    },
+    {
+        "model": "profiles.Permission",
+        "pk": 7,
+        "fields": {
+            "app_name": "tickets",
+            "model_name": "Ticket",
+            "actions": "respond", 
+            "description": "Respond to tickets"
+        }
+    },
+    {
+        "model": "profiles.Permission",
+        "pk": 8,
+        "fields": {
+            "app_name": "profiles",
+            "model_name": "User",
+            "actions": "change_role",
+            "description": "Change member roles"
+        }
+    },
+    {
+        "model": "profiles.Permission",
+        "pk": 9,
+        "fields": {
+            "app_name": "profiles",
+            "model_name": "User",
+            "actions": "add_member, remove_member",
+            "description": "Add and remove members"
+        }
+    }
+]

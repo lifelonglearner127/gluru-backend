@@ -138,7 +138,7 @@ class TicketVoteSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             'ticket': {'required': False},
         }
-    
+
     def create(self, validated_data):
         ticket = self.context.get('ticket', None)
         voter = self.context.get('voter', None)
@@ -161,7 +161,7 @@ class VoterTicketVoteSerializer(serializers.ModelSerializer):
 
 
 class TicketVoterSerializer(serializers.ModelSerializer):
-    
+
     voters = VoterTicketVoteSerializer(
         source='ticketvote_set', many=True, required=False
     )

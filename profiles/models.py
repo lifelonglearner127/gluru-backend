@@ -2,6 +2,7 @@ import jwt
 from datetime import datetime, timedelta
 from django.db import models
 from django.conf import settings
+from django.contrib.postgres.fields import CICharField
 from django.contrib.auth.models import (
     AbstractBaseUser, BaseUserManager, PermissionsMixin
 )
@@ -316,3 +317,54 @@ class Invitation(TimestampedModel):
 
     class Meta:
         unique_together = ['company', 'email']
+
+
+class UserRole(models.Model):
+
+    name = CICharField(
+        max_length=20,
+        unique=True
+    )
+
+    permissions = models.ManyToManyField(
+        'Permission',
+        through='UserRolePermission'
+    )
+
+
+class Permission(models.Model):
+
+    app_name = models.CharField(
+        max_length=20
+    )
+
+    model_name = models.CharField(
+        max_length=20
+    )
+
+    actions = models.TextField()
+
+    description = models.TextField()
+
+    class Meta:
+        unique_together = ['app_name', 'model_name', 'actions']
+
+
+class UserRolePermission(models.Model):
+
+    role = models.ForeignKey(
+        UserRole,
+        on_delete=models.CASCADE
+    )
+
+    permission = models.ForeignKey(
+        Permission,
+        on_delete=models.CASCADE
+    )
+
+    is_enabled = models.BooleanField(
+        default=False
+    )
+
+    class Meta:
+        unique_together = ['role', 'permission']
