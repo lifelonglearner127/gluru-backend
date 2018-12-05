@@ -1,15 +1,6 @@
 from django.utils.translation import ugettext_lazy as _
 
 
-TICKET_STATUS = (
-    ('', 'Select a Status'),
-    ('new', _('New')),
-    ('assigned', _('Assigned')),
-    ('inprogress', _('In Progress')),
-    ('pending', _('Pending Input')),
-    ('close', _('Closed')),
-)
-
 NOTIFICATION_DELAY_TIME = {
     'outage': {
         'Enterprise': 5,

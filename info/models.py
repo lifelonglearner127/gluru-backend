@@ -87,3 +87,17 @@ class TicketCategory(models.Model):
 
     class Meta:
         verbose_name_plural = 'Ticket Categories'
+
+
+class TicketStatus(models.Model):
+
+    name = CICharField(
+        max_length=30,
+        unique=True
+    )
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name_plural = 'Ticket Status'

@@ -1,39 +1,43 @@
 from rest_framework import serializers
-from info.models import (
-    GluuServer, GluuOS, GluuProduct, TicketCategory, TicketIssueType
-)
-
+from info import models as m
 
 class GluuServerSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = GluuServer
+        model = m.GluuServer
         fields = '__all__'
 
 
 class GluuOSSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = GluuOS
+        model = m.GluuOS
         fields = '__all__'
 
 
 class GluuProductSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = GluuProduct
+        model = m.GluuProduct
         fields = '__all__'
 
 
 class TicketCategorySerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = TicketCategory
+        model = m.TicketCategory
         fields = '__all__'
 
 
 class TicketIssueTypeSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = TicketIssueType
+        model = m.TicketIssueType
+        fields = '__all__'
+
+
+class TicketStatusSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = m.TicketStatus
         fields = '__all__'

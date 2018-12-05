@@ -2,9 +2,7 @@ from django.db import models
 from django.conf import settings
 from tickets import constants as c
 from profiles.models import Company, User
-from info.models import (
-    GluuServer, GluuOS, GluuProduct, TicketCategory, TicketIssueType
-)
+from info import models as info_m
 from gluru_backend.models import TimestampedModel, CreatedOnModel
 
 
@@ -61,20 +59,23 @@ class Ticket(TimestampedModel):
     )
 
     category = models.ForeignKey(
-        TicketCategory,
+        info_m.TicketCategory,
         on_delete=models.SET_NULL,
         blank=True,
         null=True,
         related_name='tickets'
     )
 
-    status = models.CharField(
-        max_length=20,
-        choices=c.TICKET_STATUS,
+    status = models.ForeignKey(
+        info_m.TicketStatus,
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name='tickets'
     )
 
     issue_type = models.ForeignKey(
-        TicketIssueType,
+        info_m.TicketIssueType,
         on_delete=models.SET_NULL,
         blank=True,
         null=True,
@@ -82,7 +83,7 @@ class Ticket(TimestampedModel):
     )
 
     gluu_server = models.ForeignKey(
-        GluuServer,
+        info_m.GluuServer,
         on_delete=models.SET_NULL,
         blank=True,
         null=True,
@@ -90,7 +91,7 @@ class Ticket(TimestampedModel):
     )
 
     os = models.ForeignKey(
-        GluuOS,
+        info_m.GluuOS,
         on_delete=models.SET_NULL,
         blank=True,
         null=True,
@@ -104,7 +105,7 @@ class Ticket(TimestampedModel):
     )
 
     products = models.ManyToManyField(
-        GluuProduct,
+        info_m.GluuProduct,
         through='TicketProduct'
     )
 
@@ -193,14 +194,14 @@ class TicketProduct(models.Model):
     )
 
     product = models.ForeignKey(
-        GluuProduct,
+        info_m.GluuProduct,
         on_delete=models.SET_NULL,
         blank=True,
         null=True
     )
 
     os = models.ForeignKey(
-        GluuOS,
+        info_m.GluuOS,
         on_delete=models.SET_NULL,
         related_name='os_product',
         blank=True,

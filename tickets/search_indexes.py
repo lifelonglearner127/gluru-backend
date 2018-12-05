@@ -7,8 +7,8 @@ class TicketIndex(indexes.SearchIndex, indexes.Indexable):
 
     text = indexes.CharField(document=True, use_template=True)
 
-    status = indexes.CharField(
-        model_attr='status'
+    status = indexes.IntegerField(
+        model_attr='status__id'
     )
 
     category = indexes.IntegerField(
