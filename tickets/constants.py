@@ -55,3 +55,11 @@ SLA_MATRIX = {
         'new_development': 36
     }
 }
+
+VOTE_UP = 'up'
+VOTE_DOWN = 'down'
+
+VOTE_TYPE = (
+    (VOTE_UP, 'Up'),
+    (VOTE_DOWN, 'Down'),
+)

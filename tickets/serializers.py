@@ -1,11 +1,9 @@
 from rest_framework import serializers
 from drf_haystack.serializers import HaystackSerializer
 from drf_haystack.serializers import HighlighterMixin
-from profiles.serializers import ShortUserSerializer
 from tickets.search_indexes import TicketIndex
-from tickets.models import (
-    Ticket, TicketProduct, TicketHistory, Answer
-)
+from tickets import models as m
+from profiles.serializers import ShortUserSerializer
 
 
 class TicketSearchSerializer(HighlighterMixin, HaystackSerializer):
@@ -28,7 +26,7 @@ class TicketSearchSerializer(HighlighterMixin, HaystackSerializer):
 class TicketProductSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = TicketProduct
+        model = m.TicketProduct
         fields = (
             'product', 'os', 'os_version'
         )
@@ -48,7 +46,7 @@ class TicketSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
-        model = Ticket
+        model = m.Ticket
         fields = [
             'id', 'title', 'body', 'created_by', 'created_for', 'updated_by',
             'assignee', 'category', 'status', 'issue_type', 'gluu_server',
@@ -65,13 +63,13 @@ class TicketSerializer(serializers.ModelSerializer):
         created_by = self.context.get('created_by', None)
         products = validated_data.pop('ticketproduct_set', [])
 
-        ticket = Ticket.objects.create(
+        ticket = m.Ticket.objects.create(
             created_by=created_by,
             **validated_data
         )
 
         for product in products:
-            TicketProduct.objects.create(
+            m.TicketProduct.objects.create(
                 ticket=ticket,
                 product=product['product'],
                 os=product['os'],
@@ -93,7 +91,7 @@ class TicketSerializer(serializers.ModelSerializer):
 class TicketHistorySerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = TicketHistory
+        model = m.TicketHistory
         fields = '__all__'
 
 
@@ -101,7 +99,7 @@ class AnswerSerializer(serializers.ModelSerializer):
     created_by = ShortUserSerializer(read_only=True)
 
     class Meta:
-        model = Answer
+        model = m.Answer
         fields = [
             'id', 'body', 'ticket', 'created_by'
         ]
@@ -112,12 +110,11 @@ class AnswerSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         ticket = self.context.get('ticket', None)
         created_by = self.context.get('created_by', None)
-        answer = Answer.objects.create(
+        return m.Answer.objects.create(
             ticket=ticket,
             created_by=created_by,
             **validated_data
         )
-        return answer
 
     def update(self, instance, validated_data):
         for (key, value) in validated_data.items():
@@ -127,3 +124,50 @@ class AnswerSerializer(serializers.ModelSerializer):
 
         instance.save()
         return instance
+
+
+class TicketVoteSerializer(serializers.ModelSerializer):
+
+    voter = ShortUserSerializer(read_only=True)
+
+    class Meta:
+        model = m.TicketVote
+        fields = [
+            'voter', 'ticket', 'is_up'
+        ]
+        extra_kwargs = {
+            'ticket': {'required': False},
+        }
+    
+    def create(self, validated_data):
+        ticket = self.context.get('ticket', None)
+        voter = self.context.get('voter', None)
+        return m.TicketVote.objects.create(
+            ticket=ticket,
+            voter=voter,
+            **validated_data
+        )
+
+
+class VoterTicketVoteSerializer(serializers.ModelSerializer):
+
+    voter = ShortUserSerializer(read_only=True)
+
+    class Meta:
+        model = m.TicketVote
+        fields = (
+            'voter', 'is_up'
+        )
+
+
+class TicketVoterSerializer(serializers.ModelSerializer):
+    
+    voters = VoterTicketVoteSerializer(
+        source='ticketvote_set', many=True, required=False
+    )
+
+    class Meta:
+        model = m.Ticket
+        fields = [
+            'voters'
+        ]
