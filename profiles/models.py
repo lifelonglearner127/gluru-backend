@@ -166,58 +166,17 @@ class Company(TimestampedModel):
         through='Membership'
     )
 
-    @property
-    def admin_user(self):
-        return self.users.filter(
-            id__in=self.membership_set.filter(
-                    is_primary=True, role='admin'
-                ).values_list('user')
-            ).first()
-
-    @property
-    def named_users(self):
-        return self.users.filter(
-            id__in=self.membership_set.filter(
-                is_primary=True, role='named'
-            ).values_list('user')
-        )
-
-    @property
-    def basic_users(self):
-        return self.users.filter(
-            id__in=self.membership_set.filter(
-                is_primary=True, role='user'
-            ).values_list('user')
-        )
-
-    @property
-    def partner_users(self):
-        return self.users.filter(id__in=self.membership_set.filter(
-                is_primary=False, role='named'
-            ).values_list('user')
-        )
-
-    @property
-    def non_users(self):
-        return self.users.filter(id__in=self.membership_set.filter(
-                is_primary=False, role='user'
-            ).values_list('user')
-        )
-
     def __str__(self):
         return self.name
+
+    def role_members(self, role):
+        return self.membership_set.filter(role=role)
 
     class Meta:
         verbose_name_plural = 'Companies'
 
 
 class Membership(models.Model):
-
-    ASSOC_TYPE = (
-        ('admin', 'Admin'),
-        ('named', 'Named'),
-        ('user', 'User'),
-    )
 
     user = models.ForeignKey(
         User,
@@ -229,10 +188,10 @@ class Membership(models.Model):
         on_delete=models.CASCADE
     )
 
-    role = models.CharField(
-        max_length=10,
-        choices=ASSOC_TYPE,
-        default='unnamed'
+    role = models.ForeignKey(
+        'UserRole',
+        on_delete=models.SET_NULL,
+        null=True
     )
 
     receive_notification = models.BooleanField(
