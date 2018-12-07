@@ -6,6 +6,14 @@ from info import models as info_m
 from gluru_backend.models import TimestampedModel, CreatedOnModel
 
 
+class Document(models.Model):
+
+    file = models.FileField(
+        max_length=255,
+        blank=True
+    )
+
+
 class ActiveTicketManager(models.Manager):
 
     def get_queryset(self):
@@ -133,6 +141,11 @@ class Ticket(TimestampedModel):
         through='TicketVote'
     )
 
+    attachments = models.ManyToManyField(
+        Document,
+        through='Attachments'
+    )
+
     @property
     def owned_by(self):
         return self.created_for if self.created_for else self.created_by
@@ -172,6 +185,11 @@ class Answer(TimestampedModel):
         related_name='updated_answers',
         null=True,
         blank=True
+    )
+
+    attachments = models.ManyToManyField(
+        Document,
+        through='Attachments'
     )
 
     is_deleted = models.BooleanField(
@@ -264,4 +282,26 @@ class TicketVote(TimestampedModel):
         max_length=10,
         choices=c.VOTE_TYPE,
         default=c.VOTE_UP
+    )
+
+
+class Attachments(models.Model):
+
+    document = models.ForeignKey(
+        Document,
+        on_delete=models.CASCADE
+    )
+
+    ticket = models.ForeignKey(
+        Ticket,
+        on_delete=models.CASCADE,
+        related_name='ticket_attachments',
+        null=True
+    )
+
+    answer = models.ForeignKey(
+        Answer,
+        on_delete=models.CASCADE,
+        related_name='answer_attachments',
+        null=True
     )

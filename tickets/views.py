@@ -2,6 +2,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, mixins, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
+from rest_framework.parsers import MultiPartParser
 from drf_haystack.viewsets import HaystackViewSet
 from drf_haystack.filters import HaystackAutocompleteFilter
 from tickets import models as m
@@ -123,6 +124,24 @@ class TicketViewSet(mixins.CreateModelMixin,
             status=status.HTTP_200_OK
         )
 
+    @action(detail=True, methods=['PUT'], parser_classes=[MultiPartParser])
+    def upload(self, request, pk=None):
+        obj = self.get_object()
+        files = list(request.FILES.values())
+        for f in files:
+            serializer = s.DocumentSerializer(data={"file": f})
+            serializer.is_valid(raise_exception=True)
+            document = serializer.save()
+            m.Attachments.objects.create(
+                document=document,
+                ticket=obj
+            )
+
+        return Response(
+            {'results': 'Successfully uploaded'},
+            status=status.HTTP_200_OK
+        )
+
 
 class AnswerViewSet(mixins.CreateModelMixin,
                     mixins.ListModelMixin,
@@ -182,6 +201,24 @@ class AnswerViewSet(mixins.CreateModelMixin,
         answer.save()
 
         return Response(None, status=status.HTTP_204_NO_CONTENT)
+
+    @action(detail=True, methods=['PUT'], parser_classes=[MultiPartParser])
+    def upload(self, request, ticket_pk=None, pk=None):
+        obj = self.get_object()
+        files = list(request.FILES.values())
+        for f in files:
+            serializer = s.DocumentSerializer(data={"file": f})
+            serializer.is_valid(raise_exception=True)
+            document = serializer.save()
+            m.Attachments.objects.create(
+                document=document,
+                answer=obj
+            )
+
+        return Response(
+            {'results': 'Successfully uploaded'},
+            status=status.HTTP_200_OK
+        )
 
 
 class TicketHistoryViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
