@@ -135,14 +135,6 @@ class User(AbstractBaseUser, PermissionsMixin, TimestampedModel):
         ).first()
         return membership is not None
 
-    def is_admin_of(self, company):
-        membership = self.membership_set.filter(
-            is_primary=True,
-            company=company,
-            role=c.ADMIN
-        ).first()
-        return membership is not None
-
     def _generate_jwt_token(self):
         valid_time = datetime.now() + timedelta(days=60)
 
@@ -234,10 +226,10 @@ class Invitation(TimestampedModel):
         on_delete=models.CASCADE
     )
 
-    role = models.CharField(
-        max_length=10,
-        choices=c.COMPANY_ROLE_CHOICES,
-        default=c.USER
+    role = models.ForeignKey(
+        'UserRole',
+        on_delete=models.SET_NULL,
+        null=True
     )
 
     @property
