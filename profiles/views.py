@@ -260,7 +260,17 @@ class UserViewSet(mixins.ListModelMixin,
                 'associations': association_serializer.data
             }},
             status=status.HTTP_200_OK
-        )        
+        )
+
+    @action(detail=False, methods=['GET'], url_path='edit-profile')
+    def edit_profile(self, request, *args, **kwargs):
+        update_profile_endpoint = '{}/user-profile/'.format(
+            settings.GLUU_USER_APP_FRONTEND
+        )
+        return Response(
+            {'results': update_profile_endpoint},
+            status=status.HTTP_200_OK
+        )
 
 
 class CompanyViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
