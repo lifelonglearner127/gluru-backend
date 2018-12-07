@@ -107,34 +107,6 @@ class User(AbstractBaseUser, PermissionsMixin, TimestampedModel):
         membership = self.membership_set.all().order_by('-is_primary')
         return list(m.company for m in membership)
 
-    @property
-    def is_community(self):
-        return self.company is None
-
-    @property
-    def is_basic(self):
-        membership = self.membership_set.filter(
-            is_primary=True,
-            role=c.USER
-        ).first()
-        return membership is not None
-
-    @property
-    def is_named(self):
-        membership = self.membership_set.filter(
-            is_primary=True,
-            role=c.NAMED
-        ).first()
-        return membership is not None
-
-    @property
-    def is_admin(self):
-        membership = self.membership_set.filter(
-            is_primary=True,
-            role=c.ADMIN
-        ).first()
-        return membership is not None
-
     def _generate_jwt_token(self):
         valid_time = datetime.now() + timedelta(days=60)
 

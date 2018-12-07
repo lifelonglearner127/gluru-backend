@@ -80,8 +80,8 @@ def email_reminder():
     )
 
     for ticket in tickets:
-        if ticket.owned_by.is_basic:
-            continue
+        # if ticket.owned_by.is_basic:
+        #     continue
 
         support_plan = 'Basic'
         delay_time = SLA_MATRIX[support_plan][ticket.issue_type]

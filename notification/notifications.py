@@ -64,78 +64,79 @@ def notify_new_ticket(ticket):
         )
 
         # Colleagues who subscribed to "Company notifications" will be notified
-        if ticket.created_for.is_named:
-            pass
+        # if ticket.created_for.is_named:
+        #     pass
 
     else:
-        if ticket.created_by.is_admin:
+        pass
+        # if ticket.created_by.is_admin:
 
-            # Gluu support team will be notified.
-            send_notification_by_email.apply_async(
-                args=[{
-                    'subject_template': 'new_ticket/note_sub.txt',
-                    'email_template': 'new_ticket/by_staff.txt',
-                    'html_template': 'new_ticket/by_staff.html',
-                    'context': context,
-                    'to_email': settings.NOTIFICATIONS_RECIPIENT
-                }],
-                queue='low',
-                routing_key='low'
-            )
+        #     # Gluu support team will be notified.
+        #     send_notification_by_email.apply_async(
+        #         args=[{
+        #             'subject_template': 'new_ticket/note_sub.txt',
+        #             'email_template': 'new_ticket/by_staff.txt',
+        #             'html_template': 'new_ticket/by_staff.html',
+        #             'context': context,
+        #             'to_email': settings.NOTIFICATIONS_RECIPIENT
+        #         }],
+        #         queue='low',
+        #         routing_key='low'
+        #     )
 
-        elif ticket.created_by.is_basic:
-            # Ticket creator will be notified of ticket addition
-            send_notification_by_email.apply_async(
-                args=[{
-                    'subject_template': 'new_ticket/note_sub.txt',
-                    'email_template': 'new_ticket/note_for_user.txt',
-                    'html_template': 'new_ticket/note_for_user.html',
-                    'context': context,
-                    'to_email': ticket.created_by.email
-                }],
-                queue='low',
-                routing_key='low'
-            )
+        # elif ticket.created_by.is_basic:
+        #     # Ticket creator will be notified of ticket addition
+        #     send_notification_by_email.apply_async(
+        #         args=[{
+        #             'subject_template': 'new_ticket/note_sub.txt',
+        #             'email_template': 'new_ticket/note_for_user.txt',
+        #             'html_template': 'new_ticket/note_for_user.html',
+        #             'context': context,
+        #             'to_email': ticket.created_by.email
+        #         }],
+        #         queue='low',
+        #         routing_key='low'
+        #     )
 
-            # Gluu support team will be notified as well
-            send_notification_by_email.apply_async(
-                args=[{
-                    'subject_template': 'new_ticket/support_for_sub.txt',
-                    'email_template': 'new_ticket/support_for_user.txt',
-                    'html_template': 'new_ticket/support_for_user.html',
-                    'context': context,
-                    'to_email': settings.NOTIFICATIONS_RECIPIENT
-                }],
-                queue='low',
-                routing_key='low'
-            )
+        #     # Gluu support team will be notified as well
+        #     send_notification_by_email.apply_async(
+        #         args=[{
+        #             'subject_template': 'new_ticket/support_for_sub.txt',
+        #             'email_template': 'new_ticket/support_for_user.txt',
+        #             'html_template': 'new_ticket/support_for_user.html',
+        #             'context': context,
+        #             'to_email': settings.NOTIFICATIONS_RECIPIENT
+        #         }],
+        #         queue='low',
+        #         routing_key='low'
+        #     )
 
-        elif ticket.created_by.is_named:
-            # Ticket creator will be notified of ticket addition
-            send_notification_by_email.apply_async(
-                args=[{
-                    'subject_template': 'new_ticket/note_sub.txt',
-                    'email_template': 'new_ticket/note_for_named.txt',
-                    'html_template': 'new_ticket/note_for_named.html',
-                    'context': context,
-                    'to_email': ticket.created_by.email
-                }],
-                queue='low',
-                routing_key='low'
-            )
+        # elif ticket.created_by.is_named:
+        #     # Ticket creator will be notified of ticket addition
+        #     send_notification_by_email.apply_async(
+        #         args=[{
+        #             'subject_template': 'new_ticket/note_sub.txt',
+        #             'email_template': 'new_ticket/note_for_named.txt',
+        #             'html_template': 'new_ticket/note_for_named.html',
+        #             'context': context,
+        #             'to_email': ticket.created_by.email
+        #         }],
+        #         queue='low',
+        #         routing_key='low'
+        #     )
 
-            # Gluu support team will be notified as well
-            send_notification_by_email.apply_async(
-                args=[{
-                    'subject_template': 'new_ticket/support_for_sub.txt',
-                    'email_template': 'new_ticket/support_for_named.txt',
-                    'html_template': 'new_ticket/support_for_named.html',
-                    'context': context,
-                    'to_email': settings.NOTIFICATIONS_RECIPIENT
-                }],
-                queue='low',
-                routing_key='low'
-            )
+        #     # Gluu support team will be notified as well
+        #     send_notification_by_email.apply_async(
+        #         args=[{
+        #             'subject_template': 'new_ticket/support_for_sub.txt',
+        #             'email_template': 'new_ticket/support_for_named.txt',
+        #             'html_template': 'new_ticket/support_for_named.html',
+        #             'context': context,
+        #             'to_email': settings.NOTIFICATIONS_RECIPIENT
+        #         }],
+        #         queue='low',
+        #         routing_key='low'
+        #     )
 
 
 def notify_ticket_reopened(ticket, user):
