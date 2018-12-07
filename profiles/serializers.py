@@ -1,6 +1,5 @@
-from django.conf import settings
 from rest_framework import serializers
-from gluru_backend.utils import generate_sha1
+from gluru_backend.utils import generate_hash
 from profiles import models as m
 
 
@@ -92,9 +91,8 @@ class InvitationSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         invited_by = self.context.get('invited_by', None)
         company = self.context.get('company', None)
-        _, activation_key = generate_sha1(
-            validated_data.get('email'),
-            settings.SECRET_KEY
+        activation_key = generate_hash(
+            validated_data.get('email')
         )
         return m.Invitation.objects.create(
             invited_by=invited_by,
@@ -183,3 +181,11 @@ class UserRoleSerializer(serializers.ModelSerializer):
 
         instance.save()
         return instance
+
+
+class PersonalProfileSerializer(serializers.Serializer):
+
+    address = serializers.CharField()
+    timezone = serializers.CharField()
+    job_title = serializers.CharField()
+    about = serializers.CharField()

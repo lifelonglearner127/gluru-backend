@@ -9,6 +9,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.serializers import ValidationError
+from gluru_backend.utils import generate_hash
 from profiles import constants as c
 from profiles import models as m
 from profiles import serializers as s
@@ -219,15 +220,47 @@ class UserViewSet(mixins.ListModelMixin,
         return self.get_paginated_response(serializer.data)
 
     def retrieve(self, request, pk=None):
-        serializer_instance = self.get_object()
-        serializer = s.UserAssociationSerializer(
-            serializer_instance,
+        pass
+
+    @action(detail=False, methods=['GET'])
+    def me(self, request, *args, **kwargs):
+        # Get User Personal Data from Account Management App
+        fetch_profile_endpoint = '{}/api/v1/fetch-profile/'.format(
+            settings.GLUU_USER_APP_BACKEND
         )
 
-        return Response(
-            {'results': serializer.data},
-            status=status.HTTP_200_OK
+        headers = {
+            'Content-Type': 'application/json'
+        }
+
+        data = {
+            'idp_uuid': request.user.idp_uuid,
+            'email_hash': generate_hash(request.user.email)
+        }
+
+        r = requests.post(
+            fetch_profile_endpoint, data=json.dumps(data), headers=headers
         )
+
+        if r.status_code == 200:
+            response = r.json()
+            data = {
+                "address": response.get('address'),
+                "timezone": response.get('timezone'),
+                "job_title": response.get('job_title'),
+                "about": response.get('about'),
+            }
+
+        personal_profile_serializer = s.PersonalProfileSerializer(data)
+        association_serializer = s.UserAssociationSerializer(request.user)
+
+        return Response(
+            {'results': {
+                'profile': personal_profile_serializer.data,
+                'associations': association_serializer.data
+            }},
+            status=status.HTTP_200_OK
+        )        
 
 
 class CompanyViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,

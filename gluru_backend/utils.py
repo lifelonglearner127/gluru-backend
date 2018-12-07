@@ -1,12 +1,12 @@
-import random
-from hashlib import sha1
+import hmac
+import binascii
+import hashlib
 from django.urls import reverse
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.core.mail import EmailMultiAlternatives
 from django.template import loader
 from django.utils.http import urlencode
-from django.utils.encoding import smart_bytes
 from django.utils.six import text_type
 
 
@@ -61,15 +61,12 @@ def send_mail(
     e_message.send()
 
 
-def generate_sha1(string, salt=None):
-
+def generate_hash(string):
     if not isinstance(string, (str, text_type)):
         string = str(string)
 
-    if not salt:
-        salt = sha1(str(random.random()).encode('utf-8')).hexdigest()[:5]
-
-    salted_bytes = (smart_bytes(salt) + smart_bytes(string))
-    hash_ = sha1(salted_bytes).hexdigest()
-
-    return salt, hash_
+    return hmac.new(
+        binascii.unhexlify(settings.HEX_KEY),
+        string.encode('utf-8'),
+        hashlib.sha256
+    ).hexdigest()
