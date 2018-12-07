@@ -1,6 +1,3 @@
-from django.utils.translation import ugettext_lazy as _
-
-
 NOTIFICATION_DELAY_TIME = {
     'outage': {
         'Enterprise': 5,

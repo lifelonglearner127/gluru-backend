@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from info import models as m
 
+
 class GluuServerSerializer(serializers.ModelSerializer):
 
     class Meta:

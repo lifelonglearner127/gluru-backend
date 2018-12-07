@@ -178,4 +178,3 @@ class DocumentSerializer(serializers.ModelSerializer):
     class Meta:
         model = m.Document
         fields = '__all__'
-

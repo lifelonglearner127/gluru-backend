@@ -147,7 +147,7 @@ class UserRoleSerializer(serializers.ModelSerializer):
                 permission = m.Permission.objects.get(pk=permission_id)
             except m.Permission.DoesNotExist:
                 continue
-            
+
             role_permission, _ = m.UserRolePermission.objects.get_or_create(
                 role=role,
                 permission=permission
@@ -173,7 +173,7 @@ class UserRoleSerializer(serializers.ModelSerializer):
                 permission = m.Permission.objects.get(pk=permission_id)
             except m.Permission.DoesNotExist:
                 continue
-            
+
             role_permission, _ = m.UserRolePermission.objects.get_or_create(
                 role=instance,
                 permission=permission
@@ -183,4 +183,3 @@ class UserRoleSerializer(serializers.ModelSerializer):
 
         instance.save()
         return instance
-

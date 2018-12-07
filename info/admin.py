@@ -26,6 +26,7 @@ class TicketCategoryAdmin(admin.ModelAdmin):
 class TicketIssueTypeAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'priority')
 
+
 @admin.register(m.TicketStatus)
 class TicketStatusAdmin(admin.ModelAdmin):
     list_display = ('id', 'name')

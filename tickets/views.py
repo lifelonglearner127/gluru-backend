@@ -159,9 +159,10 @@ class AnswerViewSet(mixins.CreateModelMixin,
 
     def create(self, request, ticket_pk=None):
         serializer_data = request.data.get('answer', {})
+        ticket = get_object_or_404(m.Ticket, is_deleted=False, pk=ticket_pk)
         context = {
             'created_by': request.user,
-            'ticket': get_object_or_404(m.Ticket, is_deleted=False, pk=ticket_pk)
+            'ticket': ticket
         }
         serializer = self.serializer_class(
             data=serializer_data,
