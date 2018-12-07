@@ -79,14 +79,12 @@ python manage.py clear_index
 ```
  > `Note!` We use [drf-haystack](https://drf-haystack.readthedocs.io/en/latest/index.html) and `whoosh` as a search engine
 
-
-Running Locally
+Configure Environment Variables
 ```
-pipenv shell
-python manage.py migrate
-python manage.py runserver
+cd gluru_backend
+cp .env.example .env
 ```
-> `Important!` You need to create citext extension to migrate successfully.
+ > `Note!` HEX_KEY is used for generating hash and this should be the same with account management app.
 
 Loading Initial Data
 ```
@@ -98,6 +96,14 @@ python manage.py loaddata gluuos
 or python manage.py loaddata data // run this command for loading all inital data
 ```
  > `Note!` We make our model more configurable, and initial data can be loaded using above command
+
+Running Locally
+```
+pipenv shell
+python manage.py migrate
+python manage.py runserver
+```
+> `Important!` You need to create citext extension to migrate successfully.
 
 ## Contribution
  - Create a new branch

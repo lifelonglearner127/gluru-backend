@@ -184,3 +184,5 @@ HAYSTACK_CONNECTIONS = {
         'PATH': str(root.path('whoosh_index'))
     },
 }
+
+HEX_KEY = env.str('HEX_KEY')
