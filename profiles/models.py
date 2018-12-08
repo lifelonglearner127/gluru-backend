@@ -7,7 +7,6 @@ from django.contrib.auth.models import (
     AbstractBaseUser, BaseUserManager, PermissionsMixin
 )
 from gluru_backend.models import TimestampedModel
-from profiles import constants as c
 
 
 class UserManager(BaseUserManager):

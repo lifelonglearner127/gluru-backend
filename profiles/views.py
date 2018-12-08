@@ -10,7 +10,6 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.serializers import ValidationError
 from gluru_backend.utils import generate_hash
-from profiles import constants as c
 from profiles import models as m
 from profiles import serializers as s
 from profiles import permissions as p

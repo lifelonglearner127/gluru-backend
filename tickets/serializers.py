@@ -3,7 +3,7 @@ from drf_haystack.serializers import HaystackSerializer
 from drf_haystack.serializers import HighlighterMixin
 from tickets.search_indexes import TicketIndex
 from tickets import models as m
-from profiles.serializers import ShortUserSerializer
+from profiles.serializers import ShortUserSerializer, ShortCompanySerializer
 
 
 class TicketSearchSerializer(HighlighterMixin, HaystackSerializer):
@@ -41,6 +41,7 @@ class TicketSerializer(serializers.ModelSerializer):
     created_by = ShortUserSerializer(read_only=True)
     created_for = ShortUserSerializer(read_only=True)
     updated_by = ShortUserSerializer(read_only=True)
+    company_association = ShortCompanySerializer(read_only=True)
     products = TicketProductSerializer(
         source='ticketproduct_set', many=True, required=False
     )
@@ -50,7 +51,8 @@ class TicketSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'title', 'body', 'created_by', 'created_for', 'updated_by',
             'assignee', 'category', 'status', 'issue_type', 'gluu_server',
-            'os', 'os_version', 'response_no', 'products'
+            'os', 'os_version', 'response_no', 'products',
+            'company_association'
         ]
         extra_kwargs = {
             'category': {'required': True},
@@ -61,10 +63,29 @@ class TicketSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         created_by = self.context.get('created_by', None)
+        created_for_id = self.context.get('created_for', None)
+        company_id = self.context.get('company_association', None)
         products = validated_data.pop('ticketproduct_set', [])
+
+        created_for = None
+        company_association = None
+
+        if created_for_id is not None:
+            try:
+                created_for = m.User.objects.get(pk=created_for_id)
+            except m.User.DoesNotExist:
+                pass
+
+        if company_id is not None:
+            try:
+                company_association = m.Company.objects.get(pk=company_id)
+            except m.Company.DoesNotExist:
+                pass
 
         ticket = m.Ticket.objects.create(
             created_by=created_by,
+            company_association=company_association,
+            created_for=created_for,
             **validated_data
         )
 
