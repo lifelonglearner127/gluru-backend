@@ -91,8 +91,8 @@ def get_tickets_query(user):
 
         if user.is_staff:
             staff_role = UserRole.objects.get(name='staff')
-            
+
             if staff_role.has_permission('tickets', 'Ticket', 'list'):
                 queries = Q()
-        
+
         return queries

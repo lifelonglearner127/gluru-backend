@@ -260,7 +260,7 @@ class UserRole(models.Model):
             app_name=app_name,
             model_name=model_name
         )
-        
+
         for permission in permissions:
             actions = permission.actions.split(', ')
 
