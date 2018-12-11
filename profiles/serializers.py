@@ -109,78 +109,13 @@ class PermissionSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class UserRolePermissionSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = m.UserRolePermission
-        fields = [
-            'permission', 'is_enabled'
-        ]
-
-
 class UserRoleSerializer(serializers.ModelSerializer):
-
-    permissions = UserRolePermissionSerializer(
-        source='userrolepermission_set', many=True, required=False
-    )
 
     class Meta:
         model = m.UserRole
         fields = [
             'name', 'permissions'
         ]
-
-    def create(self, validated_data):
-        permissions = self.context.get('permissions', [])
-        role = m.UserRole.objects.create(
-            **validated_data
-        )
-        for p in permissions:
-            try:
-                permission_id = int(p['id'])
-            except ValueError:
-                continue
-
-            try:
-                permission = m.Permission.objects.get(pk=permission_id)
-            except m.Permission.DoesNotExist:
-                continue
-
-            role_permission, _ = m.UserRolePermission.objects.get_or_create(
-                role=role,
-                permission=permission
-            )
-            role_permission.is_enabled = p['is_enabled']
-            role_permission.save()
-
-        return role
-
-    def update(self, instance, validated_data):
-        for (key, value) in validated_data.items():
-            setattr(instance, key, value)
-
-        permissions = self.context.get('permissions', [])
-
-        for p in permissions:
-            try:
-                permission_id = int(p['id'])
-            except ValueError:
-                continue
-
-            try:
-                permission = m.Permission.objects.get(pk=permission_id)
-            except m.Permission.DoesNotExist:
-                continue
-
-            role_permission, _ = m.UserRolePermission.objects.get_or_create(
-                role=instance,
-                permission=permission
-            )
-            role_permission.is_enabled = p['is_enabled']
-            role_permission.save()
-
-        instance.save()
-        return instance
 
 
 class PersonalProfileSerializer(serializers.Serializer):

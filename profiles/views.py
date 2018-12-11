@@ -443,12 +443,8 @@ class UserRoleViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
 
     def create(self, request):
         serializer_data = request.data.get('role', {})
-        context = {
-            'permissions': serializer_data.pop('permissions', [])
-        }
         serializer = self.serializer_class(
-            data=serializer_data,
-            context=context
+            data=serializer_data
         )
 
         serializer.is_valid(raise_exception=True)
@@ -475,13 +471,9 @@ class UserRoleViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
     def update(self, request, pk=None):
         serializer_instance = self.get_object()
         serializer_data = request.data.get('role', {})
-        context = {
-            'permissions': serializer_data.pop('permissions', [])
-        }
         serializer = self.serializer_class(
             serializer_instance,
             data=serializer_data,
-            context=context,
             partial=True
         )
         serializer.is_valid(raise_exception=True)
