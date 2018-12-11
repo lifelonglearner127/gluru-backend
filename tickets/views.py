@@ -7,6 +7,7 @@ from drf_haystack.viewsets import HaystackViewSet
 from drf_haystack.filters import HaystackAutocompleteFilter
 from tickets import models as m
 from tickets import serializers as s
+from gluru_backend.utils import get_tickets_query
 
 
 class TicketSearchView(HaystackViewSet):
@@ -25,7 +26,7 @@ class TicketViewSet(mixins.CreateModelMixin,
     serializer_class = s.TicketSerializer
 
     def get_queryset(self):
-        return m.Ticket.actives.all()
+        return m.Ticket.actives.filter(get_tickets_query(self.request.user))
 
     def create(self, request):
         serializer_data = request.data.get('ticket', {})

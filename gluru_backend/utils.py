@@ -1,6 +1,7 @@
 import hmac
 import binascii
 import hashlib
+from django.db.models import Q
 from django.urls import reverse
 from django.conf import settings
 from django.contrib.sites.models import Site
@@ -8,6 +9,7 @@ from django.core.mail import EmailMultiAlternatives
 from django.template import loader
 from django.utils.http import urlencode
 from django.utils.six import text_type
+from profiles.models import UserRole
 
 
 def get_base_url():
@@ -70,3 +72,27 @@ def generate_hash(string):
         string.encode('utf-8'),
         hashlib.sha256
     ).hexdigest()
+
+
+def get_tickets_query(user):
+    if not user.is_authenticated:
+        return Q(company_association=None, is_private=False)
+    else:
+        if user.is_superuser:
+            return Q()
+
+        queries = Q(company_association=None)
+        companies = user.companies
+        for company in companies:
+            role = user.membership_set.filter(company=company).first().role
+
+            if role.has_permission('tickets', 'Ticket', 'list'):
+                queries |= Q(company_association=company)
+
+        if user.is_staff:
+            staff_role = UserRole.objects.get(name='staff')
+            
+            if staff_role.has_permission('tickets', 'Ticket', 'list'):
+                queries = Q()
+        
+        return queries
