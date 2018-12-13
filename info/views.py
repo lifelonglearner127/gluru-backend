@@ -2,10 +2,11 @@ from rest_framework import viewsets, mixins, status
 from rest_framework.views import APIView
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework.permissions import IsAdminUser, AllowAny
+from rest_framework.permissions import AllowAny
 from tickets.serializers import TicketSerializer
 from info import models as m
 from info import serializers as s
+from info import permissions as p
 
 
 class GetAllInfoView(APIView):
@@ -57,7 +58,7 @@ class GluuServerViewset(mixins.CreateModelMixin,
 
     def get_permissions(self):
         if self.action in ['create', 'update', 'destroy']:
-            permission_classes = [IsAdminUser]
+            permission_classes = [p.IsSuperUser]
         else:
             permission_classes = [AllowAny]
 
@@ -148,7 +149,7 @@ class GluuOSViewSet(mixins.CreateModelMixin,
 
     def get_permissions(self):
         if self.action in ['create', 'update', 'destroy']:
-            permission_classes = [IsAdminUser]
+            permission_classes = [p.IsSuperUser]
         else:
             permission_classes = [AllowAny]
 
@@ -239,7 +240,7 @@ class GluuProductViewset(mixins.CreateModelMixin,
 
     def get_permissions(self):
         if self.action in ['create', 'update', 'destroy']:
-            permission_classes = [IsAdminUser]
+            permission_classes = [p.IsSuperUser]
         else:
             permission_classes = [AllowAny]
 
@@ -318,7 +319,7 @@ class TicketCategoryViewSet(mixins.CreateModelMixin,
 
     def get_permissions(self):
         if self.action in ['create', 'update', 'destroy']:
-            permission_classes = [IsAdminUser]
+            permission_classes = [p.IsSuperUser]
         else:
             permission_classes = [AllowAny]
 
@@ -409,7 +410,7 @@ class TicketIssueTypeViewSet(mixins.CreateModelMixin,
 
     def get_permissions(self):
         if self.action in ['create', 'update', 'destroy']:
-            permission_classes = [IsAdminUser]
+            permission_classes = [p.IsSuperUser]
         else:
             permission_classes = [AllowAny]
 
@@ -500,7 +501,7 @@ class TicketStatusViewSet(mixins.CreateModelMixin,
 
     def get_permissions(self):
         if self.action in ['create', 'update', 'destroy']:
-            permission_classes = [IsAdminUser]
+            permission_classes = [p.IsSuperUser]
         else:
             permission_classes = [AllowAny]
 
