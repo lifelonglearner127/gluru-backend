@@ -33,12 +33,13 @@ class TicketViewSetTest(APITestCase):
               associated with company
 
     3. Test Retrieving Ticket
-        - Un-authroized user cannot retrieve the ticket
-        - Retrieve the ticket
+        - Retrieve the ticket created by community user
         - Retrieve non-existing ticket
         - Retrieve the ticket created on behalf of company
+            = User with view permission can view a ticket
+              associated with company
 
-    3. Test Deleting Ticket.
+    4. Test Deleting Ticket.
         - Un-authroized user cannot delete a ticket
         - Delete the ticket
         - Delete non-existing ticket
@@ -261,7 +262,7 @@ class TicketViewSetTest(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-    def test_update_ticket_by_community_user(self):
+    def test_update_ticket_associated_company_by_community_user(self):
         """
         Community user can only update his ticket
         """
@@ -328,3 +329,38 @@ class TicketViewSetTest(APITestCase):
         )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_retrieve_ticket_valid(self):
+        """
+        Retrieve the ticket created by community user
+        """
+        response = self.client.get(
+            reverse('tickets:ticket-detail', kwargs={'pk': self.ticket1.id}),
+            data=json.dumps(self.valid_payload),
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_retrieve_ticket_invalid(self):
+        """
+        Retrieve non-existing ticket
+        """
+        response = self.client.get(
+            reverse('tickets:ticket-detail', kwargs={'pk': 30}),
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_retrieve_ticket_associated_with_company(self):
+        """
+        User with view permission can view a ticket associated with company
+        """
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.user.token)
+        response = self.client.get(
+            reverse('tickets:ticket-detail', kwargs={'pk': self.ticket2.id}),
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
