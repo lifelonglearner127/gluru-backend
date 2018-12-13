@@ -105,6 +105,15 @@ python manage.py runserver
 ```
 > `Important!` You need to create citext extension to migrate successfully.
 
+We follow Test-Driven Development(TDD)
+```
+python manage.py test tickets.tests --keepdb
+python manage.py test info.tests --keepdb
+python manage.py test profiles.tests --keepdb
+python manage.py test notification.tests --keepdb
+```
+> `Note!` `--keepdb` option is used for preventing the test databases from being destroyed
+
 ## Contribution
  - Create a new branch
  - Commit your changes and make a PR to master
