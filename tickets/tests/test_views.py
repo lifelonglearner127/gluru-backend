@@ -4,6 +4,7 @@ from django.core.management import call_command
 from rest_framework import status
 from rest_framework.test import APITestCase
 from profiles.models import User, Company, Membership, UserRole, Permission
+from tickets.models import Ticket
 
 
 class TicketViewSetTest(APITestCase):
@@ -18,15 +19,18 @@ class TicketViewSetTest(APITestCase):
             = Community user cannot create a ticket on behalf of company
             = User with create permission can create a ticket
               on behalf of user from company
-            = User with create permission can create a ticket
+            = User with create permission cannot create a ticket
               on behalf of user who is not in company
 
     2. Test Updating Ticket.
         - Un-authroized user cannot update the ticket
+        - Community user can update his ticket
         - Update the ticket with valid payload
         - Update the ticket with invalid payload
         - Update non-existing ticket
         - Update the ticket on behalf of company
+            = User with create permission can update a ticket
+              associated with company
 
     3. Test Retrieving Ticket
         - Un-authroized user cannot retrieve the ticket
@@ -95,6 +99,23 @@ class TicketViewSetTest(APITestCase):
         )
         Membership.objects.create(
             company=self.gluu, user=self.gluu_user2, role=self.user_role
+        )
+
+        self.ticket1 = Ticket.objects.create(
+            title='title', body='body', status_id=1, category_id=1,
+            issue_type_id=1, gluu_server_id=1, os_id=1, created_by=self.user
+        )
+
+        self.ticket2 = Ticket.objects.create(
+            title='title', body='body', status_id=1, category_id=1,
+            issue_type_id=1, gluu_server_id=1, os_id=1, created_by=self.admin
+        )
+
+        self.ticket3 = Ticket.objects.create(
+            title='title', body='body', status_id=1, category_id=1,
+            issue_type_id=1, gluu_server_id=1, os_id=1,
+            created_by=self.gluu_user1, company_association=self.gluu,
+            created_for=self.gluu_user2
         )
 
         self.valid_payload = {
@@ -215,7 +236,7 @@ class TicketViewSetTest(APITestCase):
 
     def test_create_ticket_by_permission_user_for_user_not_from_company(self):
         """
-        User with create permission can create a ticket
+        User with create permission cannot create a ticket
         on behalf of user who is not in company
         """
         self.client.credentials(
@@ -227,3 +248,83 @@ class TicketViewSetTest(APITestCase):
             content_type='application/json'
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_update_ticket_by_unauthorized_user(self):
+        """
+        Un-authroized user cannot update the ticket
+        """
+        response = self.client.put(
+            reverse('tickets:ticket-detail', kwargs={'pk': self.ticket1.id}),
+            data=json.dumps(self.valid_payload),
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_update_ticket_by_community_user(self):
+        """
+        Community user can only update his ticket
+        """
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.user.token)
+        response = self.client.put(
+            reverse('tickets:ticket-detail', kwargs={'pk': self.ticket2.id}),
+            data=json.dumps(self.valid_payload),
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_update_ticket_valid(self):
+        """
+        Update the ticket with valid payload
+        """
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.user.token)
+        response = self.client.put(
+            reverse('tickets:ticket-detail', kwargs={'pk': self.ticket1.id}),
+            data=json.dumps(self.valid_payload),
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_update_ticket_invalid(self):
+        """
+        Update the ticket with invalid payload
+        """
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.user.token)
+        response = self.client.put(
+            reverse('tickets:ticket-detail', kwargs={'pk': self.ticket1.id}),
+            data=json.dumps(self.invalid_payload),
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_update_ticket_non_existing(self):
+        """
+        Update non-existing ticket
+        """
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.user.token)
+        response = self.client.put(
+            reverse('tickets:ticket-detail', kwargs={'pk': 30}),
+            data=json.dumps(self.valid_payload),
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_update_ticket_permission_user(self):
+        """
+        User with create permission can update a ticket
+        associated with company
+        """
+        self.client.credentials(
+            HTTP_AUTHORIZATION='Token ' + self.gluu_user2.token
+        )
+        response = self.client.put(
+            reverse('tickets:ticket-detail', kwargs={'pk': self.ticket3.id}),
+            data=json.dumps(self.valid_payload),
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
