@@ -336,7 +336,6 @@ class TicketViewSetTest(APITestCase):
         """
         response = self.client.get(
             reverse('tickets:ticket-detail', kwargs={'pk': self.ticket1.id}),
-            data=json.dumps(self.valid_payload),
             content_type='application/json'
         )
 
