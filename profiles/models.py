@@ -135,6 +135,9 @@ class Company(TimestampedModel):
     def role_members(self, role):
         return self.membership_set.filter(role=role)
 
+    def is_member(self, user):
+        return user in self.users.all()
+
     class Meta:
         verbose_name_plural = 'Companies'
 

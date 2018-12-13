@@ -7,6 +7,7 @@ from drf_haystack.viewsets import HaystackViewSet
 from drf_haystack.filters import HaystackAutocompleteFilter
 from tickets import models as m
 from tickets import serializers as s
+from tickets import permissions as p
 from gluru_backend.utils import get_tickets_query
 
 
@@ -22,7 +23,7 @@ class TicketViewSet(mixins.CreateModelMixin,
                     mixins.RetrieveModelMixin,
                     mixins.DestroyModelMixin,
                     viewsets.GenericViewSet):
-    permission_classes = ()
+    permission_classes = (p.TicketCustomPermission, )
     serializer_class = s.TicketSerializer
 
     def get_queryset(self):

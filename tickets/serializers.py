@@ -70,17 +70,21 @@ class TicketSerializer(serializers.ModelSerializer):
         created_for = None
         company_association = None
 
-        if created_for_id is not None:
-            try:
-                created_for = m.User.objects.get(pk=created_for_id)
-            except m.User.DoesNotExist:
-                pass
-
         if company_id is not None:
             try:
                 company_association = m.Company.objects.get(pk=company_id)
             except m.Company.DoesNotExist:
-                pass
+                raise serializers.ValidationError("Such company not exists")
+
+        if created_for_id is not None and company_association is not None:
+            try:
+                created_for = m.User.objects.get(pk=created_for_id)
+                if not company_association.is_member(created_for):
+                    raise serializers.ValidationError(
+                        "User is not a member of this company"
+                    )
+            except m.User.DoesNotExist:
+                raise serializers.ValidationError("Such user not exists")
 
         ticket = m.Ticket.objects.create(
             created_by=created_by,
