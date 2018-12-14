@@ -9,7 +9,7 @@ class TicketCustomPermission(permissions.BasePermission):
         else:
             if not request.user.is_authenticated:
                 return False
-            
+
             if request.user.is_superuser:
                 return True
 
@@ -49,7 +49,7 @@ class TicketCustomPermission(permissions.BasePermission):
 
         if request.user.is_superuser:
             return True
-        
+
         if request.user.is_staff:
             staff_role = UserRole.objects.get(name='staff')
             return staff_role.has_permission(
