@@ -332,8 +332,8 @@
         "pk": 7,
         "fields": {
             "app_name": "tickets",
-            "model_name": "Ticket",
-            "actions": "respond", 
+            "model_name": "Answer",
+            "actions": "create, update, destroy", 
             "description": "Respond to tickets"
         }
     },

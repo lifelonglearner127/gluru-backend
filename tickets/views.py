@@ -156,9 +156,10 @@ class TicketViewSet(mixins.CreateModelMixin,
 class AnswerViewSet(mixins.CreateModelMixin,
                     mixins.ListModelMixin,
                     mixins.UpdateModelMixin,
+                    mixins.RetrieveModelMixin,
                     mixins.DestroyModelMixin,
                     viewsets.GenericViewSet):
-
+    permission_classes = (p.AnswerCustomPermission, )
     serializer_class = s.AnswerSerializer
 
     def get_queryset(self):
@@ -200,6 +201,17 @@ class AnswerViewSet(mixins.CreateModelMixin,
         )
         serializer.is_valid(raise_exception=True)
         serializer.save()
+
+        return Response(
+            {'results': serializer.data},
+            status=status.HTTP_200_OK
+        )
+
+    def retrieve(self, request, ticket_pk=None, pk=None):
+        serializer_instance = self.get_object()
+        serializer = self.serializer_class(
+            serializer_instance,
+        )
 
         return Response(
             {'results': serializer.data},
