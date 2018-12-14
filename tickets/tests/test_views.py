@@ -84,11 +84,13 @@ class TicketViewSetTest(APITestCase):
         )
 
         # Create Permission and UserRole
-        self.permission = Permission.objects.get(pk=6)
+        self.read_permission = Permission.objects.get(pk=5)
+        self.write_permission = Permission.objects.get(pk=6)
         self.user_role = UserRole.objects.create(
             name='custom'
         )
-        self.user_role.permissions.add(self.permission)
+        self.user_role.permissions.add(self.read_permission)
+        self.user_role.permissions.add(self.write_permission)
 
         # Create Membership
         Membership.objects.create(

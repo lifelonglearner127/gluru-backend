@@ -55,7 +55,7 @@
         "fields": {
             "app_name": "tickets",
             "model_name": "Ticket",
-            "actions": "create",
+            "actions": "create, update",
             "description": "Create tickets"
         }
     },

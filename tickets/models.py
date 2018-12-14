@@ -43,7 +43,7 @@ class Ticket(TimestampedModel):
     )
 
     company_association = models.ForeignKey(
-        Company,
+        Company,    
         on_delete=models.SET_NULL,
         blank=True,
         null=True,
