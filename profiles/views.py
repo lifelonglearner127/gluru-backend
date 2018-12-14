@@ -276,6 +276,7 @@ class CompanyViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
                      mixins.UpdateModelMixin, mixins.RetrieveModelMixin,
                      mixins.DestroyModelMixin, viewsets.GenericViewSet):
 
+    permission_classes = (p.CompanyCustomPermission, )
     serializer_class = s.ShortCompanySerializer
 
     def get_queryset(self):
