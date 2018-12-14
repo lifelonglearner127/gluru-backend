@@ -45,7 +45,10 @@ class TicketCustomPermission(permissions.BasePermission):
 
     def has_object_permission(self, request, view, obj):
         if obj.company_association is None:
-            return True
+            if request.method in ['GET']:
+                return True
+            if request.method in ['PUT']:
+                return request.user == obj.created_by
 
         if request.user.is_superuser:
             return True
