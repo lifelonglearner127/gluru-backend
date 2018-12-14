@@ -422,3 +422,53 @@ class TicketViewSetTest(APITestCase):
         )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_delete_ticket_by_unauthorized_user(self):
+        """
+        Un-authroized user cannot delete a ticket
+        """
+        response = self.client.delete(
+            reverse(
+                'tickets:ticket-detail',
+                kwargs={'pk': self.community_ticket.id}
+            ),
+            data=json.dumps(self.valid_payload),
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_delete_ticket_valid(self):
+        """
+        Delete the ticket
+        """
+        self.client.credentials(
+            HTTP_AUTHORIZATION='Token ' + self.community_user.token
+        )
+        response = self.client.delete(
+            reverse(
+                'tickets:ticket-detail',
+                kwargs={'pk': self.community_ticket.id}
+            ),
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+    def test_delete_ticket_non_existing(self):
+        """
+        Delete non-existing ticket
+        """
+        self.client.credentials(
+            HTTP_AUTHORIZATION='Token ' + self.community_user.token
+        )
+        response = self.client.delete(
+            reverse(
+                'tickets:ticket-detail',
+                kwargs={'pk': 30}
+            ),
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
