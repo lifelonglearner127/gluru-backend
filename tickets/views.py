@@ -27,7 +27,7 @@ class TicketViewSet(mixins.CreateModelMixin,
     serializer_class = s.TicketSerializer
 
     def get_queryset(self):
-        return m.Ticket.actives.filter(get_tickets_query(self.request.user))
+        return m.Ticket.actives.all()
 
     def create(self, request):
         serializer_data = request.data.get('ticket', {})
@@ -53,7 +53,9 @@ class TicketViewSet(mixins.CreateModelMixin,
         )
 
     def list(self, request):
-        page = self.paginate_queryset(self.get_queryset())
+        page = self.paginate_queryset(
+            self.get_queryset().filter(get_tickets_query(self.request.user))
+        )
 
         serializer = self.serializer_class(
             page,
