@@ -42,3 +42,19 @@ class TicketStatusSerializer(serializers.ModelSerializer):
     class Meta:
         model = m.TicketStatus
         fields = '__all__'
+
+
+class PermissionSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = m.Permission
+        fields = '__all__'
+
+
+class UserRoleSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = m.UserRole
+        fields = [
+            'name', 'permissions'
+        ]

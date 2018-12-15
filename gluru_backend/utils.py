@@ -9,7 +9,7 @@ from django.core.mail import EmailMultiAlternatives
 from django.template import loader
 from django.utils.http import urlencode
 from django.utils.six import text_type
-from profiles.models import UserRole
+from info.models import UserRole
 
 
 def get_base_url():

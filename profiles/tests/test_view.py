@@ -3,7 +3,8 @@ from django.urls import reverse
 from django.core.management import call_command
 from rest_framework import status
 from rest_framework.test import APITestCase
-from profiles.models import User, Company, Membership, UserRole, Permission
+from profiles.models import User, Company, Membership
+from info.models import UserRole, Permission
 
 
 class CompanyViewSetTest(APITestCase):
@@ -81,7 +82,7 @@ class CompanyViewSetTest(APITestCase):
                 "role": 1
             }
         }
-        
+
         self.invalid_invite_payload = {
             "invitation": {
                 "email": "",

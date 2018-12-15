@@ -1,6 +1,6 @@
 [
     {
-        "model": "profiles.Permission",
+        "model": "info.Permission",
         "pk": 1,
         "fields": {
             "app_name": "profiles",
@@ -10,7 +10,7 @@
         }
     },
     {
-        "model": "profiles.Permission",
+        "model": "info.Permission",
         "pk": 2,
         "fields": {
             "app_name": "billing",
@@ -20,7 +20,7 @@
         }
     },
     {
-        "model": "profiles.Permission",
+        "model": "info.Permission",
         "pk": 3,
         "fields": {
             "app_name": "billing",
@@ -30,7 +30,7 @@
         }
     },
     {
-        "model": "profiles.Permission",
+        "model": "info.Permission",
         "pk": 4,
         "fields": {
             "app_name": "tickets",
@@ -40,7 +40,7 @@
         }
     },
     {
-        "model": "profiles.Permission",
+        "model": "info.Permission",
         "pk": 5,
         "fields": {
             "app_name": "tickets",
@@ -50,7 +50,7 @@
         }
     },
     {
-        "model": "profiles.Permission",
+        "model": "info.Permission",
         "pk": 6,
         "fields": {
             "app_name": "tickets",
@@ -60,7 +60,7 @@
         }
     },
     {
-        "model": "profiles.Permission",
+        "model": "info.Permission",
         "pk": 7,
         "fields": {
             "app_name": "tickets",
@@ -70,7 +70,7 @@
         }
     },
     {
-        "model": "profiles.Permission",
+        "model": "info.Permission",
         "pk": 8,
         "fields": {
             "app_name": "profiles",
@@ -80,7 +80,7 @@
         }
     },
     {
-        "model": "profiles.Permission",
+        "model": "info.Permission",
         "pk": 9,
         "fields": {
             "app_name": "profiles",

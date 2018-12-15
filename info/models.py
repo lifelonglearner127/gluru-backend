@@ -101,3 +101,50 @@ class TicketStatus(models.Model):
 
     class Meta:
         verbose_name_plural = 'Ticket Status'
+
+
+class UserRole(models.Model):
+
+    name = CICharField(
+        max_length=20,
+        unique=True
+    )
+
+    permissions = models.ManyToManyField(
+        'Permission'
+    )
+
+    def __str__(self):
+        return self.name
+
+    def has_permission(self, app_name, model_name, permission_name):
+        permissions = self.permissions.filter(
+            app_name=app_name,
+            model_name=model_name
+        )
+
+        for permission in permissions:
+            actions = permission.actions.split(', ')
+
+            if permission_name in actions:
+                return True
+
+        return False
+
+
+class Permission(models.Model):
+
+    app_name = models.CharField(
+        max_length=20
+    )
+
+    model_name = models.CharField(
+        max_length=20
+    )
+
+    actions = models.TextField()
+
+    description = models.TextField()
+
+    class Meta:
+        unique_together = ['app_name', 'model_name', 'actions']

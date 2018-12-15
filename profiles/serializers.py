@@ -102,22 +102,6 @@ class InvitationSerializer(serializers.ModelSerializer):
         )
 
 
-class PermissionSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = m.Permission
-        fields = '__all__'
-
-
-class UserRoleSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = m.UserRole
-        fields = [
-            'name', 'permissions'
-        ]
-
-
 class PersonalProfileSerializer(serializers.Serializer):
 
     address = serializers.CharField()
