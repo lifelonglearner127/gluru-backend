@@ -96,6 +96,10 @@ class CompanyViewSetTest(APITestCase):
             "user_id": self.company_user.id
         }
 
+        self.valid_remove_member_by_self_payload = {
+            "user_id": self.company_admin.id
+        }
+
         self.invalid_remove_member_payload = {
             "user_id": ""
         }
@@ -208,13 +212,13 @@ class CompanyViewSetTest(APITestCase):
     def test_accept_invite_by_not_invited_user(self):
         pass
 
-    def test_remove_member_by_permission_user(self):
+    def test_remove_member_by_manager(self):
         self.client.credentials(
             HTTP_AUTHORIZATION='Token ' + self.manager.token
         )
         response = self.client.post(
             reverse(
-                'profiles:company-remove-user',
+                'profiles:company-remove-member',
                 kwargs={'pk': self.company.id}
             ),
             data=json.dumps(self.valid_remove_member_payload),
@@ -223,13 +227,43 @@ class CompanyViewSetTest(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-    def test_remove_member_by_non_permission_user(self):
+    def test_remove_member_by_staff(self):
         self.client.credentials(
-            HTTP_AUTHORIZATION='Token ' + self.community_user.token
+            HTTP_AUTHORIZATION='Token ' + self.staff.token
         )
         response = self.client.post(
             reverse(
-                'profiles:company-remove-user',
+                'profiles:company-remove-member',
+                kwargs={'pk': self.company.id}
+            ),
+            data=json.dumps(self.valid_remove_member_payload),
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_remove_member_by_company_admin(self):
+        self.client.credentials(
+            HTTP_AUTHORIZATION='Token ' + self.company_admin.token
+        )
+        response = self.client.post(
+            reverse(
+                'profiles:company-remove-member',
+                kwargs={'pk': self.company.id}
+            ),
+            data=json.dumps(self.valid_remove_member_payload),
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_remove_member_by_company_named(self):
+        self.client.credentials(
+            HTTP_AUTHORIZATION='Token ' + self.company_named.token
+        )
+        response = self.client.post(
+            reverse(
+                'profiles:company-remove-member',
                 kwargs={'pk': self.company.id}
             ),
             data=json.dumps(self.valid_remove_member_payload),
@@ -238,6 +272,35 @@ class CompanyViewSetTest(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
+    def test_remove_member_by_non_permission_user(self):
+        self.client.credentials(
+            HTTP_AUTHORIZATION='Token ' + self.community_user.token
+        )
+        response = self.client.post(
+            reverse(
+                'profiles:company-remove-member',
+                kwargs={'pk': self.company.id}
+            ),
+            data=json.dumps(self.valid_remove_member_payload),
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_remove_member_by_self(self):
+        self.client.credentials(
+            HTTP_AUTHORIZATION='Token ' + self.company_admin.token
+        )
+        response = self.client.post(
+            reverse(
+                'profiles:company-remove-member',
+                kwargs={'pk': self.company.id}
+            ),
+            data=json.dumps(self.valid_remove_member_by_self_payload),
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
 class UserViewSetTest(APITestCase):
     pass
