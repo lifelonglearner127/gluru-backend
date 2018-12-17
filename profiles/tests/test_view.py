@@ -302,6 +302,45 @@ class CompanyViewSetTest(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
+    def test_leave_company_by_company_admin(self):
+        self.client.credentials(
+            HTTP_AUTHORIZATION='Token ' + self.company_admin.token
+        )
+        response = self.client.get(
+            reverse(
+                'profiles:company-leave-company',
+                kwargs={'pk': self.company.id}
+            )
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_leave_company_by_company_user(self):
+        self.client.credentials(
+            HTTP_AUTHORIZATION='Token ' + self.company_named.token
+        )
+        response = self.client.get(
+            reverse(
+                'profiles:company-leave-company',
+                kwargs={'pk': self.company.id}
+            )
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_leave_company_by_non_company_user(self):
+        self.client.credentials(
+            HTTP_AUTHORIZATION='Token ' + self.community_user.token
+        )
+        response = self.client.get(
+            reverse(
+                'profiles:company-leave-company',
+                kwargs={'pk': self.company.id}
+            )
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
 
 class UserViewSetTest(APITestCase):
     pass
