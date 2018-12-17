@@ -176,7 +176,7 @@ class CompanyViewSetTest(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-    def test_invite_user_by_permission_user(self):
+    def test_invite_user_by_manager(self):
         self.client.credentials(
             HTTP_AUTHORIZATION='Token ' + self.manager.token
         )
@@ -188,7 +188,55 @@ class CompanyViewSetTest(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-    def test_invite_user_by_non_permission_user(self):
+    def test_invite_user_by_staff(self):
+        self.client.credentials(
+            HTTP_AUTHORIZATION='Token ' + self.staff.token
+        )
+        response = self.client.post(
+            reverse('profiles:company-invite', kwargs={'pk': self.company.id}),
+            data=json.dumps(self.valid_invite_payload),
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_invite_by_company_admin(self):
+        self.client.credentials(
+            HTTP_AUTHORIZATION='Token ' + self.company_admin.token
+        )
+        response = self.client.post(
+            reverse('profiles:company-invite', kwargs={'pk': self.company.id}),
+            data=json.dumps(self.valid_invite_payload),
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_invite_by_company_named(self):
+        self.client.credentials(
+            HTTP_AUTHORIZATION='Token ' + self.company_named.token
+        )
+        response = self.client.post(
+            reverse('profiles:company-invite', kwargs={'pk': self.company.id}),
+            data=json.dumps(self.valid_invite_payload),
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_invite_by_company_user(self):
+        self.client.credentials(
+            HTTP_AUTHORIZATION='Token ' + self.company_user.token
+        )
+        response = self.client.post(
+            reverse('profiles:company-invite', kwargs={'pk': self.company.id}),
+            data=json.dumps(self.valid_invite_payload),
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_invite_by_community_user(self):
         self.client.credentials(
             HTTP_AUTHORIZATION='Token ' + self.community_user.token
         )
