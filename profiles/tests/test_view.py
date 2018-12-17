@@ -302,5 +302,6 @@ class CompanyViewSetTest(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
+
 class UserViewSetTest(APITestCase):
     pass

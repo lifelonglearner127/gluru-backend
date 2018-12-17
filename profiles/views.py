@@ -6,9 +6,9 @@ from rest_framework import viewsets, mixins, status
 from rest_framework.views import APIView
 from rest_framework.generics import RetrieveUpdateAPIView
 from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
+from rest_framework.exceptions import PermissionDenied, ValidationError
 from rest_framework.response import Response
 from rest_framework.decorators import action
-from rest_framework.serializers import ValidationError
 from gluru_backend.utils import generate_hash
 from profiles import models as m
 from profiles import serializers as s
@@ -412,6 +412,16 @@ class CompanyViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
         user_id = request.data.get('user_id', None)
         if user_id is None:
             raise ValidationError('Invite id is required')
+
+        try:
+            user_id = int(user_id)
+        except ValueError:
+            raise ValidationError('Invalid user id')
+
+        if user_id == request.user.id:
+            raise PermissionDenied(
+                detail='Removing yourself is not allowed'
+            )
 
         try:
             membership = m.Membership.objects.get(
