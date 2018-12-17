@@ -437,6 +437,28 @@ class CompanyViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
             'results': 'User removed successfully'
         }, status=status.HTTP_200_OK)
 
+    @action(detail=True, methods=['GET'], url_path='leave-company')
+    def leave_company(self, request, *args, **kwargs):
+        company = self.get_object()
+        try:
+            membership = m.Membership.objects.get(
+                company=company,
+                user=request.user
+            )
+            role = membership.role
+            if role.name == 'admin':
+                raise ValidationError(
+                    'You are admin of this company. Prohibited Operation'
+                )
+            else:
+                membership.delete()
+        except m.Membership.DoesNotExist:
+            raise ValidationError('You are not member of this company')
+
+        return Response({
+            'results': 'User removed successfully'
+        }, status=status.HTTP_200_OK)
+
     def destroy(self, request, ticket_pk=None, pk=None):
         obj = self.get_object()
         obj.delete()
