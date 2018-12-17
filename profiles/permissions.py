@@ -1,4 +1,5 @@
 from rest_framework import permissions
+from info.models import UserRole
 
 
 class IsCompanyAdmin(permissions.BasePermission):
@@ -33,4 +34,24 @@ class CompanyCustomPermission(permissions.BasePermission):
         return True
 
     def has_object_permission(self, request, view, obj):
-        return True
+        if request.user.is_superuser:
+            return True
+
+        if request.user.is_staff:
+            staff_role = UserRole.objects.get(name='staff')
+            return staff_role.has_permission(
+                app_name='profiles',
+                model_name='Company',
+                permission_name=view.action
+            )
+
+        membership = request.user.membership_set.filter(
+            company=obj
+        ).first()
+
+        return membership and membership.role and\
+            membership.role.has_permission(
+                app_name='profiles',
+                model_name='Company',
+                permission_name=view.action
+            )

@@ -84,7 +84,7 @@
         "pk": 9,
         "fields": {
             "app_name": "profiles",
-            "model_name": "User",
+            "model_name": "Company",
             "actions": "add_member, remove_member",
             "description": "Add and remove members"
         }

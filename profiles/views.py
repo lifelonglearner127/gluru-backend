@@ -406,8 +406,8 @@ class CompanyViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
             'results': 'Invite revoked successfully'
         }, status=status.HTTP_200_OK)
 
-    @action(detail=True, methods=['POST'], url_path='remove-user')
-    def remove_user(self, request, *args, **kwargs):
+    @action(detail=True, methods=['POST'], url_path='remove-member')
+    def remove_member(self, request, *args, **kwargs):
         company = self.get_object()
         user_id = request.data.get('user_id', None)
         if user_id is None:

@@ -4,7 +4,7 @@ from django.core.management import call_command
 from rest_framework import status
 from rest_framework.test import APITestCase
 from profiles.models import User, Company, Membership
-from info.models import UserRole, Permission
+from info.models import UserRole
 
 
 class CompanyViewSetTest(APITestCase):
@@ -14,30 +14,35 @@ class CompanyViewSetTest(APITestCase):
 
         # Create Users; manager, staff, company user, community user
         self.manager = User.objects.create_superuser(
-            email='manager@gluu.org',
+            email='manager@gmail.com',
             password='manager'
         )
 
         self.staff = User.objects.create_user(
-            email='staff@gluu.org',
+            email='staff@gmail.com',
             password='staff'
         )
         self.staff.is_staff = True
         self.staff.save()
 
-        self.company_user1 = User.objects.create_user(
-            email='levan01@gluu.org',
+        self.company_admin = User.objects.create_user(
+            email='admin@gluu.org',
             password='levan'
         )
 
-        self.company_user2 = User.objects.create_user(
-            email='levan02@gluu.org',
+        self.company_named = User.objects.create_user(
+            email='named@gluu.org',
+            password='levan'
+        )
+
+        self.company_user = User.objects.create_user(
+            email='user@gluu.org',
             password='levan'
         )
 
         self.community_user = User.objects.create_user(
-            email='miranda@gluu.org',
-            password='miranda'
+            email='user@gmail.com',
+            password='levan'
         )
 
         # Create Company
@@ -46,22 +51,19 @@ class CompanyViewSetTest(APITestCase):
         )
 
         # Create Permission and UserRole
-        self.read_permission = Permission.objects.get(pk=5)
-        self.write_permission = Permission.objects.get(pk=6)
-        self.respond_permission = Permission.objects.get(pk=7)
-        self.user_role = UserRole.objects.create(
-            name='custom'
-        )
-        self.user_role.permissions.add(self.read_permission)
-        self.user_role.permissions.add(self.write_permission)
-        self.user_role.permissions.add(self.respond_permission)
+        self.role_admin = UserRole.objects.get(name='admin')
+        self.role_named = UserRole.objects.get(name='named')
+        self.role_user = UserRole.objects.get(name='user')
 
         # Create Membership
         Membership.objects.create(
-            company=self.company, user=self.company_user1, role=self.user_role
+            company=self.company, user=self.company_admin, role=self.role_admin
         )
         Membership.objects.create(
-            company=self.company, user=self.company_user2, role=self.user_role
+            company=self.company, user=self.company_named, role=self.role_named
+        )
+        Membership.objects.create(
+            company=self.company, user=self.company_user, role=self.role_user
         )
 
         self.valid_payload = {
@@ -88,6 +90,14 @@ class CompanyViewSetTest(APITestCase):
                 "email": "",
                 "role": 1
             }
+        }
+
+        self.valid_remove_member_payload = {
+            "user_id": self.company_user.id
+        }
+
+        self.invalid_remove_member_payload = {
+            "user_id": ""
         }
 
     def test_create_company_by_not_manager(self):
@@ -198,11 +208,35 @@ class CompanyViewSetTest(APITestCase):
     def test_accept_invite_by_not_invited_user(self):
         pass
 
-    def test_remove_user_by_permission_user(self):
-        pass
+    def test_remove_member_by_permission_user(self):
+        self.client.credentials(
+            HTTP_AUTHORIZATION='Token ' + self.manager.token
+        )
+        response = self.client.post(
+            reverse(
+                'profiles:company-remove-user',
+                kwargs={'pk': self.company.id}
+            ),
+            data=json.dumps(self.valid_remove_member_payload),
+            content_type='application/json'
+        )
 
-    def test_remove_user_by_non_permission_user(self):
-        pass
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_remove_member_by_non_permission_user(self):
+        self.client.credentials(
+            HTTP_AUTHORIZATION='Token ' + self.community_user.token
+        )
+        response = self.client.post(
+            reverse(
+                'profiles:company-remove-user',
+                kwargs={'pk': self.company.id}
+            ),
+            data=json.dumps(self.valid_remove_member_payload),
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
 
 class UserViewSetTest(APITestCase):
