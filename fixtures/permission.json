@@ -74,7 +74,7 @@
         "pk": 8,
         "fields": {
             "app_name": "profiles",
-            "model_name": "User",
+            "model_name": "Company",
             "actions": "change_role",
             "description": "Change member roles"
         }

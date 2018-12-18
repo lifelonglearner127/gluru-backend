@@ -104,6 +104,20 @@ class CompanyViewSetTest(APITestCase):
             "user_id": ""
         }
 
+        self.valid_change_role_payload = {
+            "changeRole": {
+                "userId": self.company_user.id,
+                "role": self.role_named.id
+            }
+        }
+
+        self.invalid_change_role_payload = {
+            "changeRole": {
+                "userId": self.company_user.id,
+                "role": ""
+            }
+        }
+
     def test_create_company_by_not_manager(self):
         self.client.credentials(
             HTTP_AUTHORIZATION='Token ' + self.community_user.token
@@ -385,6 +399,111 @@ class CompanyViewSetTest(APITestCase):
                 'profiles:company-leave-company',
                 kwargs={'pk': self.company.id}
             )
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_change_company_role_valid_by_manager(self):
+        self.client.credentials(
+            HTTP_AUTHORIZATION='Token ' + self.manager.token
+        )
+        response = self.client.post(
+            reverse(
+                'profiles:company-change-role',
+                kwargs={'pk': self.company.id}
+            ),
+            data=json.dumps(self.valid_change_role_payload),
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_change_company_role_valid_by_staff(self):
+        self.client.credentials(
+            HTTP_AUTHORIZATION='Token ' + self.staff.token
+        )
+        response = self.client.post(
+            reverse(
+                'profiles:company-change-role',
+                kwargs={'pk': self.company.id}
+            ),
+            data=json.dumps(self.valid_change_role_payload),
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_change_company_role_valid_by_admin(self):
+        self.client.credentials(
+            HTTP_AUTHORIZATION='Token ' + self.company_admin.token
+        )
+        response = self.client.post(
+            reverse(
+                'profiles:company-change-role',
+                kwargs={'pk': self.company.id}
+            ),
+            data=json.dumps(self.valid_change_role_payload),
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_change_company_role_valid_by_named(self):
+        self.client.credentials(
+            HTTP_AUTHORIZATION='Token ' + self.company_named.token
+        )
+        response = self.client.post(
+            reverse(
+                'profiles:company-change-role',
+                kwargs={'pk': self.company.id}
+            ),
+            data=json.dumps(self.valid_change_role_payload),
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_change_company_role_valid_by_user(self):
+        self.client.credentials(
+            HTTP_AUTHORIZATION='Token ' + self.company_user.token
+        )
+        response = self.client.post(
+            reverse(
+                'profiles:company-change-role',
+                kwargs={'pk': self.company.id}
+            ),
+            data=json.dumps(self.valid_change_role_payload),
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_change_company_role_valid_by_community_user(self):
+        self.client.credentials(
+            HTTP_AUTHORIZATION='Token ' + self.community_user.token
+        )
+        response = self.client.post(
+            reverse(
+                'profiles:company-change-role',
+                kwargs={'pk': self.company.id}
+            ),
+            data=json.dumps(self.valid_change_role_payload),
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_change_company_role_invalid_by_admin(self):
+        self.client.credentials(
+            HTTP_AUTHORIZATION='Token ' + self.company_admin.token
+        )
+        response = self.client.post(
+            reverse(
+                'profiles:company-change-role',
+                kwargs={'pk': self.company.id}
+            ),
+            data=json.dumps(self.invalid_change_role_payload),
+            content_type='application/json'
         )
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
