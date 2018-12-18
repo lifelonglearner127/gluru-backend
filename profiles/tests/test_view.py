@@ -111,6 +111,13 @@ class CompanyViewSetTest(APITestCase):
             }
         }
 
+        self.valid_change_role_by_self_payload = {
+            "changeRole": {
+                "userId": self.company_admin.id,
+                "role": self.role_named.id
+            }
+        }
+
         self.invalid_change_role_payload = {
             "changeRole": {
                 "userId": self.company_user.id,
@@ -507,6 +514,21 @@ class CompanyViewSetTest(APITestCase):
         )
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_change_company_role_by_admin_self(self):
+        self.client.credentials(
+            HTTP_AUTHORIZATION='Token ' + self.company_admin.token
+        )
+        response = self.client.post(
+            reverse(
+                'profiles:company-change-role',
+                kwargs={'pk': self.company.id}
+            ),
+            data=json.dumps(self.valid_change_role_by_self_payload),
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
 
 class UserViewSetTest(APITestCase):

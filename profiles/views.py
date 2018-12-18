@@ -468,7 +468,12 @@ class CompanyViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
         try:
             user_id = int(user_id)
         except ValueError:
-            raise ValidationError('Invalid user id')        
+            raise ValidationError('Invalid user id')
+
+        if user_id == request.user.id:
+            raise PermissionDenied(
+                detail='Changing role by yourself is not allowed'
+            )
 
         try:
             serializer_instance = m.Membership.objects.get(
