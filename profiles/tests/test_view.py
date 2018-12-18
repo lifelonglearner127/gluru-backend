@@ -235,6 +235,16 @@ class CompanyViewSetTest(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
+    def test_retrieve_comany(self):
+        self.client.credentials(
+            HTTP_AUTHORIZATION='Token ' + self.community_user.token
+        )
+        response = self.client.get(
+            reverse('profiles:company-detail', kwargs={'pk': self.company.id}),
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
     def test_invite_user_by_manager(self):
         self.client.credentials(
             HTTP_AUTHORIZATION='Token ' + self.manager.token
