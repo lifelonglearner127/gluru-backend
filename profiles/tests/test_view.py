@@ -3,8 +3,9 @@ from django.urls import reverse
 from django.core.management import call_command
 from rest_framework import status
 from rest_framework.test import APITestCase
-from profiles.models import User, Company, Membership
+from profiles.models import User, Company, Membership, Invitation
 from info.models import UserRole
+from gluru_backend.utils import generate_hash
 
 
 class CompanyViewSetTest(APITestCase):
@@ -64,6 +65,15 @@ class CompanyViewSetTest(APITestCase):
         )
         Membership.objects.create(
             company=self.company, user=self.company_user, role=self.role_user
+        )
+
+        # Create Invitation
+        Invitation.objects.create(
+            email=self.community_user.email,
+            invited_by=self.company_admin,
+            company=self.company,
+            role=self.role_user,
+            activation_key=generate_hash(self.community_user.email)
         )
 
         self.valid_payload = {
@@ -131,6 +141,14 @@ class CompanyViewSetTest(APITestCase):
 
         self.invalid_revoke_payload = {
             "inviteId": 0
+        }
+
+        self.valid_accept_invite_payload = {
+            "activationKey": generate_hash(self.community_user.email)
+        }
+
+        self.invalid_accept_invite_payload = {
+            "activationKey": 'afdafdafda'
         }
 
     def test_create_company_by_not_manager(self):
@@ -444,11 +462,50 @@ class CompanyViewSetTest(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-    def test_accept_invite_by_invited_user(self):
-        pass
+    def test_accept_invite_by_invited_user_valid(self):
+        self.client.credentials(
+            HTTP_AUTHORIZATION='Token ' + self.community_user.token
+        )
+        response = self.client.post(
+            reverse(
+                'profiles:company-accept-invite',
+                kwargs={'pk': self.company.id}
+            ),
+            data=json.dumps(self.valid_accept_invite_payload),
+            content_type='application/json'
+        )
 
-    def test_accept_invite_by_not_invited_user(self):
-        pass
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_accept_invite_by_not_invited_user_valid(self):
+        self.client.credentials(
+            HTTP_AUTHORIZATION='Token ' + self.staff.token
+        )
+        response = self.client.post(
+            reverse(
+                'profiles:company-accept-invite',
+                kwargs={'pk': self.company.id}
+            ),
+            data=json.dumps(self.valid_accept_invite_payload),
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_accept_invite_by_invited_user_invalid(self):
+        self.client.credentials(
+            HTTP_AUTHORIZATION='Token ' + self.community_user.token
+        )
+        response = self.client.post(
+            reverse(
+                'profiles:company-accept-invite',
+                kwargs={'pk': self.company.id}
+            ),
+            data=json.dumps(self.invalid_accept_invite_payload),
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_remove_member_by_manager(self):
         self.client.credentials(

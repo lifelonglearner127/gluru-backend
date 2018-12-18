@@ -34,7 +34,7 @@ class CompanyCustomPermission(permissions.BasePermission):
         return True
 
     def has_object_permission(self, request, view, obj):
-        if request.method in ['GET']:
+        if request.method in ['GET'] or view.action in ['accept_invite']:
             return request.user.is_authenticated
 
         if request.user.is_superuser:
