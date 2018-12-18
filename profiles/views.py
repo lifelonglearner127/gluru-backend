@@ -6,7 +6,9 @@ from rest_framework import viewsets, mixins, status
 from rest_framework.views import APIView
 from rest_framework.generics import RetrieveUpdateAPIView
 from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
-from rest_framework.exceptions import PermissionDenied, ValidationError
+from rest_framework.exceptions import (
+    PermissionDenied, ValidationError, NotFound
+)
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from gluru_backend.utils import generate_hash
@@ -398,10 +400,14 @@ class CompanyViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
         if invite_id is None:
             raise ValidationError('Invite id is required')
 
-        invite = m.Invitation.objects.get(
-            id=invite_id, company=company
-        )
-        invite.delete()
+        try:
+            invite = m.Invitation.objects.get(
+                id=invite_id, company=company
+            )
+            invite.delete()
+        except m.Invitation.DoesNotExist:
+            NotFound(detail='Such invitation does not exist')
+
         return Response({
             'results': 'Invite revoked successfully'
         }, status=status.HTTP_200_OK)

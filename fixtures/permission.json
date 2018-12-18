@@ -85,7 +85,7 @@
         "fields": {
             "app_name": "profiles",
             "model_name": "Company",
-            "actions": "invite, remove_member",
+            "actions": "invite, remove_member, revoke_invite",
             "description": "Add and remove members"
         }
     }

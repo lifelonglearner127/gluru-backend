@@ -125,6 +125,14 @@ class CompanyViewSetTest(APITestCase):
             }
         }
 
+        self.valid_revoke_payload = {
+            "inviteId": 1
+        }
+
+        self.invalid_revoke_payload = {
+            "inviteId": 0
+        }
+
     def test_create_company_by_not_manager(self):
         self.client.credentials(
             HTTP_AUTHORIZATION='Token ' + self.community_user.token
@@ -269,11 +277,95 @@ class CompanyViewSetTest(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-    def test_revoke_invite_by_permission_user(self):
-        pass
+    def test_revoke_invite_by_manager(self):
+        self.client.credentials(
+            HTTP_AUTHORIZATION='Token ' + self.manager.token
+        )
+        response = self.client.post(
+            reverse(
+                'profiles:company-revoke-invite',
+                kwargs={'pk': self.company.id}
+            ),
+            data=json.dumps(self.valid_revoke_payload),
+            content_type='application/json'
+        )
 
-    def test_revoke_invite_by_non_permission_user(self):
-        pass
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_revoke_invite_by_staff(self):
+        self.client.credentials(
+            HTTP_AUTHORIZATION='Token ' + self.staff.token
+        )
+        response = self.client.post(
+            reverse(
+                'profiles:company-revoke-invite',
+                kwargs={'pk': self.company.id}
+            ),
+            data=json.dumps(self.valid_revoke_payload),
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_revoke_invite_by_company_admin(self):
+        self.client.credentials(
+            HTTP_AUTHORIZATION='Token ' + self.company_admin.token
+        )
+        response = self.client.post(
+            reverse(
+                'profiles:company-revoke-invite',
+                kwargs={'pk': self.company.id}
+            ),
+            data=json.dumps(self.valid_revoke_payload),
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_revoke_invite_by_company_named(self):
+        self.client.credentials(
+            HTTP_AUTHORIZATION='Token ' + self.company_named.token
+        )
+        response = self.client.post(
+            reverse(
+                'profiles:company-revoke-invite',
+                kwargs={'pk': self.company.id}
+            ),
+            data=json.dumps(self.valid_revoke_payload),
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_revoke_invite_by_company_user(self):
+        self.client.credentials(
+            HTTP_AUTHORIZATION='Token ' + self.company_user.token
+        )
+        response = self.client.post(
+            reverse(
+                'profiles:company-revoke-invite',
+                kwargs={'pk': self.company.id}
+            ),
+            data=json.dumps(self.valid_revoke_payload),
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_revoke_invite_by_community_user(self):
+        self.client.credentials(
+            HTTP_AUTHORIZATION='Token ' + self.community_user.token
+        )
+        response = self.client.post(
+            reverse(
+                'profiles:company-revoke-invite',
+                kwargs={'pk': self.company.id}
+            ),
+            data=json.dumps(self.valid_revoke_payload),
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_accept_invite_by_invited_user(self):
         pass
