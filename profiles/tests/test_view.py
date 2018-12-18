@@ -205,6 +205,36 @@ class CompanyViewSetTest(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
+    def test_destroy_company_by_manager_valid(self):
+        self.client.credentials(
+            HTTP_AUTHORIZATION='Token ' + self.manager.token
+        )
+        response = self.client.delete(
+            reverse('profiles:company-detail', kwargs={'pk': self.company.id}),
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+    def test_destroy_company_by_manager_invalid(self):
+        self.client.credentials(
+            HTTP_AUTHORIZATION='Token ' + self.manager.token
+        )
+        response = self.client.delete(
+            reverse('profiles:company-detail', kwargs={'pk': 0}),
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_destroy_company_by_not_manager(self):
+        self.client.credentials(
+            HTTP_AUTHORIZATION='Token ' + self.company_admin.token
+        )
+        response = self.client.delete(
+            reverse('profiles:company-detail', kwargs={'pk': self.company.id}),
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
     def test_invite_user_by_manager(self):
         self.client.credentials(
             HTTP_AUTHORIZATION='Token ' + self.manager.token
