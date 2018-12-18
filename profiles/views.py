@@ -459,6 +459,36 @@ class CompanyViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
             'results': 'User removed successfully'
         }, status=status.HTTP_200_OK)
 
+    @action(detail=True, methods=['POST'], url_path='change-role')
+    def change_role(self, request, *args, **kwargs):
+        company = self.get_object()
+        serializer_data = request.data.get('change_role', {})
+        user_id = serializer_data.pop('user_id', None)
+
+        try:
+            user_id = int(user_id)
+        except ValueError:
+            raise ValidationError('Invalid user id')        
+
+        try:
+            serializer_instance = m.Membership.objects.get(
+                company=company, user__id=user_id
+            )
+        except m.Membership.DoesNotExist:
+            raise ValidationError('This user is not member of the company')
+
+        serializer = s.ChangeRoleSerializer(
+            serializer_instance,
+            data=serializer_data
+        )
+
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(
+            {'results': serializer.data},
+            status=status.HTTP_200_OK
+        )
+
     def destroy(self, request, ticket_pk=None, pk=None):
         obj = self.get_object()
         obj.delete()

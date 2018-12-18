@@ -80,6 +80,15 @@ class CompanySerializer(serializers.ModelSerializer):
         )
 
 
+class ChangeRoleSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = m.Membership
+        fields = (
+            'role',
+        )
+
+
 class InvitationSerializer(serializers.ModelSerializer):
     company = serializers.PrimaryKeyRelatedField(read_only=True)
     invited_by = serializers.PrimaryKeyRelatedField(read_only=True)
