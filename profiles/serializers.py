@@ -87,6 +87,9 @@ class ChangeRoleSerializer(serializers.ModelSerializer):
         fields = (
             'role',
         )
+        extra_kwargs = {
+            'role': {'allow_null': False}
+        }
 
 
 class InvitationSerializer(serializers.ModelSerializer):
