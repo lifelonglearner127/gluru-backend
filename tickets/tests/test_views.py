@@ -52,7 +52,7 @@ class TicketViewSetTest(APITestCase):
             name='Gluu'
         )
 
-        # Create Permission and UserRole
+        # Retrieve User Role
         self.role_admin = UserRole.objects.get(name='admin')
         self.role_named = UserRole.objects.get(name='named')
         self.role_user = UserRole.objects.get(name='user')
@@ -68,7 +68,7 @@ class TicketViewSetTest(APITestCase):
             company=self.company, user=self.company_user, role=self.role_user
         )
 
-        # Create Tickets; Community Ticket, Admin Ticket, Company Ticket
+        # Create Tickets; Community Ticket, Company Ticket
         self.ticket_by_community_user = Ticket.objects.create(
             title='title', body='body', status_id=1, category_id=1,
             issue_type_id=1, gluu_server_id=1, os_id=1,
@@ -264,7 +264,7 @@ class TicketViewSetTest(APITestCase):
     def test_update_ticket(self):
         """
         1. Update Ticket by unauthenticated user.
-        2. Update Non-exisiting ticket by community user
+        2. Update Non-existing ticket by community user
         3. Update Valid Ticket by community user
         4. Update Invalid Ticket by community user
         """
@@ -279,7 +279,7 @@ class TicketViewSetTest(APITestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-        # Update Non-exisiting ticket by community user
+        # Update Non-existing ticket by community user
         self.client.credentials(
             HTTP_AUTHORIZATION='Token ' + self.community_user.token
         )
@@ -686,7 +686,7 @@ class TicketViewSetTest(APITestCase):
             HTTP_AUTHORIZATION='Token ' + self.community_user.token
         )
         response = self.client.delete(
-            reverse('tickets:ticket-detail',kwargs={'pk': 0})
+            reverse('tickets:ticket-detail', kwargs={'pk': 0})
         )
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
@@ -790,19 +790,24 @@ class AnswerViewSetTest(APITestCase):
         self.staff.is_staff = True
         self.staff.save()
 
-        self.company_user1 = User.objects.create_user(
-            email='levan01@gluu.org',
+        self.company_admin = User.objects.create_user(
+            email='admin@gluu.org',
             password='levan'
         )
 
-        self.company_user2 = User.objects.create_user(
-            email='levan02@gluu.org',
+        self.company_named = User.objects.create_user(
+            email='named@gluu.org',
+            password='levan'
+        )
+
+        self.company_user = User.objects.create_user(
+            email='user@gluu.org',
             password='levan'
         )
 
         self.community_user = User.objects.create_user(
-            email='miranda@gluu.org',
-            password='miranda'
+            email='user@gmail.com',
+            password='levan'
         )
 
         # Create Company
@@ -810,63 +815,66 @@ class AnswerViewSetTest(APITestCase):
             name='Gluu'
         )
 
-        # Create Permission and UserRole
-        self.read_permission = Permission.objects.get(pk=5)
-        self.write_permission = Permission.objects.get(pk=6)
-        self.respond_permission = Permission.objects.get(pk=7)
-        self.user_role = UserRole.objects.create(
-            name='custom'
-        )
-        self.user_role.permissions.add(self.read_permission)
-        self.user_role.permissions.add(self.write_permission)
-        self.user_role.permissions.add(self.respond_permission)
+        # Retrieve User Role
+        self.role_admin = UserRole.objects.get(name='admin')
+        self.role_named = UserRole.objects.get(name='named')
+        self.role_user = UserRole.objects.get(name='user')
 
         # Create Membership
         Membership.objects.create(
-            company=self.company, user=self.company_user1, role=self.user_role
+            company=self.company, user=self.company_admin, role=self.role_admin
         )
         Membership.objects.create(
-            company=self.company, user=self.company_user2, role=self.user_role
+            company=self.company, user=self.company_named, role=self.role_named
+        )
+        Membership.objects.create(
+            company=self.company, user=self.company_user, role=self.role_user
         )
 
-        # Create Tickets; Community Ticket, Admin Ticket, Company Ticket
-        self.community_ticket = Ticket.objects.create(
+        # Create Tickets; Community Ticket, Company Ticket
+        self.ticket_by_community_user = Ticket.objects.create(
             title='title', body='body', status_id=1, category_id=1,
             issue_type_id=1, gluu_server_id=1, os_id=1,
             created_by=self.community_user
         )
 
-        self.manager_ticket = Ticket.objects.create(
-            title='title', body='body', status_id=1, category_id=1,
-            issue_type_id=1, gluu_server_id=1, os_id=1, created_by=self.manager
-        )
-
-        self.staff_ticket = Ticket.objects.create(
-            title='title', body='body', status_id=1, category_id=1,
-            issue_type_id=1, gluu_server_id=1, os_id=1, created_by=self.staff
-        )
-
-        self.company_ticket = Ticket.objects.create(
+        self.ticket_by_company_admin = Ticket.objects.create(
             title='title', body='body', status_id=1, category_id=1,
             issue_type_id=1, gluu_server_id=1, os_id=1,
-            created_by=self.company_user1, company_association=self.company,
-            created_for=self.company_user2
+            created_by=self.company_admin, company_association=self.company,
+            created_for=self.company_named
         )
 
-        # Create Answer; Answer for community ticket,
-        # admin ticket, company ticket
-        self.community_ticket_answer = Answer.objects.create(
-            body='body', ticket=self.community_ticket, created_by=self.manager
+        self.ticket_by_staff_for_company = Ticket.objects.create(
+            title='title', body='body', status_id=1, category_id=1,
+            issue_type_id=1, gluu_server_id=1, os_id=1,
+            created_by=self.staff, company_association=self.company,
+            created_for=self.company_named
         )
 
-        self.manager_ticket_answer = Answer.objects.create(
-            body='body', ticket=self.manager_ticket, created_by=self.manager
+        # Create Answer
+        self.community_ticket_answered_by_itself = Answer.objects.create(
+            body='body', ticket=self.ticket_by_community_user,
+            created_by=self.community_user
         )
 
-        self.company_ticket_answer = Answer.objects.create(
-            body='body', ticket=self.company_ticket,
-            created_by=self.company_user2
+        self.community_ticket_answered_by_manager = Answer.objects.create(
+            body='body', ticket=self.ticket_by_community_user,
+            created_by=self.manager
         )
+
+        self.company_ticket_answered_by_manager = Answer.objects.create(
+            body='body', ticket=self.ticket_by_company_admin,
+            created_by=self.manager
+        )
+        # self.manager_ticket_answer = Answer.objects.create(
+        #     body='body', ticket=self.manager_ticket, created_by=self.manager
+        # )
+
+        # self.company_ticket_answer = Answer.objects.create(
+        #     body='body', ticket=self.company_ticket,
+        #     created_by=self.company_user2
+        # )
 
         self.valid_payload = {
             "answer": {
@@ -880,7 +888,13 @@ class AnswerViewSetTest(APITestCase):
             }
         }
 
-    def test_create_answer_by_unauthroized_user(self):
+    def test_create_answer(self):
+        """
+        1. Create Answer by unauthenticated user
+        2. Create Valid Answer by community user
+        3. Create InValid Answer by community user
+        """
+        # Create Answer by unauthenticated user
         response = self.client.post(
             reverse(
                 'tickets:ticket-answers-list',
@@ -889,10 +903,9 @@ class AnswerViewSetTest(APITestCase):
             data=json.dumps(self.valid_payload),
             content_type='application/json'
         )
-
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-    def test_create_answer_valid(self):
+        # Create Valid Answer by community user
         self.client.credentials(
             HTTP_AUTHORIZATION='Token ' + self.community_user.token
         )
@@ -904,13 +917,9 @@ class AnswerViewSetTest(APITestCase):
             data=json.dumps(self.valid_payload),
             content_type='application/json'
         )
-
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-    def test_create_answer_invalid(self):
-        self.client.credentials(
-            HTTP_AUTHORIZATION='Token ' + self.community_user.token
-        )
+        # Create Invalid Answer by community user
         response = self.client.post(
             reverse(
                 'tickets:ticket-answers-list',
@@ -919,55 +928,126 @@ class AnswerViewSetTest(APITestCase):
             data=json.dumps(self.invalid_payload),
             content_type='application/json'
         )
-
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-    def test_create_answer_by_permission_user(self):
+    def test_create_company_answer(self):
+        """
+        1. Create Answer for Company Ticket by Community User
+        2. Create Answer for Company Ticket by Company User
+        3. Create Answer for Company Ticket by Company Named
+        4. Create Answer for Company Ticket by Company Named Invalid
+        5. Create Answer for Company Ticket by Company Admin
+        6. Create Answer for Company Ticket by Manager
+        7. Create Answer for Company Ticket by Staff
+        """
+
+        # Create Answer for Company Ticket by Community User
         self.client.credentials(
-            HTTP_AUTHORIZATION='Token ' + self.company_user2.token
+            HTTP_AUTHORIZATION='Token ' + self.community_user.token
         )
         response = self.client.post(
             reverse(
                 'tickets:ticket-answers-list',
-                kwargs={'ticket_pk': self.company_ticket.id}
+                kwargs={'ticket_pk': self.ticket_by_company_admin.id}
             ),
             data=json.dumps(self.valid_payload),
             content_type='application/json'
         )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
+        # Create Answer for Company Ticket by Company User
+        self.client.credentials(
+            HTTP_AUTHORIZATION='Token ' + self.company_user.token
+        )
+        response = self.client.post(
+            reverse(
+                'tickets:ticket-answers-list',
+                kwargs={'ticket_pk': self.ticket_by_company_admin.id}
+            ),
+            data=json.dumps(self.valid_payload),
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        # Create Answer for Company Ticket by Company Named
+        self.client.credentials(
+            HTTP_AUTHORIZATION='Token ' + self.company_named.token
+        )
+        response = self.client.post(
+            reverse(
+                'tickets:ticket-answers-list',
+                kwargs={'ticket_pk': self.ticket_by_company_admin.id}
+            ),
+            data=json.dumps(self.valid_payload),
+            content_type='application/json'
+        )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-    def test_create_answer_by_non_permission_user(self):
+        # Create Answer for Company Ticket by Company Admin
         self.client.credentials(
-            HTTP_AUTHORIZATION='Token ' + self.community_user.token
+            HTTP_AUTHORIZATION='Token ' + self.company_admin.token
         )
         response = self.client.post(
             reverse(
                 'tickets:ticket-answers-list',
-                kwargs={'ticket_pk': self.company_ticket.id}
+                kwargs={'ticket_pk': self.ticket_by_company_admin.id}
             ),
             data=json.dumps(self.valid_payload),
             content_type='application/json'
         )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        # Create Answer for Company Ticket by manager
+        self.client.credentials(
+            HTTP_AUTHORIZATION='Token ' + self.manager.token
+        )
+        response = self.client.post(
+            reverse(
+                'tickets:ticket-answers-list',
+                kwargs={'ticket_pk': self.ticket_by_company_admin.id}
+            ),
+            data=json.dumps(self.valid_payload),
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-    def test_update_answer_by_unauthorized_user(self):
+        # Create Answer for Company Ticket by staff
+        self.client.credentials(
+            HTTP_AUTHORIZATION='Token ' + self.staff.token
+        )
+        response = self.client.post(
+            reverse(
+                'tickets:ticket-answers-list',
+                kwargs={'ticket_pk': self.ticket_by_company_admin.id}
+            ),
+            data=json.dumps(self.valid_payload),
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_update_answer(self):
+        """
+        1. Update answer by unauthenticated user.
+        2. Update Non-existing answer by community user
+        3. Update Valid answer by community user
+        4. Update Invalid answer by community user
+        5. Update answer created by manager by community user
+        """
+        # Update answer by unauthenticated user.
         response = self.client.put(
             reverse(
                 'tickets:ticket-answers-detail',
                 kwargs={
                     'ticket_pk': self.ticket_by_community_user.id,
-                    'pk': self.community_ticket_answer.id
+                    'pk': self.community_ticket_answered_by_itself.id
                 }
             ),
             data=json.dumps(self.valid_payload),
             content_type='application/json'
         )
-
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-    def test_update_answer_by_non_permission_user(self):
+        # Update non-existing answer
         self.client.credentials(
             HTTP_AUTHORIZATION='Token ' + self.community_user.token
         )
@@ -975,131 +1055,334 @@ class AnswerViewSetTest(APITestCase):
             reverse(
                 'tickets:ticket-answers-detail',
                 kwargs={
-                    'ticket_pk': self.company_ticket.id,
-                    'pk': self.company_ticket_answer.id
+                    'ticket_pk': self.ticket_by_community_user.id,
+                    'pk': 0
                 }
             ),
             data=json.dumps(self.valid_payload),
             content_type='application/json'
         )
-
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-    def test_update_answer_valid_by_permission_user(self):
-        self.client.credentials(
-            HTTP_AUTHORIZATION='Token ' + self.company_user1.token
-        )
-        response = self.client.put(
-            reverse(
-                'tickets:ticket-answers-detail',
-                kwargs={
-                    'ticket_pk': self.company_ticket.id,
-                    'pk': self.company_ticket_answer.id
-                }
-            ),
-            data=json.dumps(self.valid_payload),
-            content_type='application/json'
-        )
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-    def test_retrieve_answer_by_unauthorized_user(self):
-        response = self.client.get(
-            reverse(
-                'tickets:ticket-answers-detail',
-                kwargs={
-                    'ticket_pk': self.ticket_by_community_user.id,
-                    'pk': self.community_ticket_answer.id
-                }
-            ),
-            content_type='application/json'
-        )
-
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-    def test_retrieve_answer_by_permission_user(self):
-        self.client.credentials(
-            HTTP_AUTHORIZATION='Token ' + self.company_user1.token
-        )
-        response = self.client.get(
-            reverse(
-                'tickets:ticket-answers-detail',
-                kwargs={
-                    'ticket_pk': self.company_ticket.id,
-                    'pk': self.company_ticket_answer.id
-                }
-            ),
-            content_type='application/json'
-        )
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-    def test_retrieve_answer_by_non_permission_user(self):
-        self.client.credentials(
-            HTTP_AUTHORIZATION='Token ' + self.community_user.token
-        )
-        response = self.client.get(
-            reverse(
-                'tickets:ticket-answers-detail',
-                kwargs={
-                    'ticket_pk': self.company_ticket.id,
-                    'pk': self.company_ticket_answer.id
-                }
-            ),
-            content_type='application/json'
-        )
-
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-    def test_delete_answer_by_unauthorized_user(self):
-        response = self.client.delete(
-            reverse(
-                'tickets:ticket-answers-detail',
-                kwargs={
-                    'ticket_pk': self.company_ticket.id,
-                    'pk': self.company_ticket_answer.id
-                }
-            ),
-            content_type='application/json'
-        )
-
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-    def test_delete_answer_non_existing(self):
-        self.client.credentials(
-            HTTP_AUTHORIZATION='Token ' + self.community_user.token
-        )
-        response = self.client.delete(
-            reverse(
-                'tickets:ticket-answers-detail',
-                kwargs={
-                    'ticket_pk': self.ticket_by_community_user.id,
-                    'pk': 30
-                }
-            ),
-            content_type='application/json'
-        )
-
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
-    def test_delete_answer_by_permission_user(self):
-        self.client.credentials(
-            HTTP_AUTHORIZATION='Token ' + self.company_user1.token
+        # Update Valid answer by community user
+        response = self.client.put(
+            reverse(
+                'tickets:ticket-answers-detail',
+                kwargs={
+                    'ticket_pk': self.ticket_by_community_user.id,
+                    'pk': self.community_ticket_answered_by_itself.id
+                }
+            ),
+            data=json.dumps(self.valid_payload),
+            content_type='application/json'
         )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # Update Invalid answer by community user
+        response = self.client.put(
+            reverse(
+                'tickets:ticket-answers-detail',
+                kwargs={
+                    'ticket_pk': self.ticket_by_community_user.id,
+                    'pk': self.community_ticket_answered_by_itself.id
+                }
+            ),
+            data=json.dumps(self.valid_payload),
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # Update answer created by manager by community user
+        response = self.client.put(
+            reverse(
+                'tickets:ticket-answers-detail',
+                kwargs={
+                    'ticket_pk': self.ticket_by_community_user.id,
+                    'pk': self.community_ticket_answered_by_manager.id
+                }
+            ),
+            data=json.dumps(self.valid_payload),
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_update_company_answer(self):
+        """
+        1. Update company ticket answer by community user
+        2. Update company ticket answer by company user
+        3. Update company ticket answer by company named
+        4. Update copmany ticket answer by company admin
+        5. Update copmany ticket answer by manager
+        6. Update copmany ticket answer by staff
+        """
+        # Update company ticket answer by community user
+        self.client.credentials(
+            HTTP_AUTHORIZATION='Token ' + self.community_user.token
+        )
+        response = self.client.put(
+            reverse(
+                'tickets:ticket-answers-detail',
+                kwargs={
+                    'ticket_pk': self.ticket_by_company_admin.id,
+                    'pk': self.company_ticket_answered_by_manager.id
+                }
+            ),
+            data=json.dumps(self.valid_payload),
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        # Update company ticket answer by company user
+        self.client.credentials(
+            HTTP_AUTHORIZATION='Token ' + self.company_user.token
+        )
+        response = self.client.put(
+            reverse(
+                'tickets:ticket-answers-detail',
+                kwargs={
+                    'ticket_pk': self.ticket_by_company_admin.id,
+                    'pk': self.company_ticket_answered_by_manager.id
+                }
+            ),
+            data=json.dumps(self.valid_payload),
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        # Update company ticket answer by company named
+        self.client.credentials(
+            HTTP_AUTHORIZATION='Token ' + self.company_named.token
+        )
+        response = self.client.put(
+            reverse(
+                'tickets:ticket-answers-detail',
+                kwargs={
+                    'ticket_pk': self.ticket_by_company_admin.id,
+                    'pk': self.company_ticket_answered_by_manager.id
+                }
+            ),
+            data=json.dumps(self.valid_payload),
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # Update company ticket answer by company admin
+        self.client.credentials(
+            HTTP_AUTHORIZATION='Token ' + self.company_admin.token
+        )
+        response = self.client.put(
+            reverse(
+                'tickets:ticket-answers-detail',
+                kwargs={
+                    'ticket_pk': self.ticket_by_company_admin.id,
+                    'pk': self.company_ticket_answered_by_manager.id
+                }
+            ),
+            data=json.dumps(self.valid_payload),
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # Update company ticket answer by manager
+        self.client.credentials(
+            HTTP_AUTHORIZATION='Token ' + self.manager.token
+        )
+        response = self.client.put(
+            reverse(
+                'tickets:ticket-answers-detail',
+                kwargs={
+                    'ticket_pk': self.ticket_by_company_admin.id,
+                    'pk': self.company_ticket_answered_by_manager.id
+                }
+            ),
+            data=json.dumps(self.valid_payload),
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # Update company ticket answer by staff
+        self.client.credentials(
+            HTTP_AUTHORIZATION='Token ' + self.staff.token
+        )
+        response = self.client.put(
+            reverse(
+                'tickets:ticket-answers-detail',
+                kwargs={
+                    'ticket_pk': self.ticket_by_company_admin.id,
+                    'pk': self.company_ticket_answered_by_manager.id
+                }
+            ),
+            data=json.dumps(self.valid_payload),
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_retrieve_answer(self):
+        """
+        1. Retrieve community ticket answer by unauthenticated user.
+        2. Retrieve community ticket answer by community user
+        3. Retrieve Non-existing ticket answer by community user
+        """
+        # Retrieve community ticket answer by unauthenticated user
+        response = self.client.get(
+            reverse(
+                'tickets:ticket-answers-detail',
+                kwargs={
+                    'ticket_pk': self.ticket_by_community_user.id,
+                    'pk': self.community_ticket_answered_by_itself.id
+                }
+            )
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        # Retrieve community ticket answer by community user
+        self.client.credentials(
+            HTTP_AUTHORIZATION='Token ' + self.community_user.token
+        )
+        response = self.client.get(
+            reverse(
+                'tickets:ticket-answers-detail',
+                kwargs={
+                    'ticket_pk': self.ticket_by_community_user.id,
+                    'pk': self.community_ticket_answered_by_itself.id
+                }
+            )
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # Retrieve non-existing ticket answer by community user
+        self.client.credentials(
+            HTTP_AUTHORIZATION='Token ' + self.community_user.token
+        )
+        response = self.client.get(
+            reverse(
+                'tickets:ticket-answers-detail',
+                kwargs={
+                    'ticket_pk': self.ticket_by_community_user.id,
+                    'pk': 0
+                }
+            )
+        )
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_retrieve_company_answer(self):
+        """
+        1. Retrieve company ticket answer by community user
+        2. Retrieve company ticket answer by company user
+        3. Retrieve company ticket answer by company named
+        4. Retrieve company ticket answer by company admin
+        5. Retrieve company ticket answer by manager
+        6. Retrieve company ticket answer by staff
+        """
+        # Retrieve company ticket answer by community user
+        self.client.credentials(
+            HTTP_AUTHORIZATION='Token ' + self.community_user.token
+        )
+        response = self.client.get(
+            reverse(
+                'tickets:ticket-answers-detail',
+                kwargs={
+                    'ticket_pk': self.ticket_by_company_admin.id,
+                    'pk': self.company_ticket_answered_by_manager.id
+                }
+            )
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        # Retrieve company ticket answer by company user
+        self.client.credentials(
+            HTTP_AUTHORIZATION='Token ' + self.company_user.token
+        )
+        response = self.client.get(
+            reverse(
+                'tickets:ticket-answers-detail',
+                kwargs={
+                    'ticket_pk': self.ticket_by_company_admin.id,
+                    'pk': self.company_ticket_answered_by_manager.id
+                }
+            )
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # Retrieve company ticket answer by company named
+        self.client.credentials(
+            HTTP_AUTHORIZATION='Token ' + self.company_named.token
+        )
+        response = self.client.get(
+            reverse(
+                'tickets:ticket-answers-detail',
+                kwargs={
+                    'ticket_pk': self.ticket_by_company_admin.id,
+                    'pk': self.company_ticket_answered_by_manager.id
+                }
+            )
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # Retrieve company ticket answer by company admin
+        self.client.credentials(
+            HTTP_AUTHORIZATION='Token ' + self.company_admin.token
+        )
+        response = self.client.get(
+            reverse(
+                'tickets:ticket-answers-detail',
+                kwargs={
+                    'ticket_pk': self.ticket_by_company_admin.id,
+                    'pk': self.company_ticket_answered_by_manager.id
+                }
+            )
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # Retrieve company ticket answer by manager
+        self.client.credentials(
+            HTTP_AUTHORIZATION='Token ' + self.manager.token
+        )
+        response = self.client.get(
+            reverse(
+                'tickets:ticket-answers-detail',
+                kwargs={
+                    'ticket_pk': self.ticket_by_company_admin.id,
+                    'pk': self.company_ticket_answered_by_manager.id
+                }
+            )
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # Retrieve company ticket answer by staff
+        self.client.credentials(
+            HTTP_AUTHORIZATION='Token ' + self.staff.token
+        )
+        response = self.client.get(
+            reverse(
+                'tickets:ticket-answers-detail',
+                kwargs={
+                    'ticket_pk': self.ticket_by_company_admin.id,
+                    'pk': self.company_ticket_answered_by_manager.id
+                }
+            )
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_delete_answer(self):
+        """
+        1. Delete ticket answer by unauthenticated user
+        2. Delete ticket answer
+        3. Delete non-existing ticket answer
+        """
+        # Delete ticket answer by unauthenticated user
         response = self.client.delete(
             reverse(
                 'tickets:ticket-answers-detail',
                 kwargs={
-                    'ticket_pk': self.company_ticket.id,
-                    'pk': self.company_ticket_answer.id
+                    'ticket_pk': self.ticket_by_community_user.id,
+                    'pk': self.community_ticket_answered_by_itself.id
                 }
-            ),
-            content_type='application/json'
+            )
         )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-
-    def test_delete_answer_by_non_permission_user(self):
+        # Delete ticket answer
         self.client.credentials(
             HTTP_AUTHORIZATION='Token ' + self.community_user.token
         )
@@ -1107,11 +1390,123 @@ class AnswerViewSetTest(APITestCase):
             reverse(
                 'tickets:ticket-answers-detail',
                 kwargs={
-                    'ticket_pk': self.company_ticket.id,
-                    'pk': self.company_ticket_answer.id
+                    'ticket_pk': self.ticket_by_community_user.id,
+                    'pk': self.community_ticket_answered_by_itself.id
                 }
-            ),
-            content_type='application/json'
+            )
         )
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
+        # Delete non-existing ticket answer
+        self.client.credentials(
+            HTTP_AUTHORIZATION='Token ' + self.community_user.token
+        )
+        response = self.client.delete(
+            reverse(
+                'tickets:ticket-answers-detail',
+                kwargs={
+                    'ticket_pk': self.ticket_by_community_user.id,
+                    'pk': 0
+                }
+            )
+        )
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_delete_company_answer(self):
+        """
+        1. Delete company ticket answer by community user
+        2. Delete company ticket answer by company user
+        3. Delete company ticket answer by company named
+        4. Delete company ticket answer by company admin
+        5. Delete company ticket answer by company manager
+        6. Delete company ticket answer by company staff
+        """
+        # Delete company ticket answer by community user
+        self.client.credentials(
+            HTTP_AUTHORIZATION='Token ' + self.community_user.token
+        )
+        response = self.client.delete(
+            reverse(
+                'tickets:ticket-answers-detail',
+                kwargs={
+                    'ticket_pk': self.ticket_by_company_admin.id,
+                    'pk': self.company_ticket_answered_by_manager.id
+                }
+            )
+        )
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        # Delete company ticket answer by company user
+        self.client.credentials(
+            HTTP_AUTHORIZATION='Token ' + self.company_user.token
+        )
+        response = self.client.delete(
+            reverse(
+                'tickets:ticket-answers-detail',
+                kwargs={
+                    'ticket_pk': self.ticket_by_company_admin.id,
+                    'pk': self.company_ticket_answered_by_manager.id
+                }
+            )
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        # Delete company ticket answer by company named
+        self.client.credentials(
+            HTTP_AUTHORIZATION='Token ' + self.company_named.token
+        )
+        response = self.client.delete(
+            reverse(
+                'tickets:ticket-answers-detail',
+                kwargs={
+                    'ticket_pk': self.ticket_by_company_admin.id,
+                    'pk': self.company_ticket_answered_by_manager.id
+                }
+            )
+        )
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+        # Delete company ticket answer by company admin
+        self.client.credentials(
+            HTTP_AUTHORIZATION='Token ' + self.company_admin.token
+        )
+        response = self.client.delete(
+            reverse(
+                'tickets:ticket-answers-detail',
+                kwargs={
+                    'ticket_pk': self.ticket_by_company_admin.id,
+                    'pk': self.company_ticket_answered_by_manager.id
+                }
+            )
+        )
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+        # Delete company ticket answer by manager
+        self.client.credentials(
+            HTTP_AUTHORIZATION='Token ' + self.manager.token
+        )
+        response = self.client.delete(
+            reverse(
+                'tickets:ticket-answers-detail',
+                kwargs={
+                    'ticket_pk': self.ticket_by_company_admin.id,
+                    'pk': self.company_ticket_answered_by_manager.id
+                }
+            )
+        )
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+        # Delete company ticket answer by staff
+        self.client.credentials(
+            HTTP_AUTHORIZATION='Token ' + self.staff.token
+        )
+        response = self.client.delete(
+            reverse(
+                'tickets:ticket-answers-detail',
+                kwargs={
+                    'ticket_pk': self.ticket_by_company_admin.id,
+                    'pk': self.company_ticket_answered_by_manager.id
+                }
+            )
+        )
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
