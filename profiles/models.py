@@ -206,6 +206,10 @@ class Invitation(TimestampedModel):
         null=True
     )
 
+    is_accepted = models.BooleanField(
+        default=False
+    )
+
     @property
     def invitation_link(self):
         if User.objects.filter(email=self.email).exists():
@@ -238,7 +242,8 @@ class Invitation(TimestampedModel):
                 user=user,
                 role=self.role
             )
-            self.delete()
+            self.is_accepted = True
+            self.save()
 
     class Meta:
         unique_together = ['company', 'email']

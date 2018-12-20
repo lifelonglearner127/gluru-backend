@@ -388,16 +388,14 @@ class CompanyViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
         try:
             invite = m.Invitation.objects.get(
                 company=company,
+                email=request.user.email,
                 activation_key=activation_key
             )
         except m.Invitation.DoesNotExist:
-            raise ValidationError('Incorrect activation key')
+            raise ValidationError('Invalid invite')
 
-        if request.user.email != invite.email:
-            raise ValidationError('Incorrect invite')
-
-        if request.user in invite.company.users.all():
-            raise ValidationError('You are already a member of this company')
+        if invite.is_accepted:
+            raise ValidationError('You already accepted invitation')
 
         invite.accept(request.user)
 
