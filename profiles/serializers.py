@@ -99,6 +99,9 @@ class InvitationSerializer(serializers.ModelSerializer):
     class Meta:
         model = m.Invitation
         fields = ['id', 'email', 'invited_by', 'company', 'role']
+        extra_kwargs = {
+            'role': {'required': True}
+        }
 
     def create(self, validated_data):
         invited_by = self.context.get('invited_by', None)

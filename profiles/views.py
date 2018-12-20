@@ -353,6 +353,19 @@ class CompanyViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
         company = self.get_object()
         serializer_data = request.data.get('invitation', {})
 
+        email = serializer_data.get('email', None)
+        try:
+            invitation = m.Invitation.objects.get(
+                email=email, company=company
+            )
+            msg = '{} already invited {} as {} in {}'.format(
+                invitation.invited_by.email, email, invitation.role.name,
+                company.name
+            )
+            raise ValidationError(msg)
+        except m.Invitation.DoesNotExist:
+            pass
+
         serializer = s.InvitationSerializer(
             data=serializer_data,
             context={
