@@ -114,12 +114,10 @@ class AnswerCustomPermission(permissions.BasePermission):
             else:
                 return False
         else:
-            return request.method in ['GET'] or request.user.is_authenticated
+            return request.method in permissions.SAFE_METHODS or\
+                request.user.is_authenticated
 
     def has_object_permission(self, request, view, obj):
-        if obj.created_by == request.user:
-            return True
-
         if request.user.is_superuser:
             return True
 
@@ -146,4 +144,4 @@ class AnswerCustomPermission(permissions.BasePermission):
                     permission_name=view.action
                 )
 
-        return False
+        return obj.created_by == request.user
