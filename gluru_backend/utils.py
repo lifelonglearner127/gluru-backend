@@ -75,11 +75,15 @@ def generate_hash(string):
 
 
 def get_tickets_query(user):
-    if not user.is_authenticated:
-        return Q(company_association=None, is_private=False)
-    else:
+    if user.is_authenticated:
         if user.is_superuser:
             return Q()
+
+        if user.is_staff:
+            staff_role = UserRole.objects.get(name='staff')
+
+            if staff_role.has_permission('tickets', 'Ticket', 'list'):
+                return Q()
 
         queries = Q(company_association=None)
         companies = user.companies
@@ -89,10 +93,6 @@ def get_tickets_query(user):
             if role.has_permission('tickets', 'Ticket', 'list'):
                 queries |= Q(company_association=company)
 
-        if user.is_staff:
-            staff_role = UserRole.objects.get(name='staff')
-
-            if staff_role.has_permission('tickets', 'Ticket', 'list'):
-                queries = Q()
-
         return queries
+
+    return Q(company_association=None, is_private=False)
