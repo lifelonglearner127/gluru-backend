@@ -6,7 +6,7 @@ from tickets.models import Ticket
 
 class TicketCustomPermission(permissions.BasePermission):
     def has_permission(self, request, view):
-        if request.method in ['GET']:
+        if request.method in permissions.SAFE_METHODS:
             return True
         else:
             if not request.user.is_authenticated:
@@ -43,7 +43,7 @@ class TicketCustomPermission(permissions.BasePermission):
                     except Company.DoesNotExist:
                         pass
 
-            return request.user.is_authenticated
+            return True
 
     def has_object_permission(self, request, view, obj):
         if request.user.is_superuser:
@@ -58,10 +58,8 @@ class TicketCustomPermission(permissions.BasePermission):
             )
 
         if obj.company_association is None:
-            if request.method in ['GET']:
-                return True
-            if request.method in ['PUT', 'DELETE']:
-                return request.user == obj.created_by
+            return request.method in permissions.SAFE_METHODS or\
+                request.user == obj.created_by
 
         membership = None
         if request.user.is_authenticated:
