@@ -11,8 +11,8 @@ from info.models import (
 
 
 class GluuServerViewSetTest(APITestCase):
-    def setUp(self):
 
+    def setUp(self):
         self.manager = User.objects.create_superuser(
             email='manager@gmail.com',
             password='manager'
@@ -162,15 +162,15 @@ class GluuServerViewSetTest(APITestCase):
 
 
 class GluuOSViewSetTest(APITestCase):
-    def setUp(self):
 
-        self.admin = User.objects.create_superuser(
-            email='admin@gluu.org',
-            password='admin'
+    def setUp(self):
+        self.manager = User.objects.create_superuser(
+            email='manager@gmail.com',
+            password='manager'
         )
 
         self.user = User.objects.create_user(
-            email='user@gluu.org',
+            email='user@gmail.org',
             password='user'
         )
 
@@ -188,118 +188,127 @@ class GluuOSViewSetTest(APITestCase):
 
         self.os = GluuOS.objects.create(name='Ubuntu')
 
-    def test_create_info_by_not_manager(self):
+    def test_create_info(self):
+        """
+         - create info by user
+         - create valid info by manager
+         - create invalid info by manager
+        """
+        # create info by user
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.user.token)
         response = self.client.post(
             reverse('info:os-list'),
             data=json.dumps(self.valid_payload),
             content_type='application/json'
         )
-
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-    def test_create_info_valid(self):
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.admin.token)
+        # create valid info by manager
+        self.client.credentials(
+            HTTP_AUTHORIZATION='Token ' + self.manager.token
+        )
         response = self.client.post(
             reverse('info:os-list'),
             data=json.dumps(self.valid_payload),
             content_type='application/json'
         )
-
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-    def test_create_info_invalid(self):
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.admin.token)
+        # create invalid info by manager
         response = self.client.post(
             reverse('info:os-list'),
             data=json.dumps(self.invalid_payload),
             content_type='application/json'
         )
-
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-    def test_update_info_by_not_manager(self):
+    def test_update_info(self):
+        """
+         - update info by user
+         - update valid info by manager
+         - update invalid info by manager
+         - update non-existing info by manager
+        """
+        # update info by user
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.user.token)
         response = self.client.put(
             reverse('info:os-detail', kwargs={'pk': self.os.id}),
             data=json.dumps(self.valid_payload),
             content_type='application/json'
         )
-
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-    def test_update_info_valid(self):
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.admin.token)
+        # update valid info by manager
+        self.client.credentials(
+            HTTP_AUTHORIZATION='Token ' + self.manager.token
+        )
         response = self.client.put(
             reverse('info:os-detail', kwargs={'pk': self.os.id}),
-            dat3a=json.dumps(self.valid_payload),
+            data=json.dumps(self.valid_payload),
             content_type='application/json'
         )
-
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-    def test_update_info_invalid(self):
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.admin.token)
+        # update invalid info by manager
         response = self.client.put(
             reverse('info:os-detail', kwargs={'pk': self.os.id}),
             data=json.dumps(self.invalid_payload),
             content_type='application/json'
         )
-
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-    def test_update_non_existing(self):
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.admin.token)
+        # update non-existing info by manager
         response = self.client.put(
-            reverse('info:os-detail', kwargs={'pk': 30}),
+            reverse('info:os-detail', kwargs={'pk': 0}),
             data=json.dumps(self.invalid_payload),
             content_type='application/json'
         )
-
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
-    def test_retrieve_info_valid(self):
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.admin.token)
+    def test_retrieve_info(self):
+        """
+         - retrieve info by user
+         - retrieve non-existing info by user
+        """
+        # retrieve info by user
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.user.token)
         response = self.client.get(
-            reverse('info:os-detail', kwargs={'pk': self.os.id}),
-            content_type='application/json'
+            reverse('info:os-detail', kwargs={'pk': self.os.id})
         )
-
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-    def test_retrieve_info_invalid(self):
+        # retrieve non-existing info by user
         response = self.client.get(
-            reverse('info:os-detail', kwargs={'pk': 30}),
-            content_type='application/json'
+            reverse('info:os-detail', kwargs={'pk': 0})
         )
-
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
-    def test_delete_info_by_not_manager(self):
+    def test_delete_info(self):
+        """
+         - delete info by user
+         - delete valid info by manager
+         - delete non-existing info by manager
+        """
+        # delete info by user
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.user.token)
         response = self.client.delete(
             reverse('info:os-detail', kwargs={'pk': self.os.id}),
-            content_type='application/json'
         )
-
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-    def test_delete_info_valid(self):
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.admin.token)
-        response = self.client.delete(
-            reverse('info:os-detail', kwargs={'pk': self.os.id}),
-            content_type='application/json'
+        # delete valid info by manager
+        self.client.credentials(
+            HTTP_AUTHORIZATION='Token ' + self.manager.token
         )
-
+        response = self.client.delete(
+            reverse('info:os-detail', kwargs={'pk': self.os.id})
+        )
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
-    def test_delete_info_invalid(self):
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.admin.token)
+        # delete non-existing info by manager
         response = self.client.delete(
-            reverse('info:os-detail', kwargs={'pk': 30}),
-            content_type='application/json'
+            reverse('info:os-detail', kwargs={'pk': 0}),
         )
-
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 
