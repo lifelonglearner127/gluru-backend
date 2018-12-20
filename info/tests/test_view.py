@@ -1150,7 +1150,10 @@ class PermissionViewSetTest(APITestCase):
         # update info by user
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.user.token)
         response = self.client.put(
-            reverse('info:permission-detail', kwargs={'pk': self.permission.id}),
+            reverse(
+                'info:permission-detail',
+                kwargs={'pk': self.permission.id}
+            ),
             data=json.dumps(self.valid_payload),
             content_type='application/json'
         )
@@ -1161,7 +1164,10 @@ class PermissionViewSetTest(APITestCase):
             HTTP_AUTHORIZATION='Token ' + self.manager.token
         )
         response = self.client.put(
-            reverse('info:permission-detail', kwargs={'pk': self.permission.id}),
+            reverse(
+                'info:permission-detail',
+                kwargs={'pk': self.permission.id}
+            ),
             data=json.dumps(self.valid_payload),
             content_type='application/json'
         )
@@ -1169,7 +1175,10 @@ class PermissionViewSetTest(APITestCase):
 
         # update invalid info by manager
         response = self.client.put(
-            reverse('info:permission-detail', kwargs={'pk': self.permission.id}),
+            reverse(
+                'info:permission-detail',
+                kwargs={'pk': self.permission.id}
+            ),
             data=json.dumps(self.invalid_payload),
             content_type='application/json'
         )
@@ -1191,7 +1200,10 @@ class PermissionViewSetTest(APITestCase):
         # retrieve info by user
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.user.token)
         response = self.client.get(
-            reverse('info:permission-detail', kwargs={'pk': self.permission.id})
+            reverse(
+                'info:permission-detail',
+                kwargs={'pk': self.permission.id}
+            )
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -1210,7 +1222,10 @@ class PermissionViewSetTest(APITestCase):
         # delete info by user
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.user.token)
         response = self.client.delete(
-            reverse('info:permission-detail', kwargs={'pk': self.permission.id}),
+            reverse(
+                'info:permission-detail',
+                kwargs={'pk': self.permission.id}
+            ),
         )
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
@@ -1219,7 +1234,10 @@ class PermissionViewSetTest(APITestCase):
             HTTP_AUTHORIZATION='Token ' + self.manager.token
         )
         response = self.client.delete(
-            reverse('info:permission-detail', kwargs={'pk': self.permission.id})
+            reverse(
+                'info:permission-detail',
+                kwargs={'pk': self.permission.id}
+            )
         )
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
