@@ -448,7 +448,7 @@ class CompanyViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
 
             membership.delete()
         except m.Membership.DoesNotExist:
-            raise ValidationError('Such user does not exist')
+            raise NotFound('Such user does not exist')
 
         return Response({
             'results': 'User removed successfully'
