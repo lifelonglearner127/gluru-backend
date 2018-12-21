@@ -28,15 +28,11 @@ class IsStaffOrSelf(permissions.BasePermission):
 
 class CompanyCustomPermission(permissions.BasePermission):
     def has_permission(self, request, view):
-        if view.action in ['create', 'update']:
-            return request.user.is_authenticated and request.user.is_superuser
-
-        return True
+        return request.user.is_superuser\
+            if view.action in ['create', 'update'] else\
+            request.user.is_authenticated
 
     def has_object_permission(self, request, view, obj):
-        if request.method in ['GET'] or view.action in ['accept_invite']:
-            return request.user.is_authenticated
-
         if request.user.is_superuser:
             return True
 
@@ -52,9 +48,12 @@ class CompanyCustomPermission(permissions.BasePermission):
             company=obj
         ).first()
 
-        return membership and membership.role and\
-            membership.role.has_permission(
-                app_name='profiles',
-                model_name='Company',
-                permission_name=view.action
+        return view.action in ['accept_invite'] or membership and\
+            membership.role and (
+                request.method in permissions.SAFE_METHODS or
+                membership.role.has_permission(
+                    app_name='profiles',
+                    model_name='Company',
+                    permission_name=view.action
+                )
             )

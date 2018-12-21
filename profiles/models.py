@@ -173,7 +173,11 @@ class Membership(models.Model):
     )
 
     def __str__(self):
-        return '{} - {} at {}'.format(self.role, self.user, self.company)
+        return '{} - {} at {}'.format(
+            self.role.name,
+            self.user,
+            self.company
+        )
 
     class Meta:
         ordering = ['company', '-date_joined']

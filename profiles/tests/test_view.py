@@ -243,7 +243,7 @@ class CompanyViewSetTest(APITestCase):
     def test_retrieve_company(self):
         """
          - retrieve company info by user
-         - retrieve non-existing company by user
+         - retrieve non-existing company
         """
         # retrieve company info by user
         self.client.credentials(
@@ -252,11 +252,11 @@ class CompanyViewSetTest(APITestCase):
         response = self.client.get(
             reverse('profiles:company-detail', kwargs={'pk': self.company.id}),
         )
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
         # retrieve non-existing company by user
         self.client.credentials(
-            HTTP_AUTHORIZATION='Token ' + self.community_user.token
+            HTTP_AUTHORIZATION='Token ' + self.manager.token
         )
         response = self.client.get(
             reverse('profiles:company-detail', kwargs={'pk': 0}),
@@ -300,7 +300,7 @@ class CompanyViewSetTest(APITestCase):
         """
          - retrieve company users by unauthenticated user
          - retrieve company users by community user
-         - retrieve non-existing company users by community user
+         - retrieve non-existing company users
         """
         # retrieve company users by unauthenticated user
         response = self.client.get(
@@ -315,11 +315,11 @@ class CompanyViewSetTest(APITestCase):
         response = self.client.get(
             reverse('profiles:company-users', kwargs={'pk': self.company.id}),
         )
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
         # retrieve non-existing company users by community user
         self.client.credentials(
-            HTTP_AUTHORIZATION='Token ' + self.community_user.token
+            HTTP_AUTHORIZATION='Token ' + self.manager.token
         )
         response = self.client.get(
             reverse('profiles:company-users', kwargs={'pk': 0}),
@@ -673,7 +673,7 @@ class CompanyViewSetTest(APITestCase):
                 kwargs={'pk': self.company.id}
             )
         )
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
         # company user leave company
         self.client.credentials(
