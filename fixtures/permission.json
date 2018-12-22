@@ -88,5 +88,25 @@
             "actions": "invite, remove_member, revoke_invite",
             "description": "Add and remove members"
         }
+    },
+    {
+        "model": "info.Permission",
+        "pk": 10,
+        "fields": {
+            "app_name": "profiles",
+            "model_name": "Company",
+            "actions": "update",
+            "description": "Update Company Profile"
+        }
+    },
+    {
+        "model": "info.Permission",
+        "pk": 11,
+        "fields": {
+            "app_name": "profiles",
+            "model_name": "Company",
+            "actions": "destroy",
+            "description": "Delete Company Profile"
+        }
     }
 ]
