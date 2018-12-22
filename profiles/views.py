@@ -435,16 +435,14 @@ class CompanyViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
         except ValueError:
             raise ValidationError('Invalid user id')
 
-        if user_id == request.user.id:
-            raise PermissionDenied(
-                detail='Removing yourself is not allowed'
-            )
-
         try:
             membership = m.Membership.objects.get(
                 company=company,
                 user__id=user_id
             )
+
+            if membership.role.name == 'admin':
+                raise ValidationError('Deleting company admin is prohibited')
 
             membership.delete()
         except m.Membership.DoesNotExist:
