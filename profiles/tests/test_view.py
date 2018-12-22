@@ -13,7 +13,11 @@ class CompanyViewSetTest(APITestCase):
     def setUp(self):
         call_command('loaddata', 'data', verbosity=0)
 
-        # Create Users; manager, staff, company user, community user
+        # Create Companies; Gluu, OpenIAM
+        self.gluu = Company.objects.create(name='Gluu')
+        self.openiam = Company.objects.create(name='OpenIAM')
+
+        # Create Users; manager, staff, community user, Gluu and OpenIAM users
         self.manager = User.objects.create_superuser(
             email='manager@gmail.com',
             password='manager'
@@ -26,29 +30,39 @@ class CompanyViewSetTest(APITestCase):
         self.staff.is_staff = True
         self.staff.save()
 
-        self.company_admin = User.objects.create_user(
-            email='admin@gluu.org',
-            password='levan'
-        )
-
-        self.company_named = User.objects.create_user(
-            email='named@gluu.org',
-            password='levan'
-        )
-
-        self.company_user = User.objects.create_user(
-            email='user@gluu.org',
-            password='levan'
-        )
-
         self.community_user = User.objects.create_user(
             email='user@gmail.com',
             password='levan'
         )
 
-        # Create Company
-        self.company = Company.objects.create(
-            name='Gluu'
+        self.gluu_admin = User.objects.create_user(
+            email='admin@gluu.org',
+            password='levan'
+        )
+
+        self.gluu_named = User.objects.create_user(
+            email='named@gluu.org',
+            password='levan'
+        )
+
+        self.gluu_user = User.objects.create_user(
+            email='user@gluu.org',
+            password='levan'
+        )
+
+        self.openiam_admin = User.objects.create_user(
+            email='admin@openiam.com',
+            password='levan'
+        )
+
+        self.openiam_named = User.objects.create_user(
+            email='named@openiam.com',
+            password='levan'
+        )
+
+        self.openiam_user = User.objects.create_user(
+            email='user@openiam.com',
+            password='levan'
         )
 
         # Create Permission and UserRole
@@ -58,120 +72,133 @@ class CompanyViewSetTest(APITestCase):
 
         # Create Membership
         Membership.objects.create(
-            company=self.company, user=self.company_admin, role=self.role_admin
+            company=self.gluu, user=self.gluu_admin, role=self.role_admin
         )
         Membership.objects.create(
-            company=self.company, user=self.company_named, role=self.role_named
+            company=self.gluu, user=self.gluu_named, role=self.role_named
         )
         Membership.objects.create(
-            company=self.company, user=self.company_user, role=self.role_user
+            company=self.gluu, user=self.gluu_user, role=self.role_user
         )
 
-        # Create Invitation
-        Invitation.objects.create(
-            email=self.community_user.email,
-            invited_by=self.company_admin,
-            company=self.company,
-            role=self.role_user,
-            activation_key=generate_hash(self.community_user.email)
+        Membership.objects.create(
+            company=self.openiam, user=self.openiam_admin, role=self.role_admin
+        )
+        Membership.objects.create(
+            company=self.openiam, user=self.openiam_named, role=self.role_named
+        )
+        Membership.objects.create(
+            company=self.openiam, user=self.openiam_user, role=self.role_user
         )
 
-        self.valid_payload = {
+        self.valid_create_company_payload = {
             "company": {
-                "name": "OpenIAM"
+                "name": "IDFConnect"
             }
         }
 
-        self.invalid_payload = {
+        self.invalid_create_company_payload = {
             "company": {
                 "name": ""
             }
         }
 
-        self.valid_invite_payload = {
+        self.valid_update_company_payload = {
+            "company": {
+                "name": "New IDFConnect"
+            }
+        }
+
+        self.valid_invite_user_payload = {
             "invitation": {
                 "email": "gibupjo127@gmail.com",
                 "role": self.role_named.id
             }
         }
 
-        self.invalid_invite_payload = {
+        self.invalid_invite_user_payload = {
             "invitation": {
                 "email": "",
                 "role": self.role_named.id
             }
         }
 
-        self.valid_remove_user_member_payload = {
-            "user_id": self.company_user.id
-        }
+        # Create Invitation
+        self.invite_community_user_by_gluu_admin = Invitation.objects.create(
+            email=self.community_user.email,
+            invited_by=self.gluu_admin,
+            company=self.gluu,
+            role=self.role_user,
+            activation_key=generate_hash(self.community_user.email)
+        )
 
-        self.valid_remove_named_member_payload = {
-            "user_id": self.company_named.id
-        }
-
-        self.valid_remove_admin_member_paylod = {
-            "user_id": self.company_admin.id
-        }
-
-        self.valid_remove_member_by_self_payload = {
-            "user_id": self.company_admin.id
-        }
-
-        self.invalid_remove_member_payload = {
-            "user_id": ""
-        }
-
-        self.valid_change_role_payload = {
-            "changeRole": {
-                "userId": self.company_user.id,
-                "role": self.role_named.id
-            }
-        }
-
-        self.valid_change_role_by_self_payload = {
-            "changeRole": {
-                "userId": self.company_admin.id,
-                "role": self.role_named.id
-            }
-        }
-
-        self.invalid_change_role_payload = {
-            "changeRole": {
-                "userId": self.company_user.id,
-                "role": ""
-            }
-        }
-
-        self.valid_revoke_payload = {
-            "inviteId": 1
-        }
-
-        self.invalid_revoke_payload = {
-            "inviteId": 0
-        }
+        self.invite_gluu_user_by_openiam_admin = Invitation.objects.create(
+            email=self.gluu_user.email,
+            invited_by=self.openiam_admin,
+            company=self.openiam,
+            role=self.role_user,
+            activation_key=generate_hash(self.gluu_user.email)
+        )
 
         self.valid_accept_invite_payload = {
             "activationKey": generate_hash(self.community_user.email)
+        }
+
+        self.valid_accept_invite_payload2 = {
+            "activationKey": generate_hash(self.gluu_user.email)
         }
 
         self.invalid_accept_invite_payload = {
             "activationKey": 'afdafdafda'
         }
 
+        self.valid_revoke_gluu_invite_payload = {
+            "inviteId": self.invite_community_user_by_gluu_admin.id
+        }
+
+        self.valid_revoke_openiam_invite_payload = {
+            "inviteId": self.invite_gluu_user_by_openiam_admin.id
+        }
+
+        self.invalid_revoke_payload = {
+            "inviteId": 0
+        }
+
+        self.valid_remove_gluu_user_payload = {
+            "user_id": self.gluu_user.id
+        }
+
+        self.valid_remove_gluu_admin_payload = {
+            "user_id": self.gluu_admin.id
+        }
+
+        self.valid_change_gluu_user_role_payload = {
+            "changeRole": {
+                "userId": self.gluu_user.id,
+                "role": self.role_named.id
+            }
+        }
+
+        self.valid_change_gluu_admin_role_payload = {
+            "changeRole": {
+                "userId": self.gluu_admin.id,
+                "role": self.role_named.id
+            }
+        }
+
     def test_create_company(self):
         """
-         - create company info by user
-         - create valid company info by manager
-         - create invalid company info by manager
+         - create company info by non permission users
+         - create company info by permission user
+         - create invalid company info by permission user
         """
-        # create company by user
+        # create company info by non permission users
         self.client.credentials(
             HTTP_AUTHORIZATION='Token ' + self.community_user.token
         )
         response = self.client.post(
             reverse('profiles:company-list'),
-            data=json.dumps(self.valid_payload),
+            data=json.dumps(self.valid_create_company_payload),
             content_type='application/json'
         )
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
@@ -182,7 +209,7 @@ class CompanyViewSetTest(APITestCase):
         )
         response = self.client.post(
             reverse('profiles:company-list'),
-            data=json.dumps(self.valid_payload),
+            data=json.dumps(self.valid_create_company_payload),
             content_type='application/json'
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -190,44 +217,61 @@ class CompanyViewSetTest(APITestCase):
         # create invalid company info by manager
         response = self.client.post(
             reverse('profiles:company-list'),
-            data=json.dumps(self.invalid_payload),
+            data=json.dumps(self.invalid_create_company_payload),
             content_type='application/json'
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_update_company(self):
         """
-         - update company info by user
-         - update valid company info by manager
+         - update company info by non permission users
+         - update company info by permission users
          - update invalid company info by manager
          - update non-existing company info by manager
         """
-        # update company info by user
-        self.client.credentials(
-            HTTP_AUTHORIZATION='Token ' + self.community_user.token
-        )
-        response = self.client.put(
-            reverse('profiles:company-detail', kwargs={'pk': self.company.id}),
-            data=json.dumps(self.valid_payload),
-            content_type='application/json'
-        )
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        # update company info by non permission users
+        non_permission_users = [
+            self.community_user, self.gluu_user, self.gluu_named,
+            self.openiam_user, self.openiam_named, self.openiam_admin
+        ]
 
-        # update valid company info by manager
-        self.client.credentials(
-            HTTP_AUTHORIZATION='Token ' + self.manager.token
-        )
-        response = self.client.put(
-            reverse('profiles:company-detail', kwargs={'pk': self.company.id}),
-            data=json.dumps(self.valid_payload),
-            content_type='application/json'
-        )
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        for user in non_permission_users:
+            self.client.credentials(
+                HTTP_AUTHORIZATION='Token ' + user.token
+            )
+            response = self.client.put(
+                reverse(
+                    'profiles:company-detail',
+                    kwargs={'pk': self.gluu.id}
+                ),
+                data=json.dumps(self.valid_update_company_payload),
+                content_type='application/json'
+            )
+            self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        # update company info by permission users
+        permission_users = [
+            self.gluu_admin, self.staff, self.manager
+        ]
+
+        for user in permission_users:
+            self.client.credentials(
+                HTTP_AUTHORIZATION='Token ' + user.token
+            )
+            response = self.client.put(
+                reverse(
+                    'profiles:company-detail',
+                    kwargs={'pk': self.gluu.id}
+                ),
+                data=json.dumps(self.valid_update_company_payload),
+                content_type='application/json'
+            )
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         # update invalid company info by manager
         response = self.client.put(
-            reverse('profiles:company-detail', kwargs={'pk': self.company.id}),
-            data=json.dumps(self.invalid_payload),
+            reverse('profiles:company-detail', kwargs={'pk': self.gluu.id}),
+            data=json.dumps(self.invalid_create_company_payload),
             content_type='application/json'
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -235,24 +279,50 @@ class CompanyViewSetTest(APITestCase):
         # update non-existing company info by manager
         response = self.client.put(
             reverse('profiles:company-detail', kwargs={'pk': 0}),
-            data=json.dumps(self.valid_payload),
+            data=json.dumps(self.valid_update_company_payload),
             content_type='application/json'
         )
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_retrieve_company(self):
         """
-         - retrieve company info by user
+         - retrieve company info by non permission users
+         - retrieve company info by permission users
          - retrieve non-existing company
         """
-        # retrieve company info by user
-        self.client.credentials(
-            HTTP_AUTHORIZATION='Token ' + self.community_user.token
-        )
-        response = self.client.get(
-            reverse('profiles:company-detail', kwargs={'pk': self.company.id}),
-        )
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        # retrieve company info by non permission users
+        non_permission_users = [
+            self.community_user, self.openiam_user,
+            self.openiam_named, self.openiam_admin
+        ]
+        for user in non_permission_users:
+            self.client.credentials(
+                HTTP_AUTHORIZATION='Token ' + user.token
+            )
+            response = self.client.get(
+                reverse(
+                    'profiles:company-detail',
+                    kwargs={'pk': self.gluu.id}
+                ),
+            )
+            self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        # retrieve company info by permission users
+        permission_users = [
+            self.gluu_user, self.gluu_named, self.gluu_admin,
+            self.staff, self.manager
+        ]
+        for user in permission_users:
+            self.client.credentials(
+                HTTP_AUTHORIZATION='Token ' + user.token
+            )
+            response = self.client.get(
+                reverse(
+                    'profiles:company-detail',
+                    kwargs={'pk': self.gluu.id}
+                ),
+            )
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         # retrieve non-existing company by user
         self.client.credentials(
@@ -265,27 +335,52 @@ class CompanyViewSetTest(APITestCase):
 
     def test_destroy_company(self):
         """
-         - delete company info by user
-         - delete valid company by manager
+         - delete company info by non permission users
+         - delete company info by permission users
          - delete non-existing company by manager
         """
-        # delete company info by user
-        self.client.credentials(
-            HTTP_AUTHORIZATION='Token ' + self.community_user.token
-        )
-        response = self.client.delete(
-            reverse('profiles:company-detail', kwargs={'pk': self.company.id}),
-        )
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        # delete company info by non permission users
+        non_permission_users = [
+            self.community_user, self.gluu_user, self.gluu_named,
+            self.openiam_user, self.openiam_named, self.openiam_admin,
+            self.staff
+        ]
 
-        # delete valid company by manager
-        self.client.credentials(
-            HTTP_AUTHORIZATION='Token ' + self.manager.token
-        )
-        response = self.client.delete(
-            reverse('profiles:company-detail', kwargs={'pk': self.company.id}),
-        )
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        for user in non_permission_users:
+            self.client.credentials(
+                HTTP_AUTHORIZATION='Token ' + user.token
+            )
+            response = self.client.delete(
+                reverse(
+                    'profiles:company-detail',
+                    kwargs={'pk': self.gluu.id}
+                ),
+            )
+            self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        # delete company info by permission users
+        permission_users = [
+            self.gluu_admin, self.manager
+        ]
+
+        for user in permission_users:
+            self.client.credentials(
+                HTTP_AUTHORIZATION='Token ' + user.token
+            )
+            response = self.client.delete(
+                reverse(
+                    'profiles:company-detail',
+                    kwargs={'pk': self.gluu.id}
+                ),
+            )
+            if user is not permission_users[0]:
+                self.assertEqual(
+                    response.status_code, status.HTTP_404_NOT_FOUND
+                )
+            else:
+                self.assertEqual(
+                    response.status_code, status.HTTP_204_NO_CONTENT
+                )
 
         # delete non-existing company by manager
         self.client.credentials(
@@ -298,24 +393,45 @@ class CompanyViewSetTest(APITestCase):
 
     def test_retrieve_company_users(self):
         """
-         - retrieve company users by unauthenticated user
-         - retrieve company users by community user
+         - retrieve company users by non permission users
+         - retrieve company users by permission users
          - retrieve non-existing company users
         """
-        # retrieve company users by unauthenticated user
-        response = self.client.get(
-            reverse('profiles:company-users', kwargs={'pk': self.company.id}),
-        )
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        # retrieve company users by non permission users
+        non_permission_users = [
+            self.community_user, self.gluu_user,
+            self.gluu_named, self.gluu_admin
+        ]
 
-        # retrieve company users by community user
-        self.client.credentials(
-            HTTP_AUTHORIZATION='Token ' + self.community_user.token
-        )
-        response = self.client.get(
-            reverse('profiles:company-users', kwargs={'pk': self.company.id}),
-        )
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        for user in non_permission_users:
+            self.client.credentials(
+                HTTP_AUTHORIZATION='Token ' + user.token
+            )
+            response = self.client.get(
+                reverse(
+                    'profiles:company-users',
+                    kwargs={'pk': self.openiam.id}
+                ),
+            )
+            self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        # retrieve company users by permission users
+        permission_users = [
+            self.openiam_user, self.openiam_named, self.openiam_admin,
+            self.staff, self.manager
+        ]
+
+        for user in permission_users:
+            self.client.credentials(
+                HTTP_AUTHORIZATION='Token ' + user.token
+            )
+            response = self.client.get(
+                reverse(
+                    'profiles:company-users',
+                    kwargs={'pk': self.openiam.id}
+                ),
+            )
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         # retrieve non-existing company users by community user
         self.client.credentials(
@@ -328,127 +444,122 @@ class CompanyViewSetTest(APITestCase):
 
     def test_invite_user(self):
         """
-         - invite user by community user
-         - invite user by company user
-         - invite user by company named
-         - invite user by company admin
-         - invite user by staff
-         - invite user by manager
+         - invite user by non permission users
+         - invite user by permission users
         """
-        # invite user by community user
-        self.client.credentials(
-            HTTP_AUTHORIZATION='Token ' + self.community_user.token
-        )
-        response = self.client.post(
-            reverse('profiles:company-invite', kwargs={'pk': self.company.id}),
-            data=json.dumps(self.valid_invite_payload),
-            content_type='application/json'
-        )
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        # invite user by non permission users
+        non_permission_users = [
+            self.community_user, self.gluu_user, self.gluu_named,
+            self.openiam_user, self.openiam_named, self.openiam_admin
+        ]
 
-        # invite user by company user
-        self.client.credentials(
-            HTTP_AUTHORIZATION='Token ' + self.company_user.token
-        )
-        response = self.client.post(
-            reverse('profiles:company-invite', kwargs={'pk': self.company.id}),
-            data=json.dumps(self.valid_invite_payload),
-            content_type='application/json'
-        )
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        for user in non_permission_users:
+            self.client.credentials(
+                HTTP_AUTHORIZATION='Token ' + user.token
+            )
+            response = self.client.post(
+                reverse(
+                    'profiles:company-invite',
+                    kwargs={'pk': self.gluu.id}
+                ),
+                data=json.dumps(self.valid_invite_user_payload),
+                content_type='application/json'
+            )
+            self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-        # inviteuser by company named
-        self.client.credentials(
-            HTTP_AUTHORIZATION='Token ' + self.company_named.token
-        )
-        response = self.client.post(
-            reverse('profiles:company-invite', kwargs={'pk': self.company.id}),
-            data=json.dumps(self.valid_invite_payload),
-            content_type='application/json'
-        )
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        # invite user by permission users
+        permission_users = [
+            self.gluu_admin, self.staff, self.manager
+        ]
 
-        # invite user by company admin
-        self.client.credentials(
-            HTTP_AUTHORIZATION='Token ' + self.company_admin.token
-        )
-        response = self.client.post(
-            reverse('profiles:company-invite', kwargs={'pk': self.company.id}),
-            data=json.dumps(self.valid_invite_payload),
-            content_type='application/json'
-        )
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        for user in permission_users:
+            self.client.credentials(
+                HTTP_AUTHORIZATION='Token ' + user.token
+            )
+            response = self.client.post(
+                reverse(
+                    'profiles:company-invite',
+                    kwargs={'pk': self.gluu.id}
+                ),
+                data=json.dumps(self.valid_invite_user_payload),
+                content_type='application/json'
+            )
 
-        # invite user by staff
-        self.client.credentials(
-            HTTP_AUTHORIZATION='Token ' + self.staff.token
-        )
-        response = self.client.post(
-            reverse('profiles:company-invite', kwargs={'pk': self.company.id}),
-            data=json.dumps(self.valid_invite_payload),
-            content_type='application/json'
-        )
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        msg = '{} already invited {} as {} in {}'.format(
-            self.company_admin.email,
-            self.valid_invite_payload['invitation']['email'],
-            self.role_named.name, self.company.name
-        )
-        self.assertEqual(response.data[0], msg)
+            if user is not permission_users[0]:
+                msg = '{} already invited {} as {} in {}'.format(
+                    permission_users[0].email,
+                    self.valid_invite_user_payload['invitation']['email'],
+                    self.role_named.name, self.gluu.name
+                )
+                self.assertEqual(response.data[0], msg)
 
-        # invite user by manager
-        self.client.credentials(
-            HTTP_AUTHORIZATION='Token ' + self.manager.token
-        )
-        response = self.client.post(
-            reverse('profiles:company-invite', kwargs={'pk': self.company.id}),
-            data=json.dumps(self.valid_invite_payload),
-            content_type='application/json'
-        )
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        msg = '{} already invited {} as {} in {}'.format(
-            self.company_admin.email,
-            self.valid_invite_payload['invitation']['email'],
-            self.role_named.name, self.company.name
-        )
-        self.assertEqual(response.data[0], msg)
+            else:
+                self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_accept_invite(self):
         """
-         - accept invite by invited user with invalid activation key
-         - accept invite by invited user with valid activation key
+         - accept invite by non-invited user
+         - accept invite by invited user
          - accept invite by invited user twice
         """
-        # accept invite by invited user with invalid activation key
+        # accept invite by non-invited user
+        non_permission_users = [
+            self.gluu_user, self.gluu_named, self.gluu_admin,
+            self.openiam_user, self.openiam_named, self.openiam_admin,
+            self.staff, self.manager
+        ]
+
+        for user in non_permission_users:
+            self.client.credentials(
+                HTTP_AUTHORIZATION='Token ' + user.token
+            )
+            response = self.client.post(
+                reverse(
+                    'profiles:company-accept-invite',
+                    kwargs={'pk': self.gluu.id}
+                ),
+                data=json.dumps(self.invalid_accept_invite_payload),
+                content_type='application/json'
+            )
+            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        # accept invite by invited user
+        # community user accept invitation from gluu
         self.client.credentials(
             HTTP_AUTHORIZATION='Token ' + self.community_user.token
         )
         response = self.client.post(
             reverse(
                 'profiles:company-accept-invite',
-                kwargs={'pk': self.company.id}
-            ),
-            data=json.dumps(self.invalid_accept_invite_payload),
-            content_type='application/json'
-        )
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-        # accept invite by invited user with valid activation key
-        response = self.client.post(
-            reverse(
-                'profiles:company-accept-invite',
-                kwargs={'pk': self.company.id}
+                kwargs={'pk': self.gluu.id}
             ),
             data=json.dumps(self.valid_accept_invite_payload),
             content_type='application/json'
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        # accept invite by invited user twice
+        # gluu user accept invitation from openiam
+        self.client.credentials(
+            HTTP_AUTHORIZATION='Token ' + self.gluu_user.token
+        )
         response = self.client.post(
             reverse(
                 'profiles:company-accept-invite',
-                kwargs={'pk': self.company.id}
+                kwargs={'pk': self.openiam.id}
+            ),
+            data=json.dumps(self.valid_accept_invite_payload2),
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # accept invite by invited user twice
+        self.client.credentials(
+            HTTP_AUTHORIZATION='Token ' + self.community_user.token
+        )
+        response = self.client.post(
+            reverse(
+                'profiles:company-accept-invite',
+                kwargs={'pk': self.gluu.id}
             ),
             data=json.dumps(self.valid_accept_invite_payload),
             content_type='application/json'
@@ -456,383 +567,270 @@ class CompanyViewSetTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(response.data[0], 'You already accepted invitation')
 
-    def test_revoke_inite(self):
+    def test_revoke_invite(self):
         """
-         - revoke invite by community user
-         - revoke invite by company user
-         - revoke invite by company named
-         - revoke invite by company admin
-         - revoke invite by staff
-         - revoke invite by manager
+         - revoke invite by non permission users
+         - revoke invite by permission users
         """
-        self.client.credentials(
-            HTTP_AUTHORIZATION='Token ' + self.community_user.token
-        )
-        response = self.client.post(
-            reverse(
-                'profiles:company-revoke-invite',
-                kwargs={'pk': self.company.id}
-            ),
-            data=json.dumps(self.valid_revoke_payload),
-            content_type='application/json'
-        )
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        # revoke invite by non permission users
+        # revoke gluu invite by non permission users
+        non_permission_users = [
+            self.community_user, self.gluu_user, self.gluu_named,
+            self.openiam_user, self.openiam_named, self.openiam_admin
+        ]
 
-        # revoke invite by company user
-        self.client.credentials(
-            HTTP_AUTHORIZATION='Token ' + self.company_user.token
-        )
-        response = self.client.post(
-            reverse(
-                'profiles:company-revoke-invite',
-                kwargs={'pk': self.company.id}
-            ),
-            data=json.dumps(self.valid_revoke_payload),
-            content_type='application/json'
-        )
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        for user in non_permission_users:
+            self.client.credentials(
+                HTTP_AUTHORIZATION='Token ' + user.token
+            )
+            response = self.client.post(
+                reverse(
+                    'profiles:company-revoke-invite',
+                    kwargs={'pk': self.gluu.id}
+                ),
+                data=json.dumps(self.valid_revoke_gluu_invite_payload),
+                content_type='application/json'
+            )
+            self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-        # revoke invite by company named
-        self.client.credentials(
-            HTTP_AUTHORIZATION='Token ' + self.company_named.token
-        )
-        response = self.client.post(
-            reverse(
-                'profiles:company-revoke-invite',
-                kwargs={'pk': self.company.id}
-            ),
-            data=json.dumps(self.valid_revoke_payload),
-            content_type='application/json'
-        )
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        # revoke openiam invite by non permission users
+        non_permission_users = [
+            self.community_user, self.openiam_user, self.openiam_named,
+            self.gluu_user, self.gluu_named, self.gluu_admin
+        ]
 
-        # revoke invite by company admin
-        self.client.credentials(
-            HTTP_AUTHORIZATION='Token ' + self.company_admin.token
-        )
-        response = self.client.post(
-            reverse(
-                'profiles:company-revoke-invite',
-                kwargs={'pk': self.company.id}
-            ),
-            data=json.dumps(self.valid_revoke_payload),
-            content_type='application/json'
-        )
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        for user in non_permission_users:
+            self.client.credentials(
+                HTTP_AUTHORIZATION='Token ' + user.token
+            )
+            response = self.client.post(
+                reverse(
+                    'profiles:company-revoke-invite',
+                    kwargs={'pk': self.openiam.id}
+                ),
+                data=json.dumps(self.valid_revoke_openiam_invite_payload),
+                content_type='application/json'
+            )
+            self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-        # revoke invite by manager
-        self.client.credentials(
-            HTTP_AUTHORIZATION='Token ' + self.manager.token
-        )
-        response = self.client.post(
-            reverse(
-                'profiles:company-revoke-invite',
-                kwargs={'pk': self.company.id}
-            ),
-            data=json.dumps(self.valid_revoke_payload),
-            content_type='application/json'
-        )
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        # revoke invite by permission users
+        # revoke gluu invite by permission users
+        permission_users = [
+            self.gluu_admin, self.staff, self.manager
+        ]
 
-        # revoke invite by staff
-        self.client.credentials(
-            HTTP_AUTHORIZATION='Token ' + self.staff.token
-        )
-        response = self.client.post(
-            reverse(
-                'profiles:company-revoke-invite',
-                kwargs={'pk': self.company.id}
-            ),
-            data=json.dumps(self.valid_revoke_payload),
-            content_type='application/json'
-        )
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        for user in permission_users:
+            self.client.credentials(
+                HTTP_AUTHORIZATION='Token ' + user.token
+            )
+            response = self.client.post(
+                reverse(
+                    'profiles:company-revoke-invite',
+                    kwargs={'pk': self.gluu.id}
+                ),
+                data=json.dumps(self.valid_revoke_gluu_invite_payload),
+                content_type='application/json'
+            )
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # revoke openiam invite by permission users
+        permission_users = [
+            self.openiam_admin, self.staff, self.manager
+        ]
+
+        for user in permission_users:
+            self.client.credentials(
+                HTTP_AUTHORIZATION='Token ' + user.token
+            )
+            response = self.client.post(
+                reverse(
+                    'profiles:company-revoke-invite',
+                    kwargs={'pk': self.openiam.id}
+                ),
+                data=json.dumps(self.valid_revoke_openiam_invite_payload),
+                content_type='application/json'
+            )
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_remove_member(self):
         """
-         - remove member by community user
-         - remove member by company user
-         - remove member by company named
-         - remove member by company admin
-         - remove member by staff
-         - remove member by manager
-         - remove member byself
+         - remove member by non permission users
+         - remove member by permission users
+         - remove company admin
         """
-        # remove member by community user
-        self.client.credentials(
-            HTTP_AUTHORIZATION='Token ' + self.community_user.token
-        )
-        response = self.client.post(
-            reverse(
-                'profiles:company-remove-member',
-                kwargs={'pk': self.company.id}
-            ),
-            data=json.dumps(self.valid_remove_user_member_payload),
-            content_type='application/json'
-        )
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        # remove member by non permission users
+        non_permission_users = [
+            self.community_user, self.gluu_user, self.gluu_named,
+            self.openiam_user, self.openiam_named, self.openiam_admin
+        ]
 
-        # remove member by company user
-        self.client.credentials(
-            HTTP_AUTHORIZATION='Token ' + self.company_user.token
-        )
-        response = self.client.post(
-            reverse(
-                'profiles:company-remove-member',
-                kwargs={'pk': self.company.id}
-            ),
-            data=json.dumps(self.valid_remove_user_member_payload),
-            content_type='application/json'
-        )
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        for user in non_permission_users:
+            self.client.credentials(
+                HTTP_AUTHORIZATION='Token ' + user.token
+            )
+            response = self.client.post(
+                reverse(
+                    'profiles:company-remove-member',
+                    kwargs={'pk': self.gluu.id}
+                ),
+                data=json.dumps(self.valid_remove_gluu_user_payload),
+                content_type='application/json'
+            )
+            self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-        # remove member by company named
-        self.client.credentials(
-            HTTP_AUTHORIZATION='Token ' + self.company_named.token
-        )
-        response = self.client.post(
-            reverse(
-                'profiles:company-remove-member',
-                kwargs={'pk': self.company.id}
-            ),
-            data=json.dumps(self.valid_remove_user_member_payload),
-            content_type='application/json'
-        )
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        # remove member by permission users
+        permission_users = [
+            self.gluu_admin, self.staff, self.manager
+        ]
 
-        # remove member by company admin
-        self.client.credentials(
-            HTTP_AUTHORIZATION='Token ' + self.company_admin.token
-        )
-        response = self.client.post(
-            reverse(
-                'profiles:company-remove-member',
-                kwargs={'pk': self.company.id}
-            ),
-            data=json.dumps(self.valid_remove_user_member_payload),
-            content_type='application/json'
-        )
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-        # remove member by staff
-        self.client.credentials(
-            HTTP_AUTHORIZATION='Token ' + self.staff.token
-        )
-        response = self.client.post(
-            reverse(
-                'profiles:company-remove-member',
-                kwargs={'pk': self.company.id}
-            ),
-            data=json.dumps(self.valid_remove_named_member_payload),
-            content_type='application/json'
-        )
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-        # remove member by manager
-        self.client.credentials(
-            HTTP_AUTHORIZATION='Token ' + self.manager.token
-        )
-        response = self.client.post(
-            reverse(
-                'profiles:company-remove-member',
-                kwargs={'pk': self.company.id}
-            ),
-            data=json.dumps(self.valid_remove_named_member_payload),
-            content_type='application/json'
-        )
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        for user in permission_users:
+            self.client.credentials(
+                HTTP_AUTHORIZATION='Token ' + user.token
+            )
+            response = self.client.post(
+                reverse(
+                    'profiles:company-remove-member',
+                    kwargs={'pk': self.gluu.id}
+                ),
+                data=json.dumps(self.valid_remove_gluu_user_payload),
+                content_type='application/json'
+            )
+            if user is permission_users[0]:
+                self.assertEqual(response.status_code, status.HTTP_200_OK)
+            else:
+                self.assertEqual(
+                    response.status_code, status.HTTP_404_NOT_FOUND
+                )
 
         # remove member byself
-        self.client.credentials(
-            HTTP_AUTHORIZATION='Token ' + self.company_admin.token
-        )
-        response = self.client.post(
-            reverse(
-                'profiles:company-remove-member',
-                kwargs={'pk': self.company.id}
-            ),
-            data=json.dumps(self.valid_remove_member_by_self_payload),
-            content_type='application/json'
-        )
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        users = [
+            self.gluu_admin, self.staff, self.manager
+        ]
+
+        for user in users:
+            self.client.credentials(
+                HTTP_AUTHORIZATION='Token ' + user.token
+            )
+            response = self.client.post(
+                reverse(
+                    'profiles:company-remove-member',
+                    kwargs={'pk': self.gluu.id}
+                ),
+                data=json.dumps(self.valid_remove_gluu_admin_payload),
+                content_type='application/json'
+            )
+            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_leave_company(self):
         """
-         - non-company user leave company
-         - company user leave company
-         - company named leave company
-         - company admin leave company
+         - leave company by non permission users
+         - leave company by permission users
         """
-        # non-company user leave company
-        self.client.credentials(
-            HTTP_AUTHORIZATION='Token ' + self.community_user.token
-        )
-        response = self.client.get(
-            reverse(
-                'profiles:company-leave-company',
-                kwargs={'pk': self.company.id}
-            )
-        )
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        # leave company by non permission users
+        non_permission_users = [
+            self.community_user, self.openiam_user, self.openiam_named,
+            self.openiam_admin, self.staff, self.manager
+        ]
 
-        # company user leave company
-        self.client.credentials(
-            HTTP_AUTHORIZATION='Token ' + self.company_user.token
-        )
-        response = self.client.get(
-            reverse(
-                'profiles:company-leave-company',
-                kwargs={'pk': self.company.id}
+        for user in non_permission_users:
+            self.client.credentials(
+                HTTP_AUTHORIZATION='Token ' + user.token
             )
-        )
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+            response = self.client.get(
+                reverse(
+                    'profiles:company-leave-company',
+                    kwargs={'pk': self.gluu.id}
+                )
+            )
+            self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-        # company named leave company
-        self.client.credentials(
-            HTTP_AUTHORIZATION='Token ' + self.company_named.token
-        )
-        response = self.client.get(
-            reverse(
-                'profiles:company-leave-company',
-                kwargs={'pk': self.company.id}
+        # leave company by permission users
+        permission_users = [
+            self.gluu_user, self.gluu_named
+        ]
+
+        for user in permission_users:
+            self.client.credentials(
+                HTTP_AUTHORIZATION='Token ' + user.token
             )
-        )
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+            response = self.client.get(
+                reverse(
+                    'profiles:company-leave-company',
+                    kwargs={'pk': self.gluu.id}
+                )
+            )
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         # company admin leave company
         self.client.credentials(
-            HTTP_AUTHORIZATION='Token ' + self.company_admin.token
+            HTTP_AUTHORIZATION='Token ' + self.gluu_admin.token
         )
         response = self.client.get(
             reverse(
                 'profiles:company-leave-company',
-                kwargs={'pk': self.company.id}
+                kwargs={'pk': self.gluu.id}
             )
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_change_role(self):
         """
-         - change role by communty user
-         - change role by company user
-         - change role by company named
-         - change role by company admin
-         - change role by staff
-         - change role by manager
-         - change role by manager invalid
-         - change role byself
+         - change role by non permission users
+         - change role by permission users
+         - change company admin role
         """
-        # change role by communty user
-        self.client.credentials(
-            HTTP_AUTHORIZATION='Token ' + self.community_user.token
-        )
-        response = self.client.post(
-            reverse(
-                'profiles:company-change-role',
-                kwargs={'pk': self.company.id}
-            ),
-            data=json.dumps(self.valid_change_role_payload),
-            content_type='application/json'
-        )
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        # change role by non permission users
+        non_permission_users = [
+            self.community_user, self.gluu_user, self.gluu_named,
+            self.openiam_user, self.openiam_named, self.openiam_admin
+        ]
 
-        # change role by company user
-        self.client.credentials(
-            HTTP_AUTHORIZATION='Token ' + self.company_user.token
-        )
-        response = self.client.post(
-            reverse(
-                'profiles:company-change-role',
-                kwargs={'pk': self.company.id}
-            ),
-            data=json.dumps(self.valid_change_role_payload),
-            content_type='application/json'
-        )
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        for user in non_permission_users:
+            self.client.credentials(
+                HTTP_AUTHORIZATION='Token ' + user.token
+            )
+            response = self.client.post(
+                reverse(
+                    'profiles:company-change-role',
+                    kwargs={'pk': self.gluu.id}
+                ),
+                data=json.dumps(self.valid_change_gluu_user_role_payload),
+                content_type='application/json'
+            )
+            self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-        # change role by company named
-        self.client.credentials(
-            HTTP_AUTHORIZATION='Token ' + self.company_named.token
-        )
-        response = self.client.post(
-            reverse(
-                'profiles:company-change-role',
-                kwargs={'pk': self.company.id}
-            ),
-            data=json.dumps(self.valid_change_role_payload),
-            content_type='application/json'
-        )
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        # change role by permission users
+        permission_users = [
+            self.gluu_admin, self.staff, self.manager
+        ]
 
-        # change role by company admin
-        self.client.credentials(
-            HTTP_AUTHORIZATION='Token ' + self.company_admin.token
-        )
-        response = self.client.post(
-            reverse(
-                'profiles:company-change-role',
-                kwargs={'pk': self.company.id}
-            ),
-            data=json.dumps(self.valid_change_role_payload),
-            content_type='application/json'
-        )
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        for user in permission_users:
+            self.client.credentials(
+                HTTP_AUTHORIZATION='Token ' + user.token
+            )
+            response = self.client.post(
+                reverse(
+                    'profiles:company-change-role',
+                    kwargs={'pk': self.gluu.id}
+                ),
+                data=json.dumps(self.valid_change_gluu_user_role_payload),
+                content_type='application/json'
+            )
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        # change role by staff
+        # change company admin role
         self.client.credentials(
-            HTTP_AUTHORIZATION='Token ' + self.staff.token
+            HTTP_AUTHORIZATION='Token ' + self.gluu_admin.token
         )
         response = self.client.post(
             reverse(
                 'profiles:company-change-role',
-                kwargs={'pk': self.company.id}
+                kwargs={'pk': self.gluu.id}
             ),
-            data=json.dumps(self.valid_change_role_payload),
-            content_type='application/json'
-        )
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-        # change role by manager
-        self.client.credentials(
-            HTTP_AUTHORIZATION='Token ' + self.manager.token
-        )
-        response = self.client.post(
-            reverse(
-                'profiles:company-change-role',
-                kwargs={'pk': self.company.id}
-            ),
-            data=json.dumps(self.valid_change_role_payload),
-            content_type='application/json'
-        )
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-        # change role by manager invalid
-        self.client.credentials(
-            HTTP_AUTHORIZATION='Token ' + self.company_admin.token
-        )
-        response = self.client.post(
-            reverse(
-                'profiles:company-change-role',
-                kwargs={'pk': self.company.id}
-            ),
-            data=json.dumps(self.invalid_change_role_payload),
+            data=json.dumps(self.valid_change_gluu_admin_role_payload),
             content_type='application/json'
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-        # change role byself
-        self.client.credentials(
-            HTTP_AUTHORIZATION='Token ' + self.company_admin.token
-        )
-        response = self.client.post(
-            reverse(
-                'profiles:company-change-role',
-                kwargs={'pk': self.company.id}
-            ),
-            data=json.dumps(self.valid_change_role_by_self_payload),
-            content_type='application/json'
-        )
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
 
 class UserViewSetTest(APITestCase):
