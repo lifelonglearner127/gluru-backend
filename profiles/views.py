@@ -460,15 +460,14 @@ class CompanyViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
                 company=company,
                 user=request.user
             )
-            role = membership.role
-            if role.name == 'admin':
+            if membership.role.name == 'admin':
                 raise ValidationError(
                     'You are admin of this company. Prohibited Operation'
                 )
             else:
                 membership.delete()
         except m.Membership.DoesNotExist:
-            raise ValidationError('You are not member of this company')
+            raise PermissionDenied('You are not member of this company')
 
         return Response({
             'results': 'User removed successfully'
@@ -485,15 +484,14 @@ class CompanyViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
         except ValueError:
             raise ValidationError('Invalid user id')
 
-        if user_id == request.user.id:
-            raise PermissionDenied(
-                detail='Changing role by yourself is not allowed'
-            )
-
         try:
             serializer_instance = m.Membership.objects.get(
                 company=company, user__id=user_id
             )
+            if serializer_instance.role.name == 'admin':
+                raise ValidationError(
+                    'Changing company admin role is prohibited'
+                )
         except m.Membership.DoesNotExist:
             raise ValidationError('This user is not member of the company')
 
