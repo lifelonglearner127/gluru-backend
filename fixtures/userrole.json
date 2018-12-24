@@ -4,7 +4,7 @@
         "pk": 1,
         "fields": {
             "name": "staff",
-            "permissions": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+            "permissions": [1, 2, 3, 4, 5, 6, 7, 8, 9]
         }
     },
     {
@@ -12,7 +12,7 @@
         "pk": 2,
         "fields": {
             "name": "admin",
-            "permissions": [2, 3, 5, 6, 7, 8, 9, 10, 11]
+            "permissions": [1, 2, 4, 5, 6, 7, 8]
         }
     },
     {
@@ -20,7 +20,7 @@
         "pk": 3,
         "fields": {
             "name": "named",
-            "permissions": [5, 6, 7]
+            "permissions": [4, 5, 6]
         }
     },
     {
@@ -28,7 +28,7 @@
         "pk": 4,
         "fields": {
             "name": "user",
-            "permissions": [5]
+            "permissions": [4]
         }
     }
 ]

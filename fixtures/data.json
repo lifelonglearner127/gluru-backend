@@ -271,16 +271,6 @@
         "model": "info.Permission",
         "pk": 1,
         "fields": {
-            "app_name": "profiles",
-            "model_name": "User",
-            "actions": "add_staff, remove_staff",
-            "description": "Add and remove staff"
-        }
-    },
-    {
-        "model": "info.Permission",
-        "pk": 2,
-        "fields": {
             "app_name": "billing",
             "model_name": "Billing",
             "actions": "retrieve, list",
@@ -289,7 +279,7 @@
     },
     {
         "model": "info.Permission",
-        "pk": 3,
+        "pk": 2,
         "fields": {
             "app_name": "billing",
             "model_name": "Billing",
@@ -299,7 +289,7 @@
     },
     {
         "model": "info.Permission",
-        "pk": 4,
+        "pk": 3,
         "fields": {
             "app_name": "tickets",
             "model_name": "Ticket",
@@ -309,7 +299,7 @@
     },
     {
         "model": "info.Permission",
-        "pk": 5,
+        "pk": 4,
         "fields": {
             "app_name": "tickets",
             "model_name": "Ticket",
@@ -319,7 +309,7 @@
     },
     {
         "model": "info.Permission",
-        "pk": 6,
+        "pk": 5,
         "fields": {
             "app_name": "tickets",
             "model_name": "Ticket",
@@ -329,7 +319,7 @@
     },
     {
         "model": "info.Permission",
-        "pk": 7,
+        "pk": 6,
         "fields": {
             "app_name": "tickets",
             "model_name": "Answer",
@@ -339,7 +329,7 @@
     },
     {
         "model": "info.Permission",
-        "pk": 8,
+        "pk": 7,
         "fields": {
             "app_name": "profiles",
             "model_name": "Company",
@@ -349,7 +339,7 @@
     },
     {
         "model": "info.Permission",
-        "pk": 9,
+        "pk": 8,
         "fields": {
             "app_name": "profiles",
             "model_name": "Company",
@@ -359,22 +349,12 @@
     },
     {
         "model": "info.Permission",
-        "pk": 10,
+        "pk": 9,
         "fields": {
             "app_name": "profiles",
             "model_name": "Company",
-            "actions": "update",
-            "description": "Update Company Profile"
-        }
-    },
-    {
-        "model": "info.Permission",
-        "pk": 11,
-        "fields": {
-            "app_name": "profiles",
-            "model_name": "Company",
-            "actions": "destroy",
-            "description": "Delete Company Profile"
+            "actions": "create, update, destroy",
+            "description": "Create Company Profile"
         }
     },
     {
@@ -382,7 +362,7 @@
         "pk": 1,
         "fields": {
             "name": "staff",
-            "permissions": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+            "permissions": [1, 2, 3, 4, 5, 6, 7, 8, 9]
         }
     },
     {
@@ -390,7 +370,7 @@
         "pk": 2,
         "fields": {
             "name": "admin",
-            "permissions": [2, 3, 5, 6, 7, 8, 9, 10, 11]
+            "permissions": [1, 2, 4, 5, 6, 7, 8]
         }
     },
     {
@@ -398,7 +378,7 @@
         "pk": 3,
         "fields": {
             "name": "named",
-            "permissions": [5, 6, 7]
+            "permissions": [4, 5, 6]
         }
     },
     {
@@ -406,7 +386,7 @@
         "pk": 4,
         "fields": {
             "name": "user",
-            "permissions": [5]
+            "permissions": [4]
         }
     },
     {

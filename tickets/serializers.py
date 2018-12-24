@@ -1,8 +1,11 @@
+from django.shortcuts import get_object_or_404
 from rest_framework import serializers
+from rest_framework.exceptions import PermissionDenied
 from drf_haystack.serializers import HaystackSerializer
 from drf_haystack.serializers import HighlighterMixin
 from tickets.search_indexes import TicketIndex
 from tickets import models as m
+from profiles.models import UserRole
 from profiles.serializers import ShortUserSerializer, ShortCompanySerializer
 
 
@@ -71,20 +74,43 @@ class TicketSerializer(serializers.ModelSerializer):
         company_association = None
 
         if company_id is not None:
-            try:
-                company_association = m.Company.objects.get(pk=company_id)
-            except m.Company.DoesNotExist:
-                raise serializers.ValidationError("Such company not exists")
+            company_association = get_object_or_404(m.Company, pk=company_id)
+            if not created_by.is_superuser and created_by.is_staff:
+                staff_role = UserRole.objects.get(name='staff')
+                if not staff_role.has_permission(
+                    app_name='tickets',
+                    model_name='Ticket',
+                    permission_name='create'
+                ):
+                    raise PermissionDenied(
+                        'You do not have permission to perform this action.'
+                    )
+
+            if not created_by.is_staff:
+                membership = created_by.membership_set.filter(
+                    company=company_association
+                ).first()
+
+                if membership is None or membership.role is None:
+                    raise PermissionDenied(
+                        'You do not have permission to perform this action.'
+                    )
+
+                if not membership.role.has_permission(
+                    app_name='tickets',
+                    model_name='Ticket',
+                    permission_name='create'
+                ):
+                    raise PermissionDenied(
+                        'You do not have permission to perform this action.'
+                    )
 
         if created_for_id is not None and company_association is not None:
-            try:
-                created_for = m.User.objects.get(pk=created_for_id)
-                if not company_association.is_member(created_for):
-                    raise serializers.ValidationError(
-                        "User is not a member of this company"
-                    )
-            except m.User.DoesNotExist:
-                raise serializers.ValidationError("Such user not exists")
+            created_for = get_object_or_404(m.User, pk=created_for_id)
+            if not company_association.is_member(created_for):
+                raise serializers.ValidationError(
+                    "User is not a member of this company"
+                )
 
         ticket = m.Ticket.objects.create(
             created_by=created_by,
