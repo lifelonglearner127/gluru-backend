@@ -842,8 +842,7 @@ class AnswerViewSetTest(APITestCase):
         # by non permission users
         non_permission_users = [
             self.gluu_user, self.gluu_named, self.gluu_admin,
-            self.openiam_user, self.openiam_named, self.openiam_admin,
-            self.staff, self.manager
+            self.openiam_user, self.openiam_named, self.openiam_admin
         ]
 
         for user in non_permission_users:

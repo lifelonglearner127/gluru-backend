@@ -161,6 +161,42 @@ class AnswerSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         ticket = self.context.get('ticket', None)
         created_by = self.context.get('created_by', None)
+
+        if not created_by.is_superuser and created_by.is_staff:
+            staff_role = UserRole.objects.get(name='staff')
+            if not staff_role.has_permission(
+                app_name='tickets',
+                model_name='Answer',
+                permission_name='create'
+            ):
+                raise PermissionDenied(
+                    'You do not have permission to perform this action.'
+                )
+        if not created_by.is_staff:
+            if ticket.company_association is None:            
+                if created_by != ticket.created_by:
+                    raise PermissionDenied(
+                        'You do not have permission to perform this action.'
+                    )
+            else:
+                membership = created_by.membership_set.filter(
+                    company=ticket.company_association
+                ).first()
+
+                if membership is None or membership.role is None:
+                    raise PermissionDenied(
+                        'You do not have permission to perform this action.'
+                    )
+
+                if not membership.role.has_permission(
+                    app_name='tickets',
+                    model_name='Answer',
+                    permission_name='create'
+                ):
+                    raise PermissionDenied(
+                        'You do not have permission to perform this action.'
+                    )
+
         return m.Answer.objects.create(
             ticket=ticket,
             created_by=created_by,
