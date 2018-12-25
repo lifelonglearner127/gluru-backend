@@ -348,21 +348,11 @@
         }
     },
     {
-        "model": "info.Permission",
-        "pk": 9,
-        "fields": {
-            "app_name": "profiles",
-            "model_name": "Company",
-            "actions": "create, update, destroy",
-            "description": "Create Company Profile"
-        }
-    },
-    {
         "model": "info.UserRole",
         "pk": 1,
         "fields": {
             "name": "staff",
-            "permissions": [1, 2, 3, 4, 5, 6, 7, 8, 9]
+            "permissions": [1, 2, 3, 4, 5, 6, 7, 8]
         }
     },
     {
