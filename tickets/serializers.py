@@ -43,6 +43,7 @@ class TicketProductSerializer(serializers.ModelSerializer):
 class TicketSerializer(serializers.ModelSerializer):
     created_by = ShortUserSerializer(read_only=True)
     created_for = ShortUserSerializer(read_only=True)
+    assignee = ShortUserSerializer(read_only=True)
     updated_by = ShortUserSerializer(read_only=True)
     company_association = ShortCompanySerializer(read_only=True)
     products = TicketProductSerializer(
@@ -132,6 +133,14 @@ class TicketSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         for (key, value) in validated_data.items():
             setattr(instance, key, value)
+
+        assignee_id = self.context.get('assignee_id', None)
+        if assignee_id is not None:
+            try:
+                assignee = m.User.objects.get(pk=assignee_id)
+                instance.assignee = assignee
+            except m.User.DoesNotExist:
+                raise serializers.ValidationError('Such user does not exist')
 
         instance.updated_by = self.context.get('updated_by', None)
 

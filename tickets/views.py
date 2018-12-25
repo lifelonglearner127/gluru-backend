@@ -103,6 +103,29 @@ class TicketViewSet(mixins.CreateModelMixin,
         return Response(None, status=status.HTTP_204_NO_CONTENT)
 
     @action(detail=True, methods=['POST'])
+    def assign(self, request, pk=None):
+        serializer_instance = self.get_object()
+        serializer_data = request.data.get('ticket', {})
+        context = {
+            'assignee_id': serializer_data.pop('assignee', None),
+            'updated_by': request.user
+        }
+        serializer = self.serializer_class(
+            serializer_instance,
+            data=serializer_data,
+            context=context,
+            partial=True
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(
+            {'results': serializer.data},
+            status=status.HTTP_200_OK
+        )
+
+
+    @action(detail=True, methods=['POST'])
     def vote(self, request, pk=None):
         ticket = self.get_object()
         serializer_data = request.data.get('vote', {})
