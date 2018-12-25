@@ -165,6 +165,12 @@ class TicketViewSetTest(APITestCase):
             }
         }
 
+        self.valid_assign_for_community_ticket_payload = {
+            "ticket": {
+                "assignee": self.staff.id
+            }
+        }
+
     def test_create_ticket(self):
         """
          - Create Ticket by unauthenticated user
@@ -541,6 +547,54 @@ class TicketViewSetTest(APITestCase):
                 self.assertEqual(
                     response.status_code, status.HTTP_404_NOT_FOUND
                 )
+
+    def test_assign_for_community_ticket(self):
+        """
+         - assign for community ticket by non permission users
+         - assign for community ticket by permission users
+        """
+        # assign for community ticket by non permission users
+        non_permission_users = [
+            self.community_user,
+            self.gluu_user, self.gluu_named, self.gluu_admin,
+            self.openiam_user, self.openiam_named, self.openiam_admin
+        ]
+
+        for user in non_permission_users:
+            self.client.credentials(
+                HTTP_AUTHORIZATION='Token ' + user.token
+            )
+            response = self.client.post(
+                reverse(
+                    'tickets:ticket-assign',
+                    kwargs={'pk': self.ticket_by_community_user.id}
+                ),
+                data=json.dumps(self.valid_assign_for_community_ticket_payload),
+                content_type='application/json'
+            )
+            self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        # assign for community ticket by permission users
+        permission_users = [
+            self.staff, self.manager
+        ]
+
+        for user in permission_users:
+            self.client.credentials(
+                HTTP_AUTHORIZATION='Token ' + user.token
+            )
+            response = self.client.post(
+                reverse(
+                    'tickets:ticket-assign',
+                    kwargs={'pk': self.ticket_by_community_user.id}
+                ),
+                data=json.dumps(self.valid_assign_for_community_ticket_payload),
+                content_type='application/json'
+            )
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+        
+    def test_assign_for_company_ticket(self):
+        pass
 
 
 class AnswerViewSetTest(APITestCase):
