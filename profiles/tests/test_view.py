@@ -3,7 +3,11 @@ from django.urls import reverse
 from django.core.management import call_command
 from rest_framework import status
 from rest_framework.test import APITestCase
+from djangorestframework_camel_case.util import camelize
 from profiles.models import User, Company, Membership, Invitation
+from profiles.serializers import (
+    CompanySerializer, ShortCompanySerializer
+)
 from info.models import UserRole
 from gluru_backend.utils import generate_hash
 
@@ -189,38 +193,140 @@ class CompanyViewSetTest(APITestCase):
     def test_create_company(self):
         """
          - create company info by non permission users
-         - create company info by permission user
-         - create invalid company info by permission user
+         - create company info by permission users
+         - create invalid company info by manager
         """
         # create company info by non permission users
-        self.client.credentials(
-            HTTP_AUTHORIZATION='Token ' + self.community_user.token
-        )
-        response = self.client.post(
-            reverse('profiles:company-list'),
-            data=json.dumps(self.valid_create_company_payload),
-            content_type='application/json'
-        )
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        non_permission_users = [
+            self.community_user, self.staff,
+            self.gluu_user, self.gluu_named, self.gluu_admin,
+            self.openiam_user, self.openiam_named, self.openiam_admin
+        ]
 
-        # create valid company info by manager
+        for user in non_permission_users:
+            self.client.credentials(
+                HTTP_AUTHORIZATION='Token ' + user.token
+            )
+            response = self.client.post(
+                reverse('profiles:company-list'),
+                data=json.dumps(self.valid_create_company_payload),
+                content_type='application/json'
+            )
+            self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        # create valid company info by permission users
+        permission_users = [
+            self.manager
+        ]
+
+        for user in permission_users:
+            self.client.credentials(
+                HTTP_AUTHORIZATION='Token ' + user.token
+            )
+            response = self.client.post(
+                reverse('profiles:company-list'),
+                data=json.dumps(self.valid_create_company_payload),
+                content_type='application/json'
+            )
+            self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        # create invalid company info by manager
         self.client.credentials(
             HTTP_AUTHORIZATION='Token ' + self.manager.token
         )
-        response = self.client.post(
-            reverse('profiles:company-list'),
-            data=json.dumps(self.valid_create_company_payload),
-            content_type='application/json'
-        )
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-
-        # create invalid company info by manager
         response = self.client.post(
             reverse('profiles:company-list'),
             data=json.dumps(self.invalid_create_company_payload),
             content_type='application/json'
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_list_company(self):
+        """
+         - list company info by community users
+         - list company info by staff users
+         - list company info by gluu users
+         - list company info by openiam users
+        """
+        # list company info by non permission users
+        non_permission_users = [
+            self.community_user
+        ]
+
+        for user in non_permission_users:
+            self.client.credentials(
+                HTTP_AUTHORIZATION='Token ' + user.token
+            )
+            response = self.client.get(reverse('profiles:company-list'))
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            self.assertEqual(response.data['count'], 0)
+            self.assertEqual(response.data['next'], None)
+            self.assertEqual(response.data['previous'], None)
+            self.assertEqual(response.data['results'], [])
+
+        # list company info by permission users
+        permission_users = [
+            self.staff, self.manager
+        ]
+        company_serializer = ShortCompanySerializer(
+            Company.objects.all(),
+            many=True
+        )
+        for user in permission_users:
+            self.client.credentials(
+                HTTP_AUTHORIZATION='Token ' + user.token
+            )
+            response = self.client.get(reverse('profiles:company-list'))
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            self.assertEqual(response.data['count'], Company.objects.count())
+            self.assertEqual(response.data['next'], None)
+            self.assertEqual(response.data['previous'], None)
+            self.assertEqual(
+                response.data['results'], camelize(company_serializer.data)
+            )
+
+        # list company info by gluu users
+        gluu_users = [
+            self.gluu_user, self.gluu_named, self.gluu_admin
+        ]
+        company_serializer = ShortCompanySerializer(
+            Company.objects.filter(name='Gluu'),
+            many=True
+        )
+        for user in gluu_users:
+            self.client.credentials(
+                HTTP_AUTHORIZATION='Token ' + user.token
+            )
+            response = self.client.get(reverse('profiles:company-list'))
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            self.assertEqual(response.data['count'], 1)
+            self.assertEqual(response.data['next'], None)
+            self.assertEqual(response.data['previous'], None)
+            self.assertEqual(
+                response.data['results'], camelize(company_serializer.data)
+            )
+
+        # list company info by openiam users
+        openiam_users = [
+            self.openiam_user, self.openiam_named, self.openiam_admin
+        ]
+        company_serializer = ShortCompanySerializer(
+            Company.objects.filter(name='OpenIAM'),
+            many=True
+        )
+        for user in openiam_users:
+            self.client.credentials(
+                HTTP_AUTHORIZATION='Token ' + user.token
+            )
+            response = self.client.get(reverse('profiles:company-list'))
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            self.assertEqual(response.data['count'], 1)
+            self.assertEqual(response.data['next'], None)
+            self.assertEqual(response.data['previous'], None)
+            self.assertEqual(
+                response.data['results'], camelize(company_serializer.data)
+            )
 
     def test_update_company(self):
         """
@@ -312,6 +418,8 @@ class CompanyViewSetTest(APITestCase):
             self.gluu_user, self.gluu_named, self.gluu_admin,
             self.staff, self.manager
         ]
+        company_serializer = ShortCompanySerializer(self.gluu)
+
         for user in permission_users:
             self.client.credentials(
                 HTTP_AUTHORIZATION='Token ' + user.token
@@ -323,6 +431,9 @@ class CompanyViewSetTest(APITestCase):
                 ),
             )
             self.assertEqual(response.status_code, status.HTTP_200_OK)
+            self.assertEqual(
+                response.data['results'], camelize(company_serializer.data)
+            )
 
         # retrieve non-existing company by user
         self.client.credentials(
@@ -341,7 +452,8 @@ class CompanyViewSetTest(APITestCase):
         """
         # delete company info by non permission users
         non_permission_users = [
-            self.community_user, self.gluu_user, self.gluu_named,
+            self.community_user,
+            self.gluu_user, self.gluu_named, self.gluu_admin,
             self.openiam_user, self.openiam_named, self.openiam_admin,
             self.staff
         ]
@@ -360,7 +472,7 @@ class CompanyViewSetTest(APITestCase):
 
         # delete company info by permission users
         permission_users = [
-            self.gluu_admin, self.manager
+            self.manager
         ]
 
         for user in permission_users:
@@ -373,14 +485,7 @@ class CompanyViewSetTest(APITestCase):
                     kwargs={'pk': self.gluu.id}
                 ),
             )
-            if user is not permission_users[0]:
-                self.assertEqual(
-                    response.status_code, status.HTTP_404_NOT_FOUND
-                )
-            else:
-                self.assertEqual(
-                    response.status_code, status.HTTP_204_NO_CONTENT
-                )
+            self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
         # delete non-existing company by manager
         self.client.credentials(
@@ -420,7 +525,7 @@ class CompanyViewSetTest(APITestCase):
             self.openiam_user, self.openiam_named, self.openiam_admin,
             self.staff, self.manager
         ]
-
+        company_serializer = CompanySerializer(self.openiam)
         for user in permission_users:
             self.client.credentials(
                 HTTP_AUTHORIZATION='Token ' + user.token
@@ -432,6 +537,9 @@ class CompanyViewSetTest(APITestCase):
                 ),
             )
             self.assertEqual(response.status_code, status.HTTP_200_OK)
+            self.assertEqual(
+                response.data['results'], camelize(company_serializer.data)
+            )
 
         # retrieve non-existing company users by community user
         self.client.credentials(
