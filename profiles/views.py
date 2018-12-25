@@ -308,10 +308,11 @@ class CompanyViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
         )
 
     def list(self, request):
-        page = self.paginate_queryset(self.get_queryset())
+        queryset = self.get_queryset() if request.user.is_staff else\
+            request.user.companies
 
         serializer = self.serializer_class(
-            page,
+            self.paginate_queryset(queryset),
             many=True
         )
 

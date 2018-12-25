@@ -69,6 +69,11 @@ class CompanyViewSetTest(APITestCase):
             password='levan'
         )
 
+        self.gluu_user_openiam_user = User.objects.create_user(
+            email='user@mixed.com',
+            password='levan'
+        )
+
         # Create Permission and UserRole
         self.role_admin = UserRole.objects.get(name='admin')
         self.role_named = UserRole.objects.get(name='named')
@@ -84,6 +89,10 @@ class CompanyViewSetTest(APITestCase):
         Membership.objects.create(
             company=self.gluu, user=self.gluu_user, role=self.role_user
         )
+        Membership.objects.create(
+            company=self.gluu, user=self.gluu_user_openiam_user,
+            role=self.role_user
+        )
 
         Membership.objects.create(
             company=self.openiam, user=self.openiam_admin, role=self.role_admin
@@ -93,6 +102,10 @@ class CompanyViewSetTest(APITestCase):
         )
         Membership.objects.create(
             company=self.openiam, user=self.openiam_user, role=self.role_user
+        )
+        Membership.objects.create(
+            company=self.openiam, user=self.gluu_user_openiam_user,
+            role=self.role_user
         )
 
         self.valid_create_company_payload = {
@@ -247,6 +260,7 @@ class CompanyViewSetTest(APITestCase):
          - list company info by staff users
          - list company info by gluu users
          - list company info by openiam users
+         - list company info by gluu&openiam user
         """
         # list company info by non permission users
         non_permission_users = [
@@ -264,7 +278,7 @@ class CompanyViewSetTest(APITestCase):
             self.assertEqual(response.data['previous'], None)
             self.assertEqual(response.data['results'], [])
 
-        # list company info by permission users
+        # list company info by staff users
         permission_users = [
             self.staff, self.manager
         ]
@@ -320,13 +334,28 @@ class CompanyViewSetTest(APITestCase):
             )
             response = self.client.get(reverse('profiles:company-list'))
             self.assertEqual(response.status_code, status.HTTP_200_OK)
-            self.assertEqual(response.status_code, status.HTTP_200_OK)
             self.assertEqual(response.data['count'], 1)
             self.assertEqual(response.data['next'], None)
             self.assertEqual(response.data['previous'], None)
             self.assertEqual(
                 response.data['results'], camelize(company_serializer.data)
             )
+
+        # list company info by gluu&openiam user
+        company_serializer = ShortCompanySerializer(
+            self.gluu_user_openiam_user.companies, many=True
+        )
+        self.client.credentials(
+            HTTP_AUTHORIZATION='Token ' + self.gluu_user_openiam_user.token
+        )
+        response = self.client.get(reverse('profiles:company-list'))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['count'], 2)
+        self.assertEqual(response.data['next'], None)
+        self.assertEqual(response.data['previous'], None)
+        self.assertEqual(
+            response.data['results'], camelize(company_serializer.data)
+        )
 
     def test_update_company(self):
         """
@@ -398,8 +427,8 @@ class CompanyViewSetTest(APITestCase):
         """
         # retrieve company info by non permission users
         non_permission_users = [
-            self.community_user, self.openiam_user,
-            self.openiam_named, self.openiam_admin
+            self.community_user,
+            self.openiam_user, self.openiam_named, self.openiam_admin
         ]
         for user in non_permission_users:
             self.client.credentials(
@@ -435,7 +464,7 @@ class CompanyViewSetTest(APITestCase):
                 response.data['results'], camelize(company_serializer.data)
             )
 
-        # retrieve non-existing company by user
+        # retrieve non-existing company
         self.client.credentials(
             HTTP_AUTHORIZATION='Token ' + self.manager.token
         )
@@ -833,6 +862,7 @@ class CompanyViewSetTest(APITestCase):
         """
          - leave company by non permission users
          - leave company by permission users
+         - leave company byself
         """
         # leave company by non permission users
         non_permission_users = [

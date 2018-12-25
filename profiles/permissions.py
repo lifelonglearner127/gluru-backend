@@ -57,7 +57,6 @@ class CompanyCustomPermission(permissions.BasePermission):
                 model_name='Company',
                 permission_name=view.action
             )
-
         )
         return view.action in ['accept_invite'] or staff_permission or\
             membership_permission
