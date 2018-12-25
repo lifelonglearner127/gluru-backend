@@ -165,9 +165,15 @@ class TicketViewSetTest(APITestCase):
             }
         }
 
-        self.valid_assign_for_community_ticket_payload = {
+        self.assign_for_community_ticket_payload = {
             "ticket": {
                 "assignee": self.staff.id
+            }
+        }
+
+        self.assign_for_gluu_ticket_payload = {
+            "ticket": {
+                "assignee": self.gluu_admin.id
             }
         }
 
@@ -569,7 +575,7 @@ class TicketViewSetTest(APITestCase):
                     'tickets:ticket-assign',
                     kwargs={'pk': self.ticket_by_community_user.id}
                 ),
-                data=json.dumps(self.valid_assign_for_community_ticket_payload),
+                data=json.dumps(self.assign_for_community_ticket_payload),
                 content_type='application/json'
             )
             self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
@@ -588,13 +594,55 @@ class TicketViewSetTest(APITestCase):
                     'tickets:ticket-assign',
                     kwargs={'pk': self.ticket_by_community_user.id}
                 ),
-                data=json.dumps(self.valid_assign_for_community_ticket_payload),
+                data=json.dumps(self.assign_for_community_ticket_payload),
                 content_type='application/json'
             )
             self.assertEqual(response.status_code, status.HTTP_200_OK)
         
     def test_assign_for_company_ticket(self):
-        pass
+        """
+         - assign for company ticket by non permission users
+         - assign for company ticket by permission users
+        """
+        # assign for community ticket by non permission users
+        non_permission_users = [
+            self.community_user,
+            self.gluu_user, self.gluu_named, self.gluu_admin,
+            self.openiam_user, self.openiam_named, self.openiam_admin
+        ]
+
+        for user in non_permission_users:
+            self.client.credentials(
+                HTTP_AUTHORIZATION='Token ' + user.token
+            )
+            response = self.client.post(
+                reverse(
+                    'tickets:ticket-assign',
+                    kwargs={'pk': self.ticket_by_gluu_admin.id}
+                ),
+                data=json.dumps(self.assign_for_gluu_ticket_payload),
+                content_type='application/json'
+            )
+            self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        # assign for community ticket by permission users
+        permission_users = [
+            self.staff, self.manager
+        ]
+
+        for user in permission_users:
+            self.client.credentials(
+                HTTP_AUTHORIZATION='Token ' + user.token
+            )
+            response = self.client.post(
+                reverse(
+                    'tickets:ticket-assign',
+                    kwargs={'pk': self.ticket_by_gluu_admin.id}
+                ),
+                data=json.dumps(self.assign_for_gluu_ticket_payload),
+                content_type='application/json'
+            )
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
 class AnswerViewSetTest(APITestCase):
