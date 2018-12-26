@@ -3,16 +3,24 @@ from django.urls import reverse
 from django.core.management import call_command
 from rest_framework import status
 from rest_framework.test import APITestCase
+from djangorestframework_camel_case.util import camelize
 from profiles.models import User
 from info.models import (
     GluuServer, GluuOS, GluuProduct,
     TicketCategory, TicketIssueType, TicketStatus, UserRole, Permission
+)
+from info.serializers import (
+    GluuServerSerializer, GluuOSSerializer, GluuProductSerializer,
+    TicketCategorySerializer, TicketIssueTypeSerializer,
+    TicketStatusSerializer, UserRoleSerializer, PermissionSerializer
 )
 
 
 class GluuServerViewSetTest(APITestCase):
 
     def setUp(self):
+        call_command('loaddata', 'data', verbosity=0)
+
         self.manager = User.objects.create_superuser(
             email='manager@gmail.com',
             password='manager'
@@ -25,7 +33,7 @@ class GluuServerViewSetTest(APITestCase):
 
         self.valid_payload = {
             "server": {
-                "name": "3.4.1"
+                "name": "GluuServerViewSet"
             }
         }
 
@@ -35,7 +43,7 @@ class GluuServerViewSetTest(APITestCase):
             }
         }
 
-        self.server = GluuServer.objects.create(name='3.4.5')
+        self.server = GluuServer.objects.get(name='3.1.4')
 
     def test_create_info(self):
         """
@@ -70,6 +78,15 @@ class GluuServerViewSetTest(APITestCase):
             content_type='application/json'
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_list_info(self):
+        serializer = GluuServerSerializer(
+            GluuServer.objects.all(),
+            many=True
+        )
+        response = self.client.get(reverse('info:server-list'))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['results'], camelize(serializer.data))
 
     def test_update_info(self):
         """
@@ -116,17 +133,18 @@ class GluuServerViewSetTest(APITestCase):
 
     def test_retrieve_info(self):
         """
-         - retrieve info by user
-         - retrieve non-existing info by user
+         - retrieve info
+         - retrieve non-existing info
         """
-        # retrieve info by user
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.user.token)
+        # retrieve info
+        serializer = GluuServerSerializer(self.server)
         response = self.client.get(
             reverse('info:server-detail', kwargs={'pk': self.server.id})
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['results'], camelize(serializer.data))
 
-        # retrieve non-existing info by user
+        # retrieve non-existing info
         response = self.client.get(
             reverse('info:server-detail', kwargs={'pk': 0})
         )
@@ -164,6 +182,8 @@ class GluuServerViewSetTest(APITestCase):
 class GluuOSViewSetTest(APITestCase):
 
     def setUp(self):
+        call_command('loaddata', 'data', verbosity=0)
+
         self.manager = User.objects.create_superuser(
             email='manager@gmail.com',
             password='manager'
@@ -176,7 +196,7 @@ class GluuOSViewSetTest(APITestCase):
 
         self.valid_payload = {
             "os": {
-                "name": "CentOS7"
+                "name": "GluuOSViewSet"
             }
         }
 
@@ -186,7 +206,7 @@ class GluuOSViewSetTest(APITestCase):
             }
         }
 
-        self.os = GluuOS.objects.create(name='Ubuntu')
+        self.os = GluuOS.objects.get(name='Ubuntu')
 
     def test_create_info(self):
         """
@@ -221,6 +241,15 @@ class GluuOSViewSetTest(APITestCase):
             content_type='application/json'
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_list_info(self):
+        serializer = GluuOSSerializer(
+            GluuOS.objects.all(),
+            many=True
+        )
+        response = self.client.get(reverse('info:os-list'))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['results'], camelize(serializer.data))
 
     def test_update_info(self):
         """
@@ -267,17 +296,18 @@ class GluuOSViewSetTest(APITestCase):
 
     def test_retrieve_info(self):
         """
-         - retrieve info by user
-         - retrieve non-existing info by user
+         - retrieve info
+         - retrieve non-existing info
         """
-        # retrieve info by user
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.user.token)
+        # retrieve info
+        serializer = GluuOSSerializer(self.os)
         response = self.client.get(
             reverse('info:os-detail', kwargs={'pk': self.os.id})
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['results'], camelize(serializer.data))
 
-        # retrieve non-existing info by user
+        # retrieve non-existing info
         response = self.client.get(
             reverse('info:os-detail', kwargs={'pk': 0})
         )
@@ -312,9 +342,11 @@ class GluuOSViewSetTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 
-class GluuProductViewsetTest(APITestCase):
+class GluuProductViewSetTest(APITestCase):
 
     def setUp(self):
+        call_command('loaddata', 'data', verbosity=0)
+
         self.manager = User.objects.create_superuser(
             email='manager@gmail.com',
             password='manager'
@@ -327,7 +359,7 @@ class GluuProductViewsetTest(APITestCase):
 
         self.valid_payload = {
             "product": {
-                "name": "Super Gluu"
+                "name": "GluuProductViewset"
             }
         }
 
@@ -337,7 +369,7 @@ class GluuProductViewsetTest(APITestCase):
             }
         }
 
-        self.product = GluuProduct.objects.create(name='Oxd')
+        self.product = GluuProduct.objects.get(name='Super Gluu')
 
     def test_create_info(self):
         """
@@ -372,6 +404,15 @@ class GluuProductViewsetTest(APITestCase):
             content_type='application/json'
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_list_info(self):
+        serializer = GluuProductSerializer(
+            GluuProduct.objects.all(),
+            many=True
+        )
+        response = self.client.get(reverse('info:product-list'))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['results'], camelize(serializer.data))
 
     def test_update_info(self):
         """
@@ -418,17 +459,18 @@ class GluuProductViewsetTest(APITestCase):
 
     def test_retrieve_info(self):
         """
-         - retrieve info by user
-         - retrieve non-existing info by user
+         - retrieve info
+         - retrieve non-existing info
         """
-        # retrieve info by user
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.user.token)
+        # retrieve info
+        serializer = GluuProductSerializer(self.product)
         response = self.client.get(
             reverse('info:product-detail', kwargs={'pk': self.product.id})
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['results'], camelize(serializer.data))
 
-        # retrieve non-existing info by user
+        # retrieve non-existing info
         response = self.client.get(
             reverse('info:product-detail', kwargs={'pk': 0})
         )
@@ -466,6 +508,8 @@ class GluuProductViewsetTest(APITestCase):
 class TicketCategoryViewSetTest(APITestCase):
 
     def setUp(self):
+        call_command('loaddata', 'data', verbosity=0)
+
         self.manager = User.objects.create_superuser(
             email='manager@gmail.com',
             password='manager'
@@ -478,7 +522,7 @@ class TicketCategoryViewSetTest(APITestCase):
 
         self.valid_payload = {
             "ticket_category": {
-                "name": "Super Gluu"
+                "name": "TicketCategoryViewSet"
             }
         }
 
@@ -488,7 +532,7 @@ class TicketCategoryViewSetTest(APITestCase):
             }
         }
 
-        self.category = TicketCategory.objects.create(name='Oxd')
+        self.category = TicketCategory.objects.get(name='Installation')
 
     def test_create_info(self):
         """
@@ -523,6 +567,15 @@ class TicketCategoryViewSetTest(APITestCase):
             content_type='application/json'
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_list_info(self):
+        serializer = TicketCategorySerializer(
+            TicketCategory.objects.all(),
+            many=True
+        )
+        response = self.client.get(reverse('info:category-list'))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['results'], camelize(serializer.data))
 
     def test_update_info(self):
         """
@@ -569,17 +622,18 @@ class TicketCategoryViewSetTest(APITestCase):
 
     def test_retrieve_info(self):
         """
-         - retrieve info by user
-         - retrieve non-existing info by user
+         - retrieve info
+         - retrieve non-existing info
         """
-        # retrieve info by user
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.user.token)
+        # retrieve info
+        serializer = TicketCategorySerializer(self.category)
         response = self.client.get(
             reverse('info:category-detail', kwargs={'pk': self.category.id})
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['results'], camelize(serializer.data))
 
-        # retrieve non-existing info by user
+        # retrieve non-existing info
         response = self.client.get(
             reverse('info:category-detail', kwargs={'pk': 0})
         )
@@ -617,6 +671,8 @@ class TicketCategoryViewSetTest(APITestCase):
 class TicketIssueTypeViewSetTest(APITestCase):
 
     def setUp(self):
+        call_command('loaddata', 'data', verbosity=0)
+
         self.manager = User.objects.create_superuser(
             email='manager@gmail.com',
             password='manager'
@@ -629,7 +685,7 @@ class TicketIssueTypeViewSetTest(APITestCase):
 
         self.valid_payload = {
             "ticket_issue_type": {
-                "name": "Pre-Production Issue"
+                "name": "TicketIssueTypeViewSet"
             }
         }
 
@@ -639,7 +695,7 @@ class TicketIssueTypeViewSetTest(APITestCase):
             }
         }
 
-        self.type = TicketIssueType.objects.create(name='New Issue')
+        self.type = TicketIssueType.objects.get(name='Production Outage')
 
     def test_create_info(self):
         """
@@ -674,6 +730,15 @@ class TicketIssueTypeViewSetTest(APITestCase):
             content_type='application/json'
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_list_info(self):
+        serializer = TicketIssueTypeSerializer(
+            TicketIssueType.objects.all(),
+            many=True
+        )
+        response = self.client.get(reverse('info:type-list'))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['results'], camelize(serializer.data))
 
     def test_update_info(self):
         """
@@ -720,17 +785,18 @@ class TicketIssueTypeViewSetTest(APITestCase):
 
     def test_retrieve_info(self):
         """
-         - retrieve info by user
-         - retrieve non-existing info by user
+         - retrieve info
+         - retrieve non-existing info
         """
-        # retrieve info by user
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.user.token)
+        # retrieve info
+        serializer = TicketIssueTypeSerializer(self.type)
         response = self.client.get(
             reverse('info:type-detail', kwargs={'pk': self.type.id})
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['results'], camelize(serializer.data))
 
-        # retrieve non-existing info by user
+        # retrieve non-existing info
         response = self.client.get(
             reverse('info:type-detail', kwargs={'pk': 0})
         )
@@ -768,6 +834,8 @@ class TicketIssueTypeViewSetTest(APITestCase):
 class TicketStatusViewSetTest(APITestCase):
 
     def setUp(self):
+        call_command('loaddata', 'data', verbosity=0)
+
         self.manager = User.objects.create_superuser(
             email='manager@gmail.com',
             password='manager'
@@ -780,7 +848,7 @@ class TicketStatusViewSetTest(APITestCase):
 
         self.valid_payload = {
             "ticket_status": {
-                "name": "assigned"
+                "name": "TicketStatusViewSet"
             }
         }
 
@@ -790,7 +858,7 @@ class TicketStatusViewSetTest(APITestCase):
             }
         }
 
-        self.status = TicketStatus.objects.create(name='new')
+        self.status = TicketStatus.objects.get(name='new')
 
     def test_create_info(self):
         """
@@ -825,6 +893,15 @@ class TicketStatusViewSetTest(APITestCase):
             content_type='application/json'
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_list_info(self):
+        serializer = TicketStatusSerializer(
+            TicketStatus.objects.all(),
+            many=True
+        )
+        response = self.client.get(reverse('info:status-list'))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['results'], camelize(serializer.data))
 
     def test_update_info(self):
         """
@@ -871,17 +948,18 @@ class TicketStatusViewSetTest(APITestCase):
 
     def test_retrieve_info(self):
         """
-         - retrieve info by user
-         - retrieve non-existing info by user
+         - retrieve info
+         - retrieve non-existing info
         """
-        # retrieve info by user
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.user.token)
+        # retrieve info
+        serializer = TicketStatusSerializer(self.status)
         response = self.client.get(
             reverse('info:status-detail', kwargs={'pk': self.status.id})
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['results'], camelize(serializer.data))
 
-        # retrieve non-existing info by user
+        # retrieve non-existing info
         response = self.client.get(
             reverse('info:status-detail', kwargs={'pk': 0})
         )
@@ -919,7 +997,7 @@ class TicketStatusViewSetTest(APITestCase):
 class UserRoleViewSetTest(APITestCase):
 
     def setUp(self):
-        call_command('loaddata', 'permission', verbosity=0)
+        call_command('loaddata', 'data', verbosity=0)
 
         self.manager = User.objects.create_superuser(
             email='manager@gmail.com',
@@ -933,7 +1011,7 @@ class UserRoleViewSetTest(APITestCase):
 
         self.valid_payload = {
             "role": {
-                "name": "custom",
+                "name": "UserRoleViewSet",
                 "permissions": [1, 2]
             }
         }
@@ -944,7 +1022,7 @@ class UserRoleViewSetTest(APITestCase):
             }
         }
 
-        self.role = UserRole.objects.create(name='new')
+        self.role = UserRole.objects.get(name='staff')
 
     def test_create_info(self):
         """
@@ -979,6 +1057,15 @@ class UserRoleViewSetTest(APITestCase):
             content_type='application/json'
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_list_info(self):
+        serializer = UserRoleSerializer(
+            UserRole.objects.all(),
+            many=True
+        )
+        response = self.client.get(reverse('info:role-list'))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['results'], camelize(serializer.data))
 
     def test_update_info(self):
         """
@@ -1025,17 +1112,18 @@ class UserRoleViewSetTest(APITestCase):
 
     def test_retrieve_info(self):
         """
-         - retrieve info by user
-         - retrieve non-existing info by user
+         - retrieve info
+         - retrieve non-existing info
         """
-        # retrieve info by user
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.user.token)
+        # retrieve info
+        serializer = UserRoleSerializer(self.role)
         response = self.client.get(
             reverse('info:role-detail', kwargs={'pk': self.role.id})
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['results'], camelize(serializer.data))
 
-        # retrieve non-existing info by user
+        # retrieve non-existing info
         response = self.client.get(
             reverse('info:role-detail', kwargs={'pk': 0})
         )
@@ -1073,6 +1161,8 @@ class UserRoleViewSetTest(APITestCase):
 class PermissionViewSetTest(APITestCase):
 
     def setUp(self):
+        call_command('loaddata', 'data', verbosity=0)
+
         self.manager = User.objects.create_superuser(
             email='manager@gmail.com',
             password='manager'
@@ -1085,10 +1175,10 @@ class PermissionViewSetTest(APITestCase):
 
         self.valid_payload = {
             "permission": {
-                "app_name": "tickets",
-                "model_name": "Ticket",
+                "app_name": "PermissionViewSet",
+                "model_name": "PermissionViewSet",
                 "actions": "create",
-                "description": "Create Ticket"
+                "description": "PermissionViewSet"
             }
         }
 
@@ -1101,9 +1191,8 @@ class PermissionViewSetTest(APITestCase):
             }
         }
 
-        self.permission = Permission.objects.create(
-            app_name="tickets", model_name="Ticket", actions="update",
-            description="abc"
+        self.permission = Permission.objects.get(
+            app_name="billing", model_name="Billing", actions="retrieve, list",
         )
 
     def test_create_info(self):
@@ -1139,6 +1228,15 @@ class PermissionViewSetTest(APITestCase):
             content_type='application/json'
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_list_info(self):
+        serializer = PermissionSerializer(
+            Permission.objects.all(),
+            many=True
+        )
+        response = self.client.get(reverse('info:permission-list'))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['results'], camelize(serializer.data))
 
     def test_update_info(self):
         """
@@ -1194,11 +1292,11 @@ class PermissionViewSetTest(APITestCase):
 
     def test_retrieve_info(self):
         """
-         - retrieve info by user
-         - retrieve non-existing info by user
+         - retrieve info
+         - retrieve non-existing
         """
-        # retrieve info by user
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.user.token)
+        # retrieve info
+        serializer = PermissionSerializer(self.permission)
         response = self.client.get(
             reverse(
                 'info:permission-detail',
@@ -1206,8 +1304,9 @@ class PermissionViewSetTest(APITestCase):
             )
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['results'], serializer.data)
 
-        # retrieve non-existing info by user
+        # retrieve non-existing info
         response = self.client.get(
             reverse('info:permission-detail', kwargs={'pk': 0})
         )
