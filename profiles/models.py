@@ -179,6 +179,11 @@ class Membership(models.Model):
             self.company
         )
 
+    def save(self, *args, **kwargs):
+        if not Membership.objects.filter(user=self.user).exists():
+            self.is_primary = True
+        super().save(*args, **kwargs)
+
     class Meta:
         ordering = ['company', '-date_joined']
         unique_together = ['user', 'company']
