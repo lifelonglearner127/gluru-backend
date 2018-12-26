@@ -20,7 +20,7 @@ from oxd import exceptions as e
 
 
 class GetLoginUrlAPIView(APIView):
-    permission_classes = (AllowAny,)
+    permission_classes = (p.IsVisitor,)
 
     def get(self, request):
         url = api.get_authorization_url()
@@ -35,7 +35,7 @@ class GetLoginUrlAPIView(APIView):
 
 
 class LoginCallbackAPIView(APIView):
-    permission_classes = (AllowAny, )
+    permission_classes = (p.IsVisitor, )
 
     def get(self, request):
         token_json = api.get_token_from_callback(request.query_params)
@@ -65,7 +65,7 @@ class LoginCallbackAPIView(APIView):
 
 
 class GetSingupUrlAPIView(APIView):
-    permission_classes = (AllowAny,)
+    permission_classes = (p.IsVisitor,)
 
     def get(self, request):
         url = '{}/register?from=support'\
@@ -81,7 +81,7 @@ class GetSingupUrlAPIView(APIView):
 
 
 class SignupAPIView(APIView):
-    permission_classes = (AllowAny,)
+    permission_classes = (p.IsVisitor,)
 
     def get(self, request):
         check_signup_endpoint = '{}/api/v1/confirm-created/'.format(
@@ -93,8 +93,8 @@ class SignupAPIView(APIView):
         }
 
         data = {
-            'idp_uuid': request.query_params.get('idp_uuid'),
-            'email_hash': request.query_params.get('email_hash')
+            'idp_uuid': request.query_params.get('idp_uuid', None),
+            'email_hash': request.query_params.get('email_hash',None)
         }
 
         r = requests.post(
@@ -164,31 +164,12 @@ class LogoutUrlAPIView(APIView):
         )
 
 
-class UserRetrieveUpdateAPIView(RetrieveUpdateAPIView):
+class GetUserAuthAPIView(APIView):
     permission_classes = (IsAuthenticated,)
     serializer_class = s.UserSerializer
 
-    def retrieve(self, request, *args, **kwargs):
+    def get(self, request, *args, **kwargs):
         serializer = self.serializer_class(request.user)
-        return Response(
-            {'results': serializer.data},
-            status=status.HTTP_200_OK
-        )
-
-    def update(self, request, *args, **kwargs):
-        user_data = request.data.get('user', {})
-        serializer_data = {
-            'first_name': user_data.get('first_name', request.user.first_name),
-            'last_name': user_data.get('last_name', request.user.last_name),
-            'email': user_data.get('email', request.user.email)
-        }
-
-        serializer = self.serializer_class(
-            request.user, data=serializer_data, partial=True
-        )
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-
         return Response(
             {'results': serializer.data},
             status=status.HTTP_200_OK

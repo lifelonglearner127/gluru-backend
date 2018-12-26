@@ -9,6 +9,7 @@ from profiles.serializers import (
     CompanySerializer, ShortCompanySerializer
 )
 from info.models import UserRole
+from oxd.models import Configuration
 from gluru_backend.utils import generate_hash
 
 
@@ -973,3 +974,144 @@ class CompanyViewSetTest(APITestCase):
 
 class UserViewSetTest(APITestCase):
     pass
+
+
+class OtherAPIViewTest(APITestCase):
+
+    def setUp(self):
+        self.user = User.objects.create_user(
+            email='user@gmail.com',
+            password='levan'
+        )
+
+        Configuration.objects.create(
+            op_host='https://didp.gluu.org',
+            oxd_host='https://oxd-server.gluu.org:8443',
+            authorization_redirect_uri='http://localhost:8081/#/login-callback',
+            post_logout_redirect_uri='http://localhost:8081',
+            client_name='New Support Portal App',
+            client_id='@!A578.3242.DCA8.432A!0001!1DF4.0E33!0008!E432.FDF8.FC47.4052',
+            client_secret='begashvili',
+            scope=['openid'],
+            grant_types=['authorization_code', 'refresh_token', 'client_credentials']
+        )
+
+    def test_get_login_url(self):
+        """
+         - get login url by unauthenticated user
+         - get login url by authenticated user
+        """
+        # get login url by unauthenticated user
+        response = self.client.get(
+            reverse('profiles:get_login_url'),
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # get login url by authenticated user
+        self.client.credentials(
+            HTTP_AUTHORIZATION='Token ' + self.user.token
+        )
+        response = self.client.get(
+            reverse('profiles:get_login_url'),
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_login_callback(self):
+        """
+         - login callback by unauthenticated user
+         - login callback by authenticated user
+        """
+        # login callback by unauthenticated user
+        # response = self.client.get(
+        #     reverse('profiles:login_callback'),
+        # )
+        # self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # login callback by authenticated user
+        self.client.credentials(
+            HTTP_AUTHORIZATION='Token ' + self.user.token
+        )
+        response = self.client.get(
+            reverse('profiles:login_callback'),
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_get_signup_url(self):
+        """
+         - get signup url by unauthenticated user
+         - get signup url by authenticated user
+        """
+        # get signup url by unauthenticated user
+        response = self.client.get(
+            reverse('profiles:get_signup_url'),
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # get signup url by authenticated user
+        self.client.credentials(
+            HTTP_AUTHORIZATION='Token ' + self.user.token
+        )
+        response = self.client.get(
+            reverse('profiles:get_signup_url'),
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_signup(self):
+        """
+         - signup by unauthenticated user
+         - signup by authenticated user
+        """
+        # signup by unauthenticated user
+        response = self.client.get(
+            reverse('profiles:signup'),
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        # get signup url by authenticated user
+        self.client.credentials(
+            HTTP_AUTHORIZATION='Token ' + self.user.token
+        )
+        response = self.client.get(
+            reverse('profiles:signup'),
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_logout(self):
+        """
+         - logout by unauthenticated user
+         - logout by authenticated user
+        """
+        # get signup url by unauthenticated user
+        response = self.client.get(
+            reverse('profiles:logout'),
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        # get signup url by authenticated user
+        self.client.credentials(
+            HTTP_AUTHORIZATION='Token ' + self.user.token
+        )
+        response = self.client.get(
+            reverse('profiles:logout'),
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_get_auth(self):
+        """
+         - get auth token by unauthenticated user
+         - get auth token by authenticated user
+        """
+        # get auth token by unauthenticated user
+        response = self.client.get(
+            reverse('profiles:get_auth'),
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        # get auth token by authenticated user
+        self.client.credentials(
+            HTTP_AUTHORIZATION='Token ' + self.user.token
+        )
+        response = self.client.get(
+            reverse('profiles:get_auth'),
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
