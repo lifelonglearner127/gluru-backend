@@ -142,8 +142,8 @@ class Ticket(TimestampedModel):
     )
 
     voters = models.ManyToManyField(
-        User,
-        through='TicketVote'
+        settings.AUTH_USER_MODEL,
+        related_name='vote_tickets'
     )
 
     attachments = models.ManyToManyField(
@@ -269,25 +269,6 @@ class TicketHistory(CreatedOnModel):
     class Meta:
         verbose_name = 'Ticket History'
         verbose_name_plural = 'Tickets History'
-
-
-class TicketVote(TimestampedModel):
-
-    voter = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE
-    )
-
-    ticket = models.ForeignKey(
-        Ticket,
-        on_delete=models.CASCADE
-    )
-
-    is_up = models.CharField(
-        max_length=10,
-        choices=c.VOTE_TYPE,
-        default=c.VOTE_UP
-    )
 
 
 class Attachments(models.Model):

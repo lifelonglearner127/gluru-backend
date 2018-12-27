@@ -222,53 +222,6 @@ class AnswerSerializer(serializers.ModelSerializer):
         return instance
 
 
-class TicketVoteSerializer(serializers.ModelSerializer):
-
-    voter = ShortUserSerializer(read_only=True)
-
-    class Meta:
-        model = m.TicketVote
-        fields = [
-            'voter', 'ticket', 'is_up'
-        ]
-        extra_kwargs = {
-            'ticket': {'required': False},
-        }
-
-    def create(self, validated_data):
-        ticket = self.context.get('ticket', None)
-        voter = self.context.get('voter', None)
-        return m.TicketVote.objects.create(
-            ticket=ticket,
-            voter=voter,
-            **validated_data
-        )
-
-
-class VoterTicketVoteSerializer(serializers.ModelSerializer):
-
-    voter = ShortUserSerializer(read_only=True)
-
-    class Meta:
-        model = m.TicketVote
-        fields = (
-            'voter', 'is_up'
-        )
-
-
-class TicketVoterSerializer(serializers.ModelSerializer):
-
-    voters = VoterTicketVoteSerializer(
-        source='ticketvote_set', many=True, required=False
-    )
-
-    class Meta:
-        model = m.Ticket
-        fields = [
-            'voters'
-        ]
-
-
 class DocumentSerializer(serializers.ModelSerializer):
 
     class Meta:

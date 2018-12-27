@@ -103,18 +103,6 @@ class TicketViewSet(mixins.CreateModelMixin,
         return Response(None, status=status.HTTP_204_NO_CONTENT)
 
     @action(detail=True, methods=['GET'])
-    def voters(self, request, pk=None):
-        serializer_instance = self.get_object()
-        serializer = s.TicketVoterSerializer(
-            serializer_instance,
-        )
-
-        return Response(
-            {'results': serializer.data},
-            status=status.HTTP_200_OK
-        )
-
-    @action(detail=True, methods=['GET'])
     def history(self, request, pk=None):
         serializer_instance = self.get_object()
         page = self.paginate_queryset(
@@ -153,22 +141,19 @@ class TicketViewSet(mixins.CreateModelMixin,
     @action(detail=True, methods=['POST'])
     def vote(self, request, pk=None):
         ticket = self.get_object()
-        serializer_data = request.data.get('vote', {})
-        context = {
-            'ticket': ticket,
-            'voter': request.user
-        }
-        serializer = s.TicketVoteSerializer(
-            data=serializer_data, context=context
-        )
+        data = request.data.get('vote', {})
+        vote = data.get('vote', True)
+        if vote:
+            ticket.voters.add(request.user)
+            msg = 'You voted this ticket'
+        else:
+            if request.user in ticket.voters.all():
+                ticket.voters.remove(request.user)
+                msg = 'You unvoted this ticket'
+            else:
+                msg = 'You have not voted this ticket yet'
 
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-
-        return Response(
-            {'results': serializer.data},
-            status=status.HTTP_201_CREATED
-        )
+        return Response({'results': msg},status=status.HTTP_200_OK)
 
     @action(detail=True, methods=['POST'])
     def subscribe(self, request, pk=None):
