@@ -102,6 +102,32 @@ class TicketViewSet(mixins.CreateModelMixin,
 
         return Response(None, status=status.HTTP_204_NO_CONTENT)
 
+    @action(detail=True, methods=['GET'])
+    def voters(self, request, pk=None):
+        serializer_instance = self.get_object()
+        serializer = s.TicketVoterSerializer(
+            serializer_instance,
+        )
+
+        return Response(
+            {'results': serializer.data},
+            status=status.HTTP_200_OK
+        )
+
+    @action(detail=True, methods=['GET'])
+    def history(self, request, pk=None):
+        serializer_instance = self.get_object()
+        page = self.paginate_queryset(
+            serializer_instance.history.all()
+        )
+
+        serializer = s.TicketHistorySerializer(
+            page,
+            many=True
+        )
+
+        return self.get_paginated_response(serializer.data)
+
     @action(detail=True, methods=['POST'])
     def assign(self, request, pk=None):
         serializer_instance = self.get_object()
@@ -124,7 +150,6 @@ class TicketViewSet(mixins.CreateModelMixin,
             status=status.HTTP_200_OK
         )
 
-
     @action(detail=True, methods=['POST'])
     def vote(self, request, pk=None):
         ticket = self.get_object()
@@ -143,18 +168,6 @@ class TicketViewSet(mixins.CreateModelMixin,
         return Response(
             {'results': serializer.data},
             status=status.HTTP_201_CREATED
-        )
-
-    @action(detail=True, methods=['GET'])
-    def voters(self, request, pk=None):
-        serializer_instance = self.get_object()
-        serializer = s.TicketVoterSerializer(
-            serializer_instance,
-        )
-
-        return Response(
-            {'results': serializer.data},
-            status=status.HTTP_200_OK
         )
 
     @action(detail=True, methods=['PUT'], parser_classes=[MultiPartParser])
@@ -264,15 +277,4 @@ class AnswerViewSet(mixins.CreateModelMixin,
         return Response(
             {'results': 'Successfully uploaded'},
             status=status.HTTP_200_OK
-        )
-
-
-class TicketHistoryViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
-    permission_classes = (p.TicketAccessPermission, )
-    serializer_class = s.TicketHistorySerializer
-
-    def get_queryset(self):
-        return m.TicketHistory.objects.filter(
-            ticket=self.kwargs['ticket_pk'],
-            ticket__is_deleted=False
         )

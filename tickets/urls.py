@@ -1,7 +1,7 @@
 from django.conf.urls import include, url
 from rest_framework_nested import routers
 from tickets.views import (
-    TicketViewSet, AnswerViewSet, TicketSearchView, TicketHistoryViewSet
+    TicketViewSet, AnswerViewSet, TicketSearchView
 )
 
 router = routers.SimpleRouter()
@@ -27,12 +27,6 @@ tickets_router.register(
     r'answers',
     AnswerViewSet,
     base_name='ticket-answers'
-)
-
-tickets_router.register(
-    r'history',
-    TicketHistoryViewSet,
-    base_name='ticket-history'
 )
 
 urlpatterns = [

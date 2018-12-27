@@ -21,15 +21,15 @@ class TicketCustomPermission(permissions.BasePermission):
                 permission_name=view.action
             )
 
-        if obj.company_association is None:
+        company = obj.company_association
+        if company is None:
             return request.method in permissions.SAFE_METHODS or\
                 request.user == obj.created_by
 
-        membership = None
-        if request.user.is_authenticated:
-            membership = request.user.membership_set.filter(
-                company=obj.company_association
-            ).first()
+        if not request.user.is_authenticated:
+            return False
+
+        membership = company.membership_set.filter(user=request.user).first()
 
         return membership and membership.role and\
             membership.role.has_permission(

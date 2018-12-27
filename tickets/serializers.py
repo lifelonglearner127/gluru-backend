@@ -182,7 +182,7 @@ class AnswerSerializer(serializers.ModelSerializer):
                     'You do not have permission to perform this action.'
                 )
         if not created_by.is_staff:
-            if ticket.company_association is None:            
+            if ticket.company_association is None:
                 if created_by != ticket.created_by:
                     raise PermissionDenied(
                         'You do not have permission to perform this action.'
