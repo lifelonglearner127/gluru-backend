@@ -160,10 +160,6 @@ class Membership(models.Model):
         null=True
     )
 
-    receive_notification = models.BooleanField(
-        default=True
-    )
-
     is_primary = models.BooleanField(
         default=False
     )
