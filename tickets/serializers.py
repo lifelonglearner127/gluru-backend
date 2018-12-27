@@ -45,6 +45,8 @@ class TicketSerializer(serializers.ModelSerializer):
     created_for = ShortUserSerializer(read_only=True)
     assignee = ShortUserSerializer(read_only=True)
     updated_by = ShortUserSerializer(read_only=True)
+    voters = ShortUserSerializer(many=True, required=False)
+    subscribers = ShortUserSerializer(many=True, required=False)
     company_association = ShortCompanySerializer(read_only=True)
     products = TicketProductSerializer(
         source='ticketproduct_set', many=True, required=False
@@ -55,8 +57,8 @@ class TicketSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'title', 'body', 'created_by', 'created_for', 'updated_by',
             'assignee', 'category', 'status', 'issue_type', 'gluu_server',
-            'os', 'os_version', 'response_no', 'products',
-            'company_association'
+            'os', 'os_version', 'response_no', 'products', 'voters',
+            'subscribers', 'company_association'
         ]
         extra_kwargs = {
             'category': {'required': True},
