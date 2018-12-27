@@ -170,6 +170,23 @@ class TicketViewSet(mixins.CreateModelMixin,
             status=status.HTTP_201_CREATED
         )
 
+    @action(detail=True, methods=['POST'])
+    def subscribe(self, request, pk=None):
+        ticket = self.get_object()
+        data = request.data.get('subscribe', {})
+        subscribe = data.get('subscribe', True)
+        if subscribe:
+            ticket.subscribers.add(request.user)
+            msg = 'You are subscribed to this ticket'
+        else:
+            if request.user in ticket.subscribers.all():
+                ticket.subscribers.remove(request.user)
+                msg = 'You are unsubscribed to this ticket'
+            else:
+                msg = 'You are not subscribed to this ticket yet'
+
+        return Response({'results': msg},status=status.HTTP_200_OK)
+
     @action(detail=True, methods=['PUT'], parser_classes=[MultiPartParser])
     def upload(self, request, pk=None):
         obj = self.get_object()

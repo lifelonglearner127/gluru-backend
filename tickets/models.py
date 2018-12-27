@@ -117,6 +117,11 @@ class Ticket(TimestampedModel):
         through='TicketProduct'
     )
 
+    subscribers = models.ManyToManyField(
+        settings.AUTH_USER_MODEL,
+        related_name='subscribed_tickets'
+    )
+
     response_no = models.IntegerField(
         blank=True,
         default=0
