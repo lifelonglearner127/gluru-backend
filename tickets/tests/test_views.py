@@ -554,6 +554,81 @@ class TicketViewSetTest(APITestCase):
                     response.status_code, status.HTTP_404_NOT_FOUND
                 )
 
+    def test_retrieve_community_ticket_history(self):
+        """
+         - retrieve community ticket history by unauthenticated user
+         - retireve community ticket history by authenticated users
+        """
+        # retrieve community ticket history by unauthenticated user
+        response = self.client.get(
+            reverse(
+                'tickets:ticket-history',
+                kwargs={'pk': self.ticket_by_community_user.id}
+            )
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # retireve community ticket history by authenticated users
+        permission_users = [
+            self.community_user,
+            self.gluu_user, self.gluu_named, self.gluu_admin,
+            self.openiam_user, self.openiam_named, self.openiam_admin,
+            self.staff, self.manager
+        ]
+
+        for user in permission_users:
+            self.client.credentials(
+                HTTP_AUTHORIZATION='Token ' + user.token
+            )
+            response = self.client.get(
+                reverse(
+                    'tickets:ticket-history',
+                    kwargs={'pk': self.ticket_by_community_user.id}
+                )
+            )
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_retrieve_company_ticket_history(self):
+        """
+         - retrieve company ticket history by non permission users
+         - retireve company ticket history by permission users
+        """
+        # retrieve company ticket history by non permission users
+        non_permission_users = [
+            self.community_user,
+            self.openiam_user, self.openiam_named, self.openiam_admin
+        ]
+
+        for user in non_permission_users:
+            self.client.credentials(
+                HTTP_AUTHORIZATION='Token ' + user.token
+            )
+            response = self.client.get(
+                reverse(
+                    'tickets:ticket-history',
+                    kwargs={'pk': self.ticket_by_gluu_admin.id}
+                )
+            )
+            self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        # retrieve company ticket history by permission users
+        permission_users = [
+            self.gluu_user, self.gluu_named, self.gluu_admin,
+            self.staff, self.manager
+        ]
+
+        for user in permission_users:
+            self.client.credentials(
+                HTTP_AUTHORIZATION='Token ' + user.token
+            )
+            response = self.client.get(
+                reverse(
+                    'tickets:ticket-history',
+                    kwargs={'pk': self.ticket_by_gluu_admin.id}
+                )
+            )
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+
     def test_assign_for_community_ticket(self):
         """
          - assign for community ticket by non permission users
@@ -644,7 +719,7 @@ class TicketViewSetTest(APITestCase):
             )
             self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-
+    
 class AnswerViewSetTest(APITestCase):
 
     def setUp(self):

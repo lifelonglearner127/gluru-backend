@@ -13,12 +13,15 @@ class TicketCustomPermission(permissions.BasePermission):
         if request.user.is_superuser:
             return True
 
+        permission_name = 'retrieve'\
+            if request.method in permissions.SAFE_METHODS else view.action
+
         if request.user.is_staff:
             staff_role = UserRole.objects.get(name='staff')
             return staff_role.has_permission(
                 app_name='tickets',
                 model_name='Ticket',
-                permission_name=view.action
+                permission_name=permission_name
             )
 
         company = obj.company_association
@@ -35,7 +38,7 @@ class TicketCustomPermission(permissions.BasePermission):
             membership.role.has_permission(
                 app_name='tickets',
                 model_name='Ticket',
-                permission_name=view.action
+                permission_name=permission_name
             )
 
 
