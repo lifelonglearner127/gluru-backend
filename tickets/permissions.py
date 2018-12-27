@@ -1,6 +1,6 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import permissions
-from profiles.models import Company, UserRole
+from profiles.models import UserRole
 from tickets.models import Ticket
 
 
@@ -77,4 +77,34 @@ class AnswerCustomPermission(permissions.BasePermission):
                 app_name='tickets',
                 model_name=model_name,
                 permission_name=view.action
+            )
+
+
+class TicketAccessPermission(permissions.BasePermission):
+    def has_permission(self, request, view):
+        kwargs = request.parser_context.get('kwargs')
+        ticket_pk = kwargs.get('ticket_pk', None)
+        ticket = get_object_or_404(Ticket, pk=ticket_pk)
+        company = ticket.company_association
+
+        if company is None:
+            return True
+
+        if request.user.is_superuser:
+            return True
+
+        if request.user.is_staff:
+            staff_role = UserRole.objects.get(name='staff')
+            return staff_role.has_permission(
+                app_name='tickets',
+                model_name='Ticket',
+                permission_name='retrieve'
+            )
+
+        membership = company.membership_set.filter(user=request.user).first()
+        return membership and membership.role and\
+            membership.role.has_permission(
+                app_name='tickets',
+                model_name='Ticket',
+                permission_name='retrieve'
             )

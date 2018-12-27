@@ -268,7 +268,7 @@ class AnswerViewSet(mixins.CreateModelMixin,
 
 
 class TicketHistoryViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
-
+    permission_classes = (p.TicketAccessPermission, )
     serializer_class = s.TicketHistorySerializer
 
     def get_queryset(self):
