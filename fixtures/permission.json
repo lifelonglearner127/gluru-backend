@@ -5,7 +5,7 @@
         "fields": {
             "app_name": "billing",
             "model_name": "Billing",
-            "actions": "retrieve, list",
+            "actions": ["retrieve", "list"],
             "description": "View billing information"
         }
     },
@@ -15,7 +15,7 @@
         "fields": {
             "app_name": "billing",
             "model_name": "Billing",
-            "actions": "update",
+            "actions": ["update"],
             "description": "Change billing information"
         }
     },
@@ -25,7 +25,7 @@
         "fields": {
             "app_name": "tickets",
             "model_name": "Ticket",
-            "actions": "assign",
+            "actions": ["assign"],
             "description": "Assign tickets"
         }
     },
@@ -35,7 +35,7 @@
         "fields": {
             "app_name": "tickets",
             "model_name": "Ticket",
-            "actions": "retrieve, list",
+            "actions": ["retrieve", "list"],
             "description": "View tickets"
         }
     },
@@ -45,7 +45,7 @@
         "fields": {
             "app_name": "tickets",
             "model_name": "Ticket",
-            "actions": "create, update, destroy",
+            "actions": ["create", "update", "destroy"],
             "description": "Create tickets"
         }
     },
@@ -55,7 +55,7 @@
         "fields": {
             "app_name": "tickets",
             "model_name": "Answer",
-            "actions": "create, update, destroy", 
+            "actions": ["create", "update", "destroy"], 
             "description": "Respond to tickets"
         }
     },
@@ -65,7 +65,7 @@
         "fields": {
             "app_name": "profiles",
             "model_name": "Company",
-            "actions": "change_role",
+            "actions": ["change_role"],
             "description": "Change member roles"
         }
     },
@@ -75,7 +75,7 @@
         "fields": {
             "app_name": "profiles",
             "model_name": "Company",
-            "actions": "invite, remove_member, revoke_invite",
+            "actions": ["invite", "remove_member", "revoke_invite"],
             "description": "Add and remove members"
         }
     },
@@ -85,7 +85,7 @@
         "fields": {
             "app_name": "profiles",
             "model_name": "Company",
-            "actions": "update",
+            "actions": ["update"],
             "description": "Update Company Profile"
         }
     }

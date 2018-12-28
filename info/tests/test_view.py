@@ -852,7 +852,7 @@ class PermissionViewSetTest(APITestCase):
             "permission": {
                 "app_name": "PermissionViewSet",
                 "model_name": "PermissionViewSet",
-                "actions": "create",
+                "actions": ["create"],
                 "description": "PermissionViewSet"
             }
         }
@@ -861,13 +861,14 @@ class PermissionViewSetTest(APITestCase):
             "permission": {
                 "app_name": "",
                 "model_name": "Ticket",
-                "actions": "create",
+                "actions": ["create"],
                 "description": "Create Ticket"
             }
         }
 
         self.permission = Permission.objects.get(
-            app_name="billing", model_name="Billing", actions="retrieve, list",
+            app_name="billing", model_name="Billing",
+            actions=["retrieve", "list"]
         )
 
     def test_create_info(self):
