@@ -30,13 +30,6 @@ class TicketStatusSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class PermissionSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = m.Permission
-        fields = '__all__'
-
-
 class UserRoleSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -44,3 +37,10 @@ class UserRoleSerializer(serializers.ModelSerializer):
         fields = [
             'name', 'permissions'
         ]
+
+
+class PermissionSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = m.Permission
+        fields = '__all__'

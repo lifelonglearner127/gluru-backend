@@ -2,6 +2,7 @@ from rest_framework import viewsets, mixins, status
 from rest_framework.views import APIView
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.exceptions import ValidationError
 from tickets.serializers import TicketSerializer
 from info import models as m
 from info import serializers as s
@@ -27,9 +28,7 @@ class GetAllInfoView(APIView):
             many=True
         )
         return Response({
-                'servers': server_serializer.data,
                 'products': product_serializer.data,
-                'os': os_serializer.data,
                 'types': type_serializer.data,
                 'categories': category_serializer.data
             },
@@ -89,6 +88,33 @@ class GluuProductViewSet(mixins.CreateModelMixin,
 
         return Response(
             {'results': serializer.data},
+            status=status.HTTP_200_OK
+        )
+
+    @action(detail=True, methods=['PUT'], url_path='add-info')
+    def add_info(self, request, pk=None):
+        product = self.get_object()
+        data = request.data.get('product', {})
+        os = data.get('os', None)
+        version = data.get('version', None)
+
+        if os is None and version is None:
+            raise ValidationError('No data provided')
+
+        if os is not None:
+            if not isinstance(os, str):
+                raise ValidationError('Invalid os')
+            product.os.append(os)
+            
+
+        if version is not None:
+            if not isinstance(version, str):
+                raise ValidationError('Invalid version')
+            product.version.append(version)
+            
+        product.save()
+        return Response(
+            {'results': 'Successfully add new os'},
             status=status.HTTP_200_OK
         )
 

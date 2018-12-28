@@ -34,6 +34,20 @@ class LowIssueTypeManager(models.Model):
         return super().get_queryset().filter(priority=constants.LOW_PRIORITY)
 
 
+class TicketCategory(models.Model):
+
+    name = CICharField(
+        max_length=30,
+        unique=True
+    )
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name_plural = 'Ticket Categories'
+
+
 class TicketIssueType(models.Model):
 
     name = CICharField(
@@ -53,20 +67,6 @@ class TicketIssueType(models.Model):
 
     def __str__(self):
         return self.name
-
-
-class TicketCategory(models.Model):
-
-    name = CICharField(
-        max_length=30,
-        unique=True
-    )
-
-    def __str__(self):
-        return self.name
-
-    class Meta:
-        verbose_name_plural = 'Ticket Categories'
 
 
 class TicketStatus(models.Model):
