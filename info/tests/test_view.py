@@ -359,7 +359,9 @@ class GluuProductViewSetTest(APITestCase):
 
         self.valid_payload = {
             "product": {
-                "name": "GluuProductViewset"
+                "name": "GluuProductViewset",
+                "version": ["2.1"],
+                "os": ["Centos"]
             }
         }
 

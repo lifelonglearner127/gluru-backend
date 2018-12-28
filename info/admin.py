@@ -9,7 +9,7 @@ class GluuServerAdmin(admin.ModelAdmin):
 
 @admin.register(m.GluuProduct)
 class GluuProductAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name')
+    list_display = ('id', 'name', 'version', 'os')
 
 
 @admin.register(m.GluuOS)

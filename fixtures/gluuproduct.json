@@ -3,28 +3,36 @@
         "model": "info.GluuProduct",
         "pk": 1,
         "fields": {
-            "name": "OXD"
+            "name": "OXD",
+            "version": ["3.1.4", "3.1.3", "3.1.2", "3.0.2", "3.0.1"],
+            "os": ["Ubuntu", "CentOS", "RHEL", "Debian"]
         }
     },
     {
         "model": "info.GluuProduct",
         "pk": 2,
         "fields": {
-            "name": "Super Gluu"
+            "name": "Super Gluu",
+            "version": ["3.1.4", "3.1.3", "3.1.1"],
+            "os": ["Android", "iOS", "Both"]
         }
     },
     {
         "model": "info.GluuProduct",
         "pk": 3,
         "fields": {
-            "name": "Cluster Manager"
+            "name": "Cluster Manager",
+            "version": ["3.1.4", "3.1.3", "Alpha"],
+            "os": ["Ubuntu", "CentOS", "RHEL", "Debian"]
         }
     },
     {
         "model": "info.GluuProduct",
         "pk": 4,
         "fields": {
-            "name": "Cred Manager"
+            "name": "Cred Manager",
+            "version": ["3.1.4", "3.1.3", "3.1.2"],
+            "os": ["Ubuntu", "CentOS", "RHEL", "Debian"]
         }
     }
 ]

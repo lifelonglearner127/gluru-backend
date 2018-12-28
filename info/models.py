@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.postgres.fields import CICharField
+from django.contrib.postgres.fields import CICharField, ArrayField
 from info import constants
 
 
@@ -22,6 +22,14 @@ class GluuProduct(models.Model):
     name = CICharField(
         max_length=20,
         unique=True
+    )
+
+    version = ArrayField(
+        models.CharField(max_length=20)
+    )
+
+    os = ArrayField(
+        models.CharField(max_length=20)
     )
 
     def __str__(self):
