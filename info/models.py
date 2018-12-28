@@ -3,20 +3,6 @@ from django.contrib.postgres.fields import CICharField, ArrayField
 from info import constants
 
 
-class GluuServer(models.Model):
-
-    name = CICharField(
-        max_length=20,
-        unique=True
-    )
-
-    def __str__(self):
-        return self.name
-
-    class Meta:
-        ordering = ['name']
-
-
 class GluuProduct(models.Model):
 
     name = CICharField(
@@ -34,20 +20,6 @@ class GluuProduct(models.Model):
 
     def __str__(self):
         return self.name
-
-
-class GluuOS(models.Model):
-
-    name = CICharField(
-        max_length=20,
-        unique=True
-    )
-
-    def __str__(self):
-        return self.name
-
-    class Meta:
-        verbose_name_plural = 'Gluu OS'
 
 
 class HighIssueTypeManager(models.Model):

@@ -90,26 +90,16 @@ class Ticket(TimestampedModel):
         related_name='tickets'
     )
 
-    gluu_server = models.ForeignKey(
-        info_m.GluuServer,
-        on_delete=models.SET_NULL,
-        blank=True,
-        null=True,
-        related_name='tickets'
+    gluu_server = models.CharField(
+        max_length=20
     )
 
-    os = models.ForeignKey(
-        info_m.GluuOS,
-        on_delete=models.SET_NULL,
-        blank=True,
-        null=True,
-        related_name='tickets'
+    os = models.CharField(
+        max_length=20
     )
 
     os_version = models.CharField(
         max_length=20,
-        blank=True,
-        null=True
     )
 
     products = models.ManyToManyField(
@@ -218,23 +208,15 @@ class TicketProduct(models.Model):
 
     product = models.ForeignKey(
         info_m.GluuProduct,
-        on_delete=models.SET_NULL,
-        blank=True,
-        null=True
+        on_delete=models.CASCADE
     )
 
-    os = models.ForeignKey(
-        info_m.GluuOS,
-        on_delete=models.SET_NULL,
-        related_name='os_product',
-        blank=True,
-        null=True
+    os = models.CharField(
+        max_length=20
     )
 
     os_version = models.CharField(
-        max_length=20,
-        blank=True,
-        null=True
+        max_length=20
     )
 
 

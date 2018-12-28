@@ -90,9 +90,7 @@ Loading Initial Data
 ```
 python manage.py loaddata category
 python manage.py loaddata issuetype
-python manage.py loaddata gluuserver
 python manage.py loaddata gluuproduct
-python manage.py loaddata gluuos
 or python manage.py loaddata data // run this command for loading all inital data
 ```
  > `Note!` We make our model more configurable, and initial data can be loaded using above command

@@ -10,22 +10,12 @@ from info import permissions as p
 
 class GetAllInfoView(APIView):
     def get(self, reqeust):
-        servers = m.GluuServer.objects.all()
         products = m.GluuProduct.objects.all()
-        os = m.GluuOS.objects.all()
         issue_types = m.TicketIssueType.objects.all()
         categories = m.TicketCategory.objects.all()
 
-        server_serializer = s.GluuServerSerializer(
-            servers,
-            many=True
-        )
         product_serializer = s.GluuProductSerializer(
             products,
-            many=True
-        )
-        os_serializer = s.GluuOSSerializer(
-            os,
             many=True
         )
         type_serializer = s.TicketIssueTypeSerializer(
@@ -45,174 +35,6 @@ class GetAllInfoView(APIView):
             },
             status=status.HTTP_200_OK
         )
-
-
-class GluuServerViewset(mixins.CreateModelMixin,
-                        mixins.ListModelMixin,
-                        mixins.UpdateModelMixin,
-                        mixins.RetrieveModelMixin,
-                        mixins.DestroyModelMixin,
-                        viewsets.GenericViewSet):
-    serializer_class = s.GluuServerSerializer
-    permission_classes = (p.IsSuperUserOrReadOnly, )
-
-    def get_queryset(self):
-        return m.GluuServer.objects.all()
-
-    def create(self, request):
-        serializer_data = request.data.get('server', {})
-        serializer = self.serializer_class(
-            data=serializer_data
-        )
-
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-
-        return Response(
-            {'results': serializer.data},
-            status=status.HTTP_201_CREATED
-        )
-
-    def list(self, request):
-        serializer_data = self.get_queryset()
-
-        serializer = self.serializer_class(
-            serializer_data,
-            many=True
-        )
-
-        return Response(
-            {'results': serializer.data},
-            status=status.HTTP_200_OK
-        )
-
-    @action(detail=True, methods=['GET'])
-    def tickets(self, request, pk=None):
-        server = self.get_object()
-        page = self.paginate_queryset(server.tickets.all())
-
-        serializer = TicketSerializer(
-            page,
-            many=True
-        )
-
-        return self.get_paginated_response(serializer.data)
-
-    def update(self, request, pk=None):
-        serializer_instance = self.get_object()
-        serializer_data = request.data.get('server', {})
-        serializer = self.serializer_class(
-            serializer_instance,
-            data=serializer_data,
-            partial=True
-        )
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-
-        return Response(
-            {'results': serializer.data},
-            status=status.HTTP_200_OK
-        )
-
-    def retrieve(self, request, pk=None):
-        serializer_instance = self.get_object()
-        serializer = self.serializer_class(
-            serializer_instance,
-        )
-
-        return Response(
-            {'results': serializer.data},
-            status=status.HTTP_200_OK
-        )
-
-    def destroy(self, request, pk=None):
-        obj = self.get_object()
-        obj.delete()
-        return Response(None, status=status.HTTP_204_NO_CONTENT)
-
-
-class GluuOSViewSet(mixins.CreateModelMixin,
-                    mixins.ListModelMixin,
-                    mixins.UpdateModelMixin,
-                    mixins.RetrieveModelMixin,
-                    mixins.DestroyModelMixin,
-                    viewsets.GenericViewSet):
-    serializer_class = s.GluuOSSerializer
-    permission_classes = (p.IsSuperUserOrReadOnly, )
-
-    def get_queryset(self):
-        return m.GluuOS.objects.all()
-
-    def create(self, request):
-        serializer_data = request.data.get('os', {})
-        serializer = self.serializer_class(
-            data=serializer_data
-        )
-
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-
-        return Response(
-            {'results': serializer.data},
-            status=status.HTTP_201_CREATED
-            )
-
-    def list(self, request):
-        serializer_data = self.get_queryset()
-
-        serializer = self.serializer_class(
-            serializer_data,
-            many=True
-        )
-
-        return Response(
-            {'results': serializer.data},
-            status=status.HTTP_200_OK
-        )
-
-    @action(detail=True, methods=['GET'])
-    def tickets(self, request, pk=None):
-        os = self.get_object()
-        page = self.paginate_queryset(os.tickets.all())
-
-        serializer = TicketSerializer(
-            page,
-            many=True
-        )
-
-        return self.get_paginated_response(serializer.data)
-
-    def update(self, request, pk=None):
-        serializer_instance = self.get_object()
-        serializer_data = request.data.get('os', {})
-        serializer = self.serializer_class(
-            serializer_instance,
-            data=serializer_data,
-            partial=True
-        )
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-
-        return Response(
-            {'results': serializer.data},
-            status=status.HTTP_200_OK
-        )
-
-    def retrieve(self, request, pk=None):
-        serializer_instance = self.get_object()
-        serializer = self.serializer_class(
-            serializer_instance,
-        )
-
-        return Response(
-            {'results': serializer.data},
-            status=status.HTTP_200_OK
-        )
-
-    def destroy(self, request, pk=None):
-        obj = self.get_object()
-        obj.delete()
-        return Response(None, status=status.HTTP_204_NO_CONTENT)
 
 
 class GluuProductViewSet(mixins.CreateModelMixin,

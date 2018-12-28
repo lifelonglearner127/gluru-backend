@@ -2,20 +2,6 @@ from rest_framework import serializers
 from info import models as m
 
 
-class GluuServerSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = m.GluuServer
-        fields = '__all__'
-
-
-class GluuOSSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = m.GluuOS
-        fields = '__all__'
-
-
 class GluuProductSerializer(serializers.ModelSerializer):
 
     class Meta:
