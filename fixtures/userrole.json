@@ -34,5 +34,14 @@
             "is_company_associated": true,
             "permissions": [4]
         }
+    },
+    {
+        "model": "info.UserRole",
+        "pk": 5,
+        "fields": {
+            "name": "community",
+            "is_company_associated": false,
+            "permissions": []
+        }
     }
 ]

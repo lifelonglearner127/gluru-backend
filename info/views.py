@@ -15,6 +15,8 @@ class GetAllInfoView(APIView):
         issue_types = m.TicketIssueType.objects.all()
         categories = m.TicketCategory.objects.all()
         statuses = m.TicketStatus.objects.all()
+        permissions = m.Permission.objects.all()
+        user_roles = m.UserRole.objects.all()
 
         product_serializer = s.GluuProductSerializer(
             products,
@@ -32,12 +34,22 @@ class GetAllInfoView(APIView):
             statuses,
             many=True
         )
-
+        permission_serializer = s.PermissionSerializer(
+            permissions,
+            many=True
+        )
+        user_role_serializer = s.UserRoleSerializer(
+            user_roles,
+            many=True
+        )
+    
         return Response({
                 'products': product_serializer.data,
                 'types': type_serializer.data,
                 'categories': category_serializer.data,
-                'statuses': status_serializer.data
+                'statuses': status_serializer.data,
+                'permissions': permission_serializer.data,
+                'user_roles': user_role_serializer.data
             },
             status=status.HTTP_200_OK
         )
