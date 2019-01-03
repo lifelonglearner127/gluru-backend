@@ -76,6 +76,7 @@ class CompanyViewSetTest(APITestCase):
         )
 
         # Create Permission and UserRole
+        self.role_staff = UserRole.objects.get(name='staff')
         self.role_admin = UserRole.objects.get(name='admin')
         self.role_named = UserRole.objects.get(name='named')
         self.role_user = UserRole.objects.get(name='user')
@@ -137,7 +138,7 @@ class CompanyViewSetTest(APITestCase):
         self.invalid_invite_user_payload = {
             "invitation": {
                 "email": "",
-                "role": self.role_named.id
+                "role": self.role_staff.id
             }
         }
 
@@ -584,6 +585,7 @@ class CompanyViewSetTest(APITestCase):
         """
          - invite user by non permission users
          - invite user by permission users
+         - invite user with incorrect user roles by permission users
         """
         # invite user by non permission users
         non_permission_users = [
@@ -633,6 +635,22 @@ class CompanyViewSetTest(APITestCase):
 
             else:
                 self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        # invite user with incorrect user roles by permission users
+        for user in permission_users:
+            self.client.credentials(
+                HTTP_AUTHORIZATION='Token ' + user.token
+            )
+            response = self.client.post(
+                reverse(
+                    'profiles:company-invite',
+                    kwargs={'pk': self.gluu.id}
+                ),
+                data=json.dumps(self.invalid_invite_user_payload),
+                content_type='application/json'
+            )
+
+            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_accept_invite(self):
         """

@@ -103,6 +103,11 @@ class InvitationSerializer(serializers.ModelSerializer):
             'role': {'required': True}
         }
 
+    def validate_role(self, value):
+        if not value.is_company_associated:
+            raise serializers.ValidationError('Invalid user role value')
+        return value
+
     def create(self, validated_data):
         invited_by = self.context.get('invited_by', None)
         company = self.context.get('company', None)
