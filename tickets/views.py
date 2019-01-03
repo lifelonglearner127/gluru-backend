@@ -153,7 +153,7 @@ class TicketViewSet(mixins.CreateModelMixin,
             else:
                 msg = 'You have not voted this ticket yet'
 
-        return Response({'results': msg},status=status.HTTP_200_OK)
+        return Response({'results': msg}, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=['POST'])
     def subscribe(self, request, pk=None):
@@ -170,7 +170,7 @@ class TicketViewSet(mixins.CreateModelMixin,
             else:
                 msg = 'You are not subscribed to this ticket yet'
 
-        return Response({'results': msg},status=status.HTTP_200_OK)
+        return Response({'results': msg}, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=['PUT'], parser_classes=[MultiPartParser])
     def upload(self, request, pk=None):

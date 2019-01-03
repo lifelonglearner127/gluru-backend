@@ -4,8 +4,7 @@ from django.conf import settings
 from django.contrib.auth import authenticate
 from rest_framework import viewsets, mixins, status
 from rest_framework.views import APIView
-from rest_framework.generics import RetrieveUpdateAPIView
-from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.exceptions import (
     PermissionDenied, ValidationError, NotFound
 )
@@ -94,7 +93,7 @@ class SignupAPIView(APIView):
 
         data = {
             'idp_uuid': request.query_params.get('idp_uuid', None),
-            'email_hash': request.query_params.get('email_hash',None)
+            'email_hash': request.query_params.get('email_hash', None)
         }
 
         r = requests.post(

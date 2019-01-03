@@ -1,7 +1,6 @@
 from django.db import models
 from django.conf import settings
-from tickets import constants as c
-from profiles.models import Company, User
+from profiles.models import Company
 from info import models as info_m
 from gluru_backend.models import TimestampedModel, CreatedOnModel
 

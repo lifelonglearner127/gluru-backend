@@ -719,7 +719,7 @@ class TicketViewSetTest(APITestCase):
             )
             self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-    
+
 class AnswerViewSetTest(APITestCase):
 
     def setUp(self):

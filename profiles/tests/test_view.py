@@ -984,16 +984,27 @@ class OtherAPIViewTest(APITestCase):
             password='levan'
         )
 
+        op_host = 'https://didp.gluu.org'
+        oxd_host = 'https://oxd-server.gluu.org:8443'
+        authorization_redirect_uri = 'http://localhost:8081/#/login-callback'
+        post_logout_redirect_uri = 'http://localhost:8081'
+        client_name = 'New Support Portal App'
+        c_id = '@!A578.3242.DCA8.432A!0001!1DF4.0E33!0008!E432.FDF8.FC47.4052'
+        client_secret = 'begashvili'
+        scope = ['openid']
+        grant_types = [
+            'authorization_code', 'refresh_token', 'client_credentials'
+        ]
         Configuration.objects.create(
-            op_host='https://didp.gluu.org',
-            oxd_host='https://oxd-server.gluu.org:8443',
-            authorization_redirect_uri='http://localhost:8081/#/login-callback',
-            post_logout_redirect_uri='http://localhost:8081',
-            client_name='New Support Portal App',
-            client_id='@!A578.3242.DCA8.432A!0001!1DF4.0E33!0008!E432.FDF8.FC47.4052',
-            client_secret='begashvili',
-            scope=['openid'],
-            grant_types=['authorization_code', 'refresh_token', 'client_credentials']
+            op_host=op_host,
+            oxd_host=oxd_host,
+            authorization_redirect_uri=authorization_redirect_uri,
+            post_logout_redirect_uri=post_logout_redirect_uri,
+            client_name=client_name,
+            client_id=c_id,
+            client_secret=client_secret,
+            scope=scope,
+            grant_types=grant_types
         )
 
     def test_get_login_url(self):

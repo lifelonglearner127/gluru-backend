@@ -105,13 +105,12 @@ class GluuProductViewSet(mixins.CreateModelMixin,
             if not isinstance(os, str):
                 raise ValidationError('Invalid os')
             product.os.append(os)
-            
 
         if version is not None:
             if not isinstance(version, str):
                 raise ValidationError('Invalid version')
             product.version.append(version)
-            
+
         product.save()
         return Response(
             {'results': 'Successfully add new os'},

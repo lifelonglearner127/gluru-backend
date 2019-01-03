@@ -6,6 +6,7 @@ class IsVisitor(permissions.BasePermission):
     def has_permission(self, request, view):
         return not request.user.is_authenticated
 
+
 class IsCompanyAdmin(permissions.BasePermission):
     def has_permission(self, request, view):
         return request.user.is_authenticated
