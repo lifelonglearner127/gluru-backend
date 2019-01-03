@@ -14,6 +14,7 @@ class GetAllInfoView(APIView):
         products = m.GluuProduct.objects.all()
         issue_types = m.TicketIssueType.objects.all()
         categories = m.TicketCategory.objects.all()
+        statuses = m.TicketStatus.objects.all()
 
         product_serializer = s.GluuProductSerializer(
             products,
@@ -27,10 +28,16 @@ class GetAllInfoView(APIView):
             categories,
             many=True
         )
+        status_serializer = s.TicketStatusSerializer(
+            statuses,
+            many=True
+        )
+
         return Response({
                 'products': product_serializer.data,
                 'types': type_serializer.data,
-                'categories': category_serializer.data
+                'categories': category_serializer.data,
+                'statuses': status_serializer.data
             },
             status=status.HTTP_200_OK
         )

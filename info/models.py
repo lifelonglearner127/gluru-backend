@@ -22,18 +22,6 @@ class GluuProduct(models.Model):
         return self.name
 
 
-class HighIssueTypeManager(models.Model):
-
-    def get_queryset(self):
-        return super().get_queryset().filter(priority=constants.HIGH_PRIORITY)
-
-
-class LowIssueTypeManager(models.Model):
-
-    def get_queryset(self):
-        return super().get_queryset().filter(priority=constants.LOW_PRIORITY)
-
-
 class TicketCategory(models.Model):
 
     name = CICharField(
@@ -46,6 +34,18 @@ class TicketCategory(models.Model):
 
     class Meta:
         verbose_name_plural = 'Ticket Categories'
+
+
+class HighIssueTypeManager(models.Model):
+
+    def get_queryset(self):
+        return super().get_queryset().filter(priority=constants.HIGH_PRIORITY)
+
+
+class LowIssueTypeManager(models.Model):
+
+    def get_queryset(self):
+        return super().get_queryset().filter(priority=constants.LOW_PRIORITY)
 
 
 class TicketIssueType(models.Model):
