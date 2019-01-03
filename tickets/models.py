@@ -210,6 +210,10 @@ class TicketProduct(models.Model):
         on_delete=models.CASCADE
     )
 
+    version = models.CharField(
+        max_length=20
+    )
+
     os = models.CharField(
         max_length=20
     )

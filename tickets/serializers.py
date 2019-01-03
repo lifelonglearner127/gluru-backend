@@ -5,6 +5,7 @@ from drf_haystack.serializers import HaystackSerializer
 from drf_haystack.serializers import HighlighterMixin
 from tickets.search_indexes import TicketIndex
 from tickets import models as m
+from info.models import GluuProduct
 from profiles.models import UserRole, User
 from profiles.serializers import ShortUserSerializer, ShortCompanySerializer
 
@@ -31,13 +32,20 @@ class TicketProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = m.TicketProduct
         fields = (
-            'product', 'os', 'os_version'
+            'product', 'version', 'os', 'os_version'
         )
-        extra_kwargs = {
-            'product': {'required': True},
-            'os': {'required': True},
-            'os_version': {'required': True}
-        }
+
+    def validate(self, data):
+        product = data.get('product', None)
+        version = data.get('version', None)
+        os = data.get('os', None)
+
+        if version not in product.version:
+            raise serializers.ValidationError('Invalid Product Version Value')
+
+        if os not in product.os:
+            raise serializers.ValidationError('Invalid OS Value')
+        return data
 
 
 class TicketSerializer(serializers.ModelSerializer):
@@ -66,6 +74,18 @@ class TicketSerializer(serializers.ModelSerializer):
             'gluu_server': {'required': True},
             'os': {'required': True}
         }
+
+    def validate_gluu_server(self, value):
+        server = GluuProduct.objects.get(name='Gluu Server')
+        if value not in server.version:
+            raise serializers.ValidationError('Invalid Gluu Server Value')
+        return value
+
+    def validate_os(self, value):
+        server = GluuProduct.objects.get(name='Gluu Server')
+        if value not in server.os:
+            raise serializers.ValidationError('Invalid OS Value')
+        return value
 
     def create(self, validated_data):
         created_by = self.context.get('created_by', None)
