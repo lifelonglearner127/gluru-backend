@@ -90,6 +90,10 @@ class UserRole(models.Model):
         unique=True
     )
 
+    is_company_associated = models.BooleanField(
+        default=False
+    )
+
     permissions = models.ManyToManyField(
         'Permission'
     )
