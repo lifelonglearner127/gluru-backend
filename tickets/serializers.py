@@ -5,7 +5,7 @@ from drf_haystack.serializers import HaystackSerializer
 from drf_haystack.serializers import HighlighterMixin
 from tickets.search_indexes import TicketIndex
 from tickets import models as m
-from profiles.models import UserRole
+from profiles.models import UserRole, User
 from profiles.serializers import ShortUserSerializer, ShortCompanySerializer
 
 
@@ -109,7 +109,7 @@ class TicketSerializer(serializers.ModelSerializer):
                     )
 
         if created_for_id is not None and company_association is not None:
-            created_for = get_object_or_404(m.User, pk=created_for_id)
+            created_for = get_object_or_404(User, pk=created_for_id)
             if not company_association.is_member(created_for):
                 raise serializers.ValidationError(
                     "User is not a member of this company"
@@ -139,9 +139,9 @@ class TicketSerializer(serializers.ModelSerializer):
         assignee_id = self.context.get('assignee_id', None)
         if assignee_id is not None:
             try:
-                assignee = m.User.objects.get(pk=assignee_id)
+                assignee = User.objects.get(pk=assignee_id)
                 instance.assignee = assignee
-            except m.User.DoesNotExist:
+            except User.DoesNotExist:
                 raise serializers.ValidationError('Such user does not exist')
 
         instance.updated_by = self.context.get('updated_by', None)

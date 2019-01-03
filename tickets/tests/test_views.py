@@ -95,20 +95,20 @@ class TicketViewSetTest(APITestCase):
         # Create Tickets; Community Ticket, Company Ticket
         self.ticket_by_community_user = Ticket.objects.create(
             title='title', body='body', status_id=1, category_id=1,
-            issue_type_id=1, gluu_server_id=1, os_id=1,
+            issue_type_id=1, gluu_server='3.1.4', os='Ubuntu',
             created_by=self.community_user
         )
 
         self.ticket_by_gluu_admin = Ticket.objects.create(
             title='title', body='body', status_id=1, category_id=1,
-            issue_type_id=1, gluu_server_id=1, os_id=1,
+            issue_type_id=1, gluu_server='3.1.4', os='Ubuntu',
             created_by=self.gluu_admin, company_association=self.gluu,
             created_for=self.gluu_named
         )
 
         self.ticket_by_staff_for_gluu = Ticket.objects.create(
             title='title', body='body', status_id=1, category_id=1,
-            issue_type_id=1, gluu_server_id=1, os_id=1,
+            issue_type_id=1, gluu_server='3.1.4', os='Ubuntu',
             created_by=self.staff, company_association=self.gluu,
             created_for=self.gluu_named
         )
@@ -120,8 +120,9 @@ class TicketViewSetTest(APITestCase):
                 "issueType": 1,
                 "status": 1,
                 "category": 1,
-                "gluuServer": 1,
-                "os": 1
+                "gluuServer": "3.1.4",
+                "os": "Ubuntu",
+                "osVersion": "18.04"
             }
         }
 
@@ -144,8 +145,9 @@ class TicketViewSetTest(APITestCase):
                 "issueType": 1,
                 "status": 1,
                 "category": 1,
-                "gluuServer": 1,
-                "os": 1,
+                "gluuServer": "3.1.4",
+                "os": "Ubuntu",
+                "osVersion": "18.04",
                 "company_association": self.gluu.id,
                 "created_for": self.gluu_named.id
             }
@@ -806,20 +808,20 @@ class AnswerViewSetTest(APITestCase):
         # Create Tickets; Community Ticket, Company Ticket
         self.ticket_by_community_user = Ticket.objects.create(
             title='title', body='body', status_id=1, category_id=1,
-            issue_type_id=1, gluu_server_id=1, os_id=1,
+            issue_type_id=1, gluu_server='3.1.4', os='Ubuntu',
             created_by=self.community_user
         )
 
         self.ticket_by_gluu_admin = Ticket.objects.create(
             title='title', body='body', status_id=1, category_id=1,
-            issue_type_id=1, gluu_server_id=1, os_id=1,
+            issue_type_id=1, gluu_server='3.1.4', os='Ubuntu',
             created_by=self.gluu_admin, company_association=self.gluu,
             created_for=self.gluu_named
         )
 
         self.ticket_by_staff_for_gluu = Ticket.objects.create(
             title='title', body='body', status_id=1, category_id=1,
-            issue_type_id=1, gluu_server_id=1, os_id=1,
+            issue_type_id=1, gluu_server='3.1.4', os='Ubuntu',
             created_by=self.staff, company_association=self.gluu,
             created_for=self.gluu_named
         )
