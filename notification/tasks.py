@@ -5,7 +5,7 @@ from twilio.rest import Client
 from gluru_backend.celery import app
 from gluru_backend.utils import send_mail, generate_ticket_link
 from notification.models import SMSContact
-from tickets.constants import NOTIFICATION_DELAY_TIME, SLA_MATRIX
+# from tickets.constants import NOTIFICATION_DELAY_TIME, SLA_MATRIX
 from tickets.models import Ticket
 
 
@@ -47,7 +47,8 @@ def send_sms():
 
         issue_type = ticket.issue_type
         support_plan = 'Basic'
-        delay_time = NOTIFICATION_DELAY_TIME[issue_type][support_plan]
+        # delay_time = NOTIFICATION_DELAY_TIME[issue_type][support_plan]
+        delay_time = 30
         time_diff = timezone.now() - ticket.created_at
 
         if time_diff > timedelta(minutes=delay_time):
@@ -84,7 +85,8 @@ def email_reminder():
         #     continue
 
         support_plan = 'Basic'
-        delay_time = SLA_MATRIX[support_plan][ticket.issue_type]
+        # delay_time = SLA_MATRIX[support_plan][ticket.issue_type]
+        delay_time = 30
         time_diff = timezone.now() - ticket.updated_at
 
         if time_diff > timedelta(minutes=delay_time):
