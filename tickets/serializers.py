@@ -83,7 +83,7 @@ class TicketSerializer(serializers.ModelSerializer):
                 if not staff_role.has_permission(
                     app_name='tickets',
                     model_name='Ticket',
-                    permission_name='create'
+                    action='create'
                 ):
                     raise PermissionDenied(
                         'You do not have permission to perform this action.'
@@ -102,7 +102,7 @@ class TicketSerializer(serializers.ModelSerializer):
                 if not membership.role.has_permission(
                     app_name='tickets',
                     model_name='Ticket',
-                    permission_name='create'
+                    action='create'
                 ):
                     raise PermissionDenied(
                         'You do not have permission to perform this action.'
@@ -178,7 +178,7 @@ class AnswerSerializer(serializers.ModelSerializer):
             if not staff_role.has_permission(
                 app_name='tickets',
                 model_name='Answer',
-                permission_name='create'
+                action='create'
             ):
                 raise PermissionDenied(
                     'You do not have permission to perform this action.'
@@ -202,7 +202,7 @@ class AnswerSerializer(serializers.ModelSerializer):
                 if not membership.role.has_permission(
                     app_name='tickets',
                     model_name='Answer',
-                    permission_name='create'
+                    action='create'
                 ):
                     raise PermissionDenied(
                         'You do not have permission to perform this action.'

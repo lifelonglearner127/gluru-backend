@@ -48,7 +48,7 @@ class CompanyCustomPermission(permissions.BasePermission):
                 staff_role.has_permission(
                     app_name='profiles',
                     model_name='Company',
-                    permission_name=view.action
+                    action=view.action
                 )
 
         membership = request.user.membership_set.filter(
@@ -60,7 +60,7 @@ class CompanyCustomPermission(permissions.BasePermission):
             membership.role.has_permission(
                 app_name='profiles',
                 model_name='Company',
-                permission_name=view.action
+                action=view.action
             )
         )
         return view.action in ['accept_invite'] or staff_permission or\

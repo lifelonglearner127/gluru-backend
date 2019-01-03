@@ -13,7 +13,7 @@ class TicketCustomPermission(permissions.BasePermission):
         if request.user.is_superuser:
             return True
 
-        permission_name = 'retrieve'\
+        action = 'retrieve'\
             if request.method in permissions.SAFE_METHODS else view.action
 
         if request.user.is_staff:
@@ -21,7 +21,7 @@ class TicketCustomPermission(permissions.BasePermission):
             return staff_role.has_permission(
                 app_name='tickets',
                 model_name='Ticket',
-                permission_name=permission_name
+                action=action
             )
 
         company = obj.company_association
@@ -38,7 +38,7 @@ class TicketCustomPermission(permissions.BasePermission):
             membership.role.has_permission(
                 app_name='tickets',
                 model_name='Ticket',
-                permission_name=permission_name
+                action=action
             )
 
 
@@ -57,7 +57,7 @@ class AnswerCustomPermission(permissions.BasePermission):
             return staff_role.has_permission(
                 app_name='tickets',
                 model_name=model_name,
-                permission_name=view.action
+                action=view.action
             )
             membership = request.user.membership_set.filter(
                 company=obj.ticket.company_association
@@ -79,7 +79,7 @@ class AnswerCustomPermission(permissions.BasePermission):
             membership.role.has_permission(
                 app_name='tickets',
                 model_name=model_name,
-                permission_name=view.action
+                action=view.action
             )
 
 
@@ -101,7 +101,7 @@ class TicketAccessPermission(permissions.BasePermission):
             return staff_role.has_permission(
                 app_name='tickets',
                 model_name='Ticket',
-                permission_name='retrieve'
+                action='retrieve'
             )
 
         membership = company.membership_set.filter(user=request.user).first()
@@ -109,5 +109,5 @@ class TicketAccessPermission(permissions.BasePermission):
             membership.role.has_permission(
                 app_name='tickets',
                 model_name='Ticket',
-                permission_name='retrieve'
+                action='retrieve'
             )

@@ -82,7 +82,11 @@ def get_tickets_query(user):
         if user.is_staff:
             staff_role = UserRole.objects.get(name='staff')
 
-            if staff_role.has_permission('tickets', 'Ticket', 'list'):
+            if staff_role.has_permission(
+                app_name='tickets',
+                model_name='Ticket',
+                action='list'
+            ):
                 return Q()
 
         queries = Q(company_association=None)
@@ -90,7 +94,11 @@ def get_tickets_query(user):
         for company in companies:
             role = user.membership_set.filter(company=company).first().role
 
-            if role.has_permission('tickets', 'Ticket', 'list'):
+            if role.has_permission(
+                app_name='tickets',
+                model_name='Ticket',
+                action='list'
+            ):
                 queries |= Q(company_association=company)
 
         return queries
