@@ -104,3 +104,32 @@ def get_tickets_query(user):
         return queries
 
     return Q(company_association=None, is_private=False)
+
+
+def get_ticket_creatable_companies(user):
+    if user.is_superuser:
+        return Q()
+
+    if user.is_staff:
+        staff_role = UserRole.objects.get(name='staff')
+
+        if staff_role.has_permission(
+            app_name='tickets',
+            model_name='Ticket',
+            action='create'
+        ):
+            return Q()
+
+    queries = Q(pk=0)
+
+    for company in user.companies:
+        role = user.membership_set.filter(company=company).first().role
+
+        if role.has_permission(
+            app_name='tickets',
+            model_name='Ticket',
+            action='create'
+        ):
+            queries |= Q(pk=company.id)
+
+    return queries

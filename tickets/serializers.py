@@ -66,10 +66,10 @@ class TicketSerializer(serializers.ModelSerializer):
     class Meta:
         model = m.Ticket
         fields = [
-            'id', 'slug', 'title', 'body', 'created_by', 'created_for', 'updated_by',
-            'assignee', 'category', 'status', 'issue_type', 'gluu_server',
-            'os', 'os_version', 'response_no', 'products', 'voters',
-            'subscribers', 'company_association', 'created_at'
+            'id', 'slug', 'title', 'body', 'created_by', 'created_for',
+            'updated_by', 'assignee', 'category', 'status', 'issue_type',
+            'gluu_server', 'os', 'os_version', 'response_no', 'products',
+            'voters', 'subscribers', 'company_association', 'created_at'
         ]
         extra_kwargs = {
             'category': {'required': True},

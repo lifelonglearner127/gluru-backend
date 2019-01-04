@@ -10,7 +10,7 @@ from rest_framework.exceptions import (
 )
 from rest_framework.response import Response
 from rest_framework.decorators import action
-from gluru_backend.utils import generate_hash
+from gluru_backend.utils import generate_hash, get_ticket_creatable_companies
 from profiles import models as m
 from profiles import serializers as s
 from profiles import permissions as p
@@ -318,6 +318,22 @@ class CompanyViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
         serializer_instance = self.get_object()
         serializer = self.serializer_class(
             serializer_instance,
+        )
+
+        return Response(
+            {'results': serializer.data},
+            status=status.HTTP_200_OK
+        )
+
+    @action(detail=False, methods=['GET'], url_path='ticket-createable')
+    def ticket_creatable_companies(self, request):
+        queryset = self.get_queryset().filter(
+            get_ticket_creatable_companies(request.user)
+        )
+
+        serializer = self.serializer_class(
+            queryset,
+            many=True
         )
 
         return Response(
