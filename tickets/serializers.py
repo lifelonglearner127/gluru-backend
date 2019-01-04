@@ -59,6 +59,7 @@ class TicketSerializer(serializers.ModelSerializer):
     products = TicketProductSerializer(
         source='ticketproduct_set', many=True, required=False
     )
+    created_at = serializers.DateTimeField(format='%d %a %Y at %I:%M %p GMT')
 
     class Meta:
         model = m.Ticket
@@ -66,7 +67,7 @@ class TicketSerializer(serializers.ModelSerializer):
             'id', 'title', 'body', 'created_by', 'created_for', 'updated_by',
             'assignee', 'category', 'status', 'issue_type', 'gluu_server',
             'os', 'os_version', 'response_no', 'products', 'voters',
-            'subscribers', 'company_association'
+            'subscribers', 'company_association', 'created_at'
         ]
         extra_kwargs = {
             'category': {'required': True},

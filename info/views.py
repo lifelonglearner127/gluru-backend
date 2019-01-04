@@ -42,7 +42,7 @@ class GetAllInfoView(APIView):
             user_roles,
             many=True
         )
-    
+
         return Response({
                 'products': product_serializer.data,
                 'types': type_serializer.data,
