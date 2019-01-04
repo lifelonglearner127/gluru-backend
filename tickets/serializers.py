@@ -72,6 +72,7 @@ class TicketSerializer(serializers.ModelSerializer):
             'voters', 'subscribers', 'company_association', 'created_at'
         ]
         extra_kwargs = {
+            'slug': {'required': False},
             'category': {'required': True},
             'issue_type': {'required': True},
             'gluu_server': {'required': True},
