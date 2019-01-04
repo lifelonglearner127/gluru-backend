@@ -182,11 +182,12 @@ class TicketHistorySerializer(serializers.ModelSerializer):
 
 class AnswerSerializer(serializers.ModelSerializer):
     created_by = ShortUserSerializer(read_only=True)
+    created_at = serializers.DateTimeField(format='%d %a %Y at %I:%M %p GMT')
 
     class Meta:
         model = m.Answer
         fields = [
-            'id', 'body', 'ticket', 'created_by'
+            'id', 'body', 'ticket', 'created_by', 'created_at'
         ]
         extra_kwargs = {
             'ticket': {'required': False},
