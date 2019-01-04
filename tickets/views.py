@@ -9,6 +9,7 @@ from tickets import models as m
 from tickets import serializers as s
 from tickets import permissions as p
 from gluru_backend.utils import get_tickets_query
+from info.models import UserRole
 
 
 class TicketSearchView(HaystackViewSet):
@@ -86,13 +87,36 @@ class TicketViewSet(mixins.CreateModelMixin,
         )
 
     def retrieve(self, request, slug=None):
-        serializer_instance = self.get_object()
+        ticket = self.get_object()
         serializer = self.serializer_class(
-            serializer_instance,
+            ticket,
         )
 
+        if ticket.company_association is None:
+            respond_permission = ( request.user == ticket.created_by )
+
+        else:
+            membership = request.user.membership_set.filter(
+                company=ticket.company_association
+            ).first()
+            respond_permission = membership and membership.role and\
+                membership.role.has_permission(
+                    app_name='tickets', model_name='Answer', action='create'
+                )
+
+        if request.user.is_superuser:
+            respond_permission = True
+
+        if not request.user.is_superuser and request.user.is_staff:
+            staff_role = UserRole.objects.get(name='staff')
+            respond_permission = staff_role.has_permission(
+                app_name='tickets', model_name='Answer', action='create'
+            )
         return Response(
-            {'results': serializer.data},
+            {
+                'results': serializer.data,
+                'respond_permission': respond_permission
+            },
             status=status.HTTP_200_OK
         )
 
