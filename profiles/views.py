@@ -497,7 +497,7 @@ class CompanyViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
             status=status.HTTP_200_OK
         )
 
-    def destroy(self, request, ticket_pk=None, pk=None):
+    def destroy(self, request, ticket_slug=None, pk=None):
         obj = self.get_object()
         obj.delete()
 

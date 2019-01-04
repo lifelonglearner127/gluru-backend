@@ -37,7 +37,7 @@ class AnswerInlineAdmin(admin.StackedInline):
 @admin.register(Ticket)
 class TicketAdmin(admin.ModelAdmin):
     list_display = (
-        'id', 'title', 'status', 'issue_type', 'created_by',
+        'id', 'slug', 'title', 'status', 'issue_type', 'created_by',
         'assignee', 'updated_by', 'category', 'created_at', 'updated_at'
     )
 

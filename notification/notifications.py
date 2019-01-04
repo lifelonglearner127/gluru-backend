@@ -22,11 +22,11 @@ def gather_ticket_email_context(ticket):
         'ticket_id': ticket.id,
         'ticket_title': ticket.title,
         'site_name': site.name,
-        'ticket_link': generate_ticket_link(ticket.id),
+        'ticket_link': generate_ticket_link(ticket.slug),
         'ticket_created_by': ticket.created_by.full_name,
         'ticket_created_by_comp': 'Company',
         'ticket_body_txt': text,
-        'subscription_link': generate_ticket_link(ticket.id),
+        'subscription_link': generate_ticket_link(ticket.slug),
         'issue_type': ticket.issue_type
     }
 
@@ -186,7 +186,7 @@ def gather_answer_email_context(answer):
 
     site = Site.objects.get_current()
     ticket_link = '{}#at{}'.format(
-        generate_ticket_link(answer.ticket.id),
+        generate_ticket_link(answer.ticket.slug),
         answer.id
     )
 

@@ -23,6 +23,7 @@ class TicketViewSet(mixins.CreateModelMixin,
                     mixins.RetrieveModelMixin,
                     mixins.DestroyModelMixin,
                     viewsets.GenericViewSet):
+    lookup_field = 'slug'
     permission_classes = (p.TicketCustomPermission, )
     serializer_class = s.TicketSerializer
 
@@ -64,7 +65,7 @@ class TicketViewSet(mixins.CreateModelMixin,
 
         return self.get_paginated_response(serializer.data)
 
-    def update(self, request, pk=None):
+    def update(self, request, slug=None):
         serializer_instance = self.get_object()
         serializer_data = request.data.get('ticket', {})
         context = {
@@ -84,7 +85,7 @@ class TicketViewSet(mixins.CreateModelMixin,
             status=status.HTTP_200_OK
         )
 
-    def retrieve(self, request, pk=None):
+    def retrieve(self, request, slug=None):
         serializer_instance = self.get_object()
         serializer = self.serializer_class(
             serializer_instance,
@@ -95,7 +96,7 @@ class TicketViewSet(mixins.CreateModelMixin,
             status=status.HTTP_200_OK
         )
 
-    def destroy(self, request, pk=None):
+    def destroy(self, request, slug=None):
         ticket = self.get_object()
         ticket.is_deleted = True
         ticket.save()
@@ -103,7 +104,7 @@ class TicketViewSet(mixins.CreateModelMixin,
         return Response(None, status=status.HTTP_204_NO_CONTENT)
 
     @action(detail=True, methods=['GET'])
-    def history(self, request, pk=None):
+    def history(self, request, slug=None):
         serializer_instance = self.get_object()
         page = self.paginate_queryset(
             serializer_instance.history.all()
@@ -117,7 +118,7 @@ class TicketViewSet(mixins.CreateModelMixin,
         return self.get_paginated_response(serializer.data)
 
     @action(detail=True, methods=['POST'])
-    def assign(self, request, pk=None):
+    def assign(self, request, slug=None):
         serializer_instance = self.get_object()
         serializer_data = request.data.get('ticket', {})
         context = {
@@ -139,7 +140,7 @@ class TicketViewSet(mixins.CreateModelMixin,
         )
 
     @action(detail=True, methods=['POST'])
-    def vote(self, request, pk=None):
+    def vote(self, request, slug=None):
         ticket = self.get_object()
         data = request.data.get('vote', {})
         vote = data.get('vote', True)
@@ -156,7 +157,7 @@ class TicketViewSet(mixins.CreateModelMixin,
         return Response({'results': msg}, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=['POST'])
-    def subscribe(self, request, pk=None):
+    def subscribe(self, request, slug=None):
         ticket = self.get_object()
         data = request.data.get('subscribe', {})
         subscribe = data.get('subscribe', True)
@@ -173,7 +174,7 @@ class TicketViewSet(mixins.CreateModelMixin,
         return Response({'results': msg}, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=['PUT'], parser_classes=[MultiPartParser])
-    def upload(self, request, pk=None):
+    def upload(self, request, slug=None):
         obj = self.get_object()
         files = list(request.FILES.values())
         for f in files:
@@ -202,13 +203,15 @@ class AnswerViewSet(mixins.CreateModelMixin,
 
     def get_queryset(self):
         return m.Answer.actives.filter(
-            ticket=self.kwargs['ticket_pk'],
+            ticket__slug=self.kwargs['ticket_slug'],
             ticket__is_deleted=False
         )
 
-    def create(self, request, ticket_pk=None):
+    def create(self, request, ticket_slug=None):
         serializer_data = request.data.get('answer', {})
-        ticket = get_object_or_404(m.Ticket, is_deleted=False, pk=ticket_pk)
+        ticket = get_object_or_404(
+            m.Ticket, is_deleted=False, slug=ticket_slug
+        )
         context = {
             'created_by': request.user,
             'ticket': ticket
@@ -225,7 +228,7 @@ class AnswerViewSet(mixins.CreateModelMixin,
             status=status.HTTP_201_CREATED
         )
 
-    def update(self, request, ticket_pk=None, pk=None):
+    def update(self, request, ticket_slug=None, pk=None):
         serializer_instance = self.get_object()
         serializer_data = request.data.get('answer', {})
         context = {
@@ -245,7 +248,7 @@ class AnswerViewSet(mixins.CreateModelMixin,
             status=status.HTTP_200_OK
         )
 
-    def retrieve(self, request, ticket_pk=None, pk=None):
+    def retrieve(self, request, ticket_slug=None, pk=None):
         serializer_instance = self.get_object()
         serializer = self.serializer_class(
             serializer_instance,
@@ -256,7 +259,7 @@ class AnswerViewSet(mixins.CreateModelMixin,
             status=status.HTTP_200_OK
         )
 
-    def destroy(self, request, ticket_pk=None, pk=None):
+    def destroy(self, request, ticket_slug=None, pk=None):
         answer = self.get_object()
         answer.is_deleted = True
         answer.save()
@@ -264,7 +267,7 @@ class AnswerViewSet(mixins.CreateModelMixin,
         return Response(None, status=status.HTTP_204_NO_CONTENT)
 
     @action(detail=True, methods=['PUT'], parser_classes=[MultiPartParser])
-    def upload(self, request, ticket_pk=None, pk=None):
+    def upload(self, request, ticket_slug=None, pk=None):
         obj = self.get_object()
         files = list(request.FILES.values())
         for f in files:

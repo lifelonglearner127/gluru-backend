@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from django.utils.text import slugify
 from profiles.models import Company
 from info import models as info_m
 from gluru_backend.models import TimestampedModel, CreatedOnModel
@@ -20,6 +21,11 @@ class ActiveTicketManager(models.Manager):
 
 
 class Ticket(TimestampedModel):
+
+    slug = models.SlugField(
+        max_length=255,
+        unique=True
+    )
 
     title = models.CharField(
         max_length=255
@@ -149,6 +155,20 @@ class Ticket(TimestampedModel):
 
     def __str__(self):
         return '{} - {}'.format(self.id, self.title)
+
+    def _get_unique_slug(self):
+        slug = slugify(self.title)
+        unique_slug = slug
+        num = 1
+        while Ticket.objects.filter(slug=unique_slug).exists():
+            unique_slug = '{}-{}'.format(slug, num)
+            num += 1
+        return unique_slug
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = self._get_unique_slug()
+        super().save(*args, **kwargs)
 
 
 class ActiveAnswerManager(models.Manager):

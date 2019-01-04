@@ -86,8 +86,8 @@ class AnswerCustomPermission(permissions.BasePermission):
 class TicketAccessPermission(permissions.BasePermission):
     def has_permission(self, request, view):
         kwargs = request.parser_context.get('kwargs')
-        ticket_pk = kwargs.get('ticket_pk', None)
-        ticket = get_object_or_404(Ticket, pk=ticket_pk)
+        ticket_slug = kwargs.get('ticket_slug', None)
+        ticket = get_object_or_404(Ticket, slug=ticket_slug)
         company = ticket.company_association
 
         if company is None:

@@ -59,12 +59,14 @@ class TicketSerializer(serializers.ModelSerializer):
     products = TicketProductSerializer(
         source='ticketproduct_set', many=True, required=False
     )
-    created_at = serializers.DateTimeField(format='%d %a %Y at %I:%M %p GMT')
+    created_at = serializers.DateTimeField(
+        format='%d %a %Y at %I:%M %p GMT', read_only=True
+    )
 
     class Meta:
         model = m.Ticket
         fields = [
-            'id', 'title', 'body', 'created_by', 'created_for', 'updated_by',
+            'id', 'slug', 'title', 'body', 'created_by', 'created_for', 'updated_by',
             'assignee', 'category', 'status', 'issue_type', 'gluu_server',
             'os', 'os_version', 'response_no', 'products', 'voters',
             'subscribers', 'company_association', 'created_at'
@@ -183,7 +185,9 @@ class TicketHistorySerializer(serializers.ModelSerializer):
 
 class AnswerSerializer(serializers.ModelSerializer):
     created_by = ShortUserSerializer(read_only=True)
-    created_at = serializers.DateTimeField(format='%d %a %Y at %I:%M %p GMT')
+    created_at = serializers.DateTimeField(
+        format='%d %a %Y at %I:%M %p GMT', read_only=True
+    )
 
     class Meta:
         model = m.Answer

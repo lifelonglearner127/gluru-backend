@@ -18,8 +18,8 @@ def get_base_url():
     return '{}://{}'.format(settings.PROTOCOL, site.domain)
 
 
-def generate_ticket_link(ticket_id, subscribe=None):
-    ticket_url = reverse('tickets:ticket-detail', kwargs={'pk': ticket_id})
+def generate_ticket_link(ticket_slug, subscribe=None):
+    ticket_url = reverse('tickets:ticket-detail', kwargs={'slug': ticket_slug})
 
     if subscribe is not None:
         query_kwargs = {

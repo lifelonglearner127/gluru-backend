@@ -58,7 +58,7 @@ def send_sms():
             Thanks! - Gluu Team
             """.format(
                 ticket.created_by.full_name, ticket.created_by.company_name,
-                ticket.issue_type, generate_ticket_link(ticket.id)
+                ticket.issue_type, generate_ticket_link(ticket.slug)
             )
 
             for contact in contacts:
@@ -92,7 +92,7 @@ def email_reminder():
         if time_diff > timedelta(minutes=delay_time):
             context = {
                 'ticket': ticket,
-                'ticket_link': generate_ticket_link(ticket.id),
+                'ticket_link': generate_ticket_link(ticket.slug),
                 'support_plan': support_plan
             }
 
