@@ -34,9 +34,9 @@ class TicketViewSet(mixins.CreateModelMixin,
 
         context = {
             'created_by': request.user,
-            'created_for': serializer_data.pop('created_for', None),
+            'created_for': serializer_data.pop('created_for', ''),
             'company_association': serializer_data.pop(
-                'company_association', None
+                'company_association', ''
                 )
         }
 

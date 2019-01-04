@@ -5,7 +5,7 @@ from drf_haystack.serializers import HaystackSerializer
 from drf_haystack.serializers import HighlighterMixin
 from tickets.search_indexes import TicketIndex
 from tickets import models as m
-from info.models import GluuProduct
+from info.models import GluuProduct, TicketStatus
 from profiles.models import UserRole, User
 from profiles.serializers import ShortUserSerializer, ShortCompanySerializer
 
@@ -89,14 +89,15 @@ class TicketSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         created_by = self.context.get('created_by', None)
-        created_for_id = self.context.get('created_for', None)
-        company_id = self.context.get('company_association', None)
+        created_for_id = self.context.get('created_for', '')
+        company_id = self.context.get('company_association', '')
+        validated_data.pop('status')
         products = validated_data.pop('ticketproduct_set', [])
 
         created_for = None
         company_association = None
 
-        if company_id is not None:
+        if company_id:
             company_association = get_object_or_404(m.Company, pk=company_id)
             if not created_by.is_superuser and created_by.is_staff:
                 staff_role = UserRole.objects.get(name='staff')
@@ -128,17 +129,19 @@ class TicketSerializer(serializers.ModelSerializer):
                         'You do not have permission to perform this action.'
                     )
 
-        if created_for_id is not None and company_association is not None:
+        if created_for_id and company_association:
             created_for = get_object_or_404(User, pk=created_for_id)
             if not company_association.is_member(created_for):
                 raise serializers.ValidationError(
                     "User is not a member of this company"
                 )
 
+        status_new = TicketStatus.objects.get(name='new')
         ticket = m.Ticket.objects.create(
             created_by=created_by,
             company_association=company_association,
             created_for=created_for,
+            status=status_new,
             **validated_data
         )
 
