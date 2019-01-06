@@ -1,5 +1,6 @@
 import jwt
 from datetime import datetime, timedelta
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.conf import settings
 from django.contrib.auth.models import (
@@ -115,6 +116,40 @@ class User(AbstractBaseUser, PermissionsMixin, TimestampedModel):
         }, settings.SECRET_KEY, algorithm='HS256')
 
         return token.decode('utf-8')
+
+    def update_from_idp(self, user_info):
+        # Validate email
+        emails = user_info.get('emails', [])
+        if emails:
+            email = emails[0].get('value', '')
+            if not email:
+                raise ValidationError('Email cannot be empty')
+
+            try:
+                user = User.objects.get(email=email)
+                if not user.idp_uuid == user_info.get('id'):
+                    raise ValidationError('Email exists')
+            except User.DoesNotExist:
+                self.email = email
+
+        self.idp_uuid = user_info.get('id', self.idp_uuid)
+        self.first_name = user_info.get(
+            'name', {}
+        ).get(
+            'givenName', self.first_name
+        )
+        self.last_name = user_info.get(
+            'name', {}
+        ).get(
+            'familyName', self.last_name
+        )
+        phone_numbers = user_info.get('phoneNumbers', [])
+        if phone_numbers:
+            self.phone_number = phone_numbers[0].get(
+                'value', self.phone_number
+            )
+
+        self.save()
 
 
 class Company(TimestampedModel):
