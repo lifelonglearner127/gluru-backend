@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import User, Company, Invitation
+from .models import User, Company, Invitation, Membership
 
 
 @admin.register(User)
@@ -37,3 +37,8 @@ class InvitationAdmin(admin.ModelAdmin):
     list_display = (
         'id', 'email', 'role', 'company', 'invited_by'
     )
+
+
+@admin.register(Membership)
+class MembershipAdmin(admin.ModelAdmin):
+    pass
