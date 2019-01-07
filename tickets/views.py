@@ -37,7 +37,7 @@ class TicketViewSet(mixins.CreateModelMixin,
 
         category = self.request.query_params.get('category', None)
         if category is not None:
-            queryset = queryset.filter(category__name=category)
+            queryset = queryset.filter(category__slug=category)
 
         return queryset
 
