@@ -3,91 +3,104 @@
         "model": "info.TicketCategory",
         "pk": 1,
         "fields": {
-            "name": "Installation"
+            "name": "Installation",
+            "slug": "installation"
         }
     },
     {
         "model": "info.TicketCategory",
         "pk": 2,
         "fields": {
-            "name": "Outages"
+            "name": "Outages",
+            "slug": "outages"
         }
     },
     {
         "model": "info.TicketCategory",
         "pk": 3,
         "fields": {
-            "name": "Authentication"
+            "name": "Authentication",
+            "slug": "authentication"
         }
     },
     {
         "model": "info.TicketCategory",
         "pk": 4,
         "fields": {
-            "name": "Authorization"
+            "name": "Authorization",
+            "slug": "authorization"
         }
     },
     {
         "model": "info.TicketCategory",
         "pk": 5,
         "fields": {
-            "name": "Single Sign-On"
+            "name": "Single Sign-On",
+            "slug": "sso"
         }
     },
     {
         "model": "info.TicketCategory",
         "pk": 6,
         "fields": {
-            "name": "Logout"
+            "name": "Logout",
+            "slug": "logout"
         }
     },
     {
         "model": "info.TicketCategory",
         "pk": 7,
         "fields": {
-            "name": "Access Management"
+            "name": "Access Management",
+            "slug": "access-management"
         }
     },
     {
         "model": "info.TicketCategory",
         "pk": 8,
         "fields": {
-            "name": "Identity Management"
+            "name": "Identity Management",
+            "slug": "identity-management"
         }
     },
     {
         "model": "info.TicketCategory",
         "pk": 9,
         "fields": {
-            "name": "Upgrade"
+            "name": "Upgrade",
+            "slug": "upgrade"
         }
     },
     {
         "model": "info.TicketCategory",
         "pk": 10,
         "fields": {
-            "name": "Maintenance"
+            "name": "Maintenance",
+            "slug": "maintenance"
         }
     },
     {
         "model": "info.TicketCategory",
         "pk": 11,
         "fields": {
-            "name": "Customization"
+            "name": "Customization",
+            "slug": "customization"
         }
     },
     {
         "model": "info.TicketCategory",
         "pk": 12,
         "fields": {
-            "name": "Feature Request"
+            "name": "Feature Request",
+            "slug": "feature-request"
         }
     },
     {
         "model": "info.TicketCategory",
         "pk": 13,
         "fields": {
-            "name": "Other"
+            "name": "Other",
+            "slug": "other"
         }
     }
 ]

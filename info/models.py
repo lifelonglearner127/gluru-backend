@@ -29,6 +29,10 @@ class TicketCategory(models.Model):
         unique=True
     )
 
+    slug = models.SlugField(
+        max_length=30
+    )
+
     def __str__(self):
         return self.name
 
@@ -55,6 +59,10 @@ class TicketIssueType(models.Model):
         unique=True
     )
 
+    slug = models.SlugField(
+        max_length=30
+    )
+
     priority = models.CharField(
         max_length=10,
         choices=constants.PRIORITY,
@@ -74,6 +82,10 @@ class TicketStatus(models.Model):
     name = CICharField(
         max_length=30,
         unique=True
+    )
+
+    slug = models.SlugField(
+        max_length=30
     )
 
     def __str__(self):

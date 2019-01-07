@@ -9,17 +9,17 @@ class GluuProductAdmin(admin.ModelAdmin):
 
 @admin.register(m.TicketIssueType)
 class TicketIssueTypeAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'priority')
+    list_display = ('id', 'name', 'slug', 'priority')
 
 
 @admin.register(m.TicketCategory)
 class TicketCategoryAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name')
+    list_display = ('id', 'name', 'slug')
 
 
 @admin.register(m.TicketStatus)
 class TicketStatusAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name')
+    list_display = ('id', 'name', 'slug')
 
 
 @admin.register(m.UserRole)

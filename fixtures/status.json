@@ -3,35 +3,40 @@
         "model": "info.TicketStatus",
         "pk": 1,
         "fields": {
-            "name": "new"
+            "name": "New",
+            "slug": "new"
         }
     },
     {
         "model": "info.TicketStatus",
         "pk": 2,
         "fields": {
-            "name": "assigned"
+            "name": "Assigned",
+            "slug": "assigned"
         }
     },
     {
         "model": "info.TicketStatus",
         "pk": 3,
         "fields": {
-            "name": "inprogress"
+            "name": "In Progress",
+            "slug": "inprogress"
         }
     },
     {
         "model": "info.TicketStatus",
         "pk": 4,
         "fields": {
-            "name": "pending"
+            "name": "Pending",
+            "slug": "pending"
         }
     },
     {
         "model": "info.TicketStatus",
         "pk": 5,
         "fields": {
-            "name": "close"
+            "name": "Close",
+            "slug": "close"
         }
     }
 ]

@@ -4,6 +4,7 @@
         "pk": 1,
         "fields": {
             "name": "Production Outage",
+            "slug": "production-outage",
             "priority": "high"
         }
     },
@@ -12,6 +13,7 @@
         "pk": 2,
         "fields": {
             "name": "Production Impaired",
+            "slug": "production-impaired",
             "priority": "high"
         }
     },
@@ -19,21 +21,24 @@
         "model": "info.TicketIssueType",
         "pk": 3,
         "fields": {
-            "name": "Pre-Production Issue"
+            "name": "Pre-Production Issue",
+            "slug": "pre-preoduction-issue"
         }
     },
     {
         "model": "info.TicketIssueType",
         "pk": 4,
         "fields": {
-            "name": "Minor Issue"
+            "name": "Minor Issue",
+            "slug": "minor-issue"
         }
     },
     {
         "model": "info.TicketIssueType",
         "pk": 5,
         "fields": {
-            "name": "New Development Issue"
+            "name": "New Development Issue",
+            "slug": "new-development-issue"
         }
     }
 ]
