@@ -3,6 +3,7 @@ from django.contrib.auth import get_user_model
 from oxd.uma import get_user_info
 from oxd.scim import get_user
 
+
 class OpenIdBackend:
     def authenticate(self, request, access_token=None, id_token=None):
         """

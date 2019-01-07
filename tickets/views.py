@@ -27,9 +27,19 @@ class TicketViewSet(mixins.CreateModelMixin,
     lookup_field = 'slug'
     permission_classes = (p.TicketCustomPermission, )
     serializer_class = s.TicketSerializer
+    queryset = m.Ticket.actives.select_related(
+        'created_by', 'created_for', 'company_association', 'updated_by',
+        'assignee', 'status', 'issue_type', 'status', 'category'
+    )
 
     def get_queryset(self):
-        return m.Ticket.actives.all()
+        queryset = self.queryset
+
+        category = self.request.query_params.get('category', None)
+        if category is not None:
+            queryset = queryset.filter(category__name=category)
+
+        return queryset
 
     def create(self, request):
         serializer_data = request.data.get('ticket', {})
@@ -93,7 +103,7 @@ class TicketViewSet(mixins.CreateModelMixin,
         )
 
         if ticket.company_association is None:
-            respond_permission = ( request.user == ticket.created_by )
+            respond_permission = (request.user == ticket.created_by)
 
         else:
             membership = request.user.membership_set.filter(
