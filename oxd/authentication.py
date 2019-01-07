@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 
 from oxd.uma import get_user_info
-
+from oxd.scim import get_user
 
 class OpenIdBackend:
     def authenticate(self, request, access_token=None, id_token=None):
@@ -15,20 +15,33 @@ class OpenIdBackend:
         :returns authenticated user object.
         """
         user_model = get_user_model()
-        user_info = get_user_info(access_token)
+        user_inum = get_user_info(access_token)
+        idp_uuid = user_inum.get('inum', '')
+        user = None
         try:
             user = user_model.objects.get(
-                idp_uuid=user_info.get('inum', '')
+                idp_uuid=idp_uuid
             )
-            request.user = user
+
+        except user_model.DoesNotExist:
+            user = user_model(
+                idp_uuid=idp_uuid
+            )
+
+        user_info = get_user(idp_uuid)
+        try:
+            user.update_from_idp(user_info)
 
             if id_token:
                 user.id_token = id_token
                 user.save()
+        except AttributeError:
+            print(
+                'WARNING: "update_from_idp" method is missing from User model'
+            )
 
-            return user
-        except user_model.DoesNotExist:
-            print(user_info)
+        request.user = user
+        return user
 
     def get_user(self, idp_uuid):
         """

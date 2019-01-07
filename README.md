@@ -1,7 +1,7 @@
 # gluru-backend
 Support portal backend
 
-## Prequites
+## Prequisites
  - Postgresql
  - Python3.6
  - Pipenv

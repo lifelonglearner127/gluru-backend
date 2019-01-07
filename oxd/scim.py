@@ -223,3 +223,40 @@ def email_exists(email):
             email, r.text
         )
     )
+
+
+def get_user(idp_uuid):
+    """
+    Get user data from IDP with UUID
+
+    :param idp_uuid: INUM on IDP
+    :return: A dictionary containing the user's details
+    """
+    config = Configuration.load()
+    url = '{}/identity/restv1/scim/v2/Users/{}'.format(
+        config.op_host, idp_uuid
+    )
+
+    ticket = get_resource_ticket(url)
+    rpt = obtain_rpt(ticket)
+
+    if not rpt or not rpt.get('access_token'):
+        raise e.InvalidRpt('Could not get rpt from ticket {}'.format(ticket))
+
+    headers = {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer {}'.format(rpt.get('access_token'))
+    }
+
+    r = requests.get(url, headers=headers)
+
+    if 200 <= r.status_code < 300:
+        response = r.json()
+        return response
+
+    raise e.ScimError(
+        'Unexpected SCIM response while getting details of user - {} \n\n {}'
+        .format(
+            idp_uuid, r.text
+        )
+    )
