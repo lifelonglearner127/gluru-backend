@@ -1,6 +1,8 @@
 from django.db import models
 from phonenumber_field.modelfields import PhoneNumberField
 from gluru_backend.models import TimestampedModel
+from django.contrib.postgres.fields import ArrayField
+from django.conf import settings
 
 
 class ActiveSMSManager(models.Manager):
@@ -68,3 +70,22 @@ class EmailRecipient(models.Model):
 
     def __str__(self):
         return self.email
+
+
+class NotificationSetting(models.Model):
+
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE
+    )
+
+    category = ArrayField(
+        models.IntegerField()
+    )
+
+    issue_type = ArrayField(
+        models.IntegerField()
+    )
+
+    def __str__(self):
+        return 'Notification setting of {}'.format(self.user)

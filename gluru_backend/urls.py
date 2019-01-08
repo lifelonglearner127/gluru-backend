@@ -23,6 +23,12 @@ urlpatterns = [
     path('api/', include(('tickets.urls', 'tickets'), namespace='tickets')),
     path('api/', include(('profiles.urls', 'profiles'), namespace='profiles')),
     path('api/info/', include(('info.urls', 'info'), namespace='info')),
+    path(
+        'api/',
+        include(
+            ('notification.urls', 'notification'), namespace='notification'
+        )
+    ),
 ]
 
 if settings.DEBUG:
