@@ -179,14 +179,6 @@ class UserViewSet(mixins.ListModelMixin,
                   mixins.RetrieveModelMixin,
                   viewsets.GenericViewSet):
 
-    def get_permissions(self):
-        if self.action in ['retrieve']:
-            permission_classes = [p.IsStaffOrSelf]
-        else:
-            permission_classes = [IsAdminUser]
-
-        return [permission() for permission in permission_classes]
-
     def get_queryset(self):
         return m.User.objects.all()
 
@@ -257,6 +249,15 @@ class UserViewSet(mixins.ListModelMixin,
     def staffs(self, request, *args, **kwargs):
         staffs = m.User.objects.filter(is_staff=True)
         serializer = s.ShortUserSerializer(staffs, many=True)
+        return Response(
+            {'results': serializer.data},
+            status=status.HTTP_200_OK
+        )
+
+    @action(detail=False, methods=['GET'])
+    def companies(self, request, *args, **kwargs):
+        companies = m.Membership.objects.filter(user=request.user)
+        serializer = s.UserMembershipSerializer(companies, many=True)
         return Response(
             {'results': serializer.data},
             status=status.HTTP_200_OK
