@@ -112,6 +112,21 @@ python manage.py test notification.tests --keepdb
 ```
 > `Note!` `--keepdb` option is used for preventing the test databases from being destroyed
 
+## Apps and Description
+ - [Info](#info)
+ - [Notificaton](#notification)
+ - [Profile](#profile)
+ - [Ticket](#ticket)
+    
+### Info
+This app is created for making our app more configurable.
+### Notification
+This app is created for managing all kind of notifications and emailing. By using Celery + RabbitMQ, we can prioritize as well.
+### Profile
+This app is created for manaing the profiles.
+### Ticket
+This app is used for managing ticket operations.
+
 ## Contribution
  - Create a new branch
  - Commit your changes and make a PR to master
